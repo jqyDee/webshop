@@ -1,0 +1,19 @@
+/**
+ * This code is part of the skeleton project provided for students of the course "Software
+ * Architecture" offered by Innsbruck University.
+ */
+import globalAxios from "axios";
+
+// Add a request interceptor to add the bearer token to all requests if available
+globalAxios.interceptors.request.use(request => {
+    const accessToken = localStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
+    if (accessToken) {
+        request.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    return request;
+}, error => {
+    return Promise.reject(error);
+});
+
+
+export const BEARER_TOKEN_LOCAL_STORAGE_KEY: string = 'bearerToken';
