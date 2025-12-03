@@ -3,7 +3,7 @@
  * Architecture" offered by Innsbruck University.
  */
 
-import {LoginDTO, LoginResponse} from "../DTO/auth.types";
+import {LoginRequestDTO, LoginResponseDTO} from "../DTO/api-generated.types";
 
 import globalAxios from "axios";
 
@@ -15,10 +15,10 @@ import globalAxios from "axios";
  * @returns Promise with the status and data of the response
  * @throws Error if the request fails
  */
-const login = async (login: LoginDTO) : Promise<LoginResponse> => {
+const login = async (login: LoginRequestDTO) : Promise<LoginResponseDTO> => {
 
     // Send the request, await the response
-    const response = await globalAxios.post<LoginResponse>(
+    const response = await globalAxios.post<LoginResponseDTO>(
         `/authentication/login`,
         login
     );

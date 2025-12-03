@@ -3,7 +3,7 @@
  * Architecture" offered by Innsbruck University.
  */
 import React from "react";
-import {UserDTO, UserxRole} from "../DTO/userx.types";
+import {UserxRole, UserxUpdateDTO} from "../DTO/api-generated.types";
 import {InputMask, InputMaskChangeEvent} from "primereact/inputmask";
 import {InputText} from "primereact/inputtext";
 import {Password} from "primereact/password";
@@ -12,8 +12,8 @@ import {Checkbox, CheckboxChangeEvent} from "primereact/checkbox";
 
 
 interface UserFormProps {
-    user: UserDTO,
-    fieldErrors?: Partial<Record<keyof UserDTO, string>>,
+    user: UserxUpdateDTO,
+    fieldErrors?: Partial<Record<keyof UserxUpdateDTO, string>>,
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
     onRolesChange: (event: { value: string[] }) => void,
     onUserEnabledChange: (event: CheckboxChangeEvent) => void
@@ -115,7 +115,7 @@ const UserForm: React.FC<UserFormProps> =
                         <Checkbox inputId="enabled" name="enabled"
                             style={{ float: "right" }}
                             onChange={onUserEnabledChange}
-                            checked={user.enabled}>
+                            checked={user.enabled ?? false}>
                         </Checkbox>
                     </div>
                 </div>

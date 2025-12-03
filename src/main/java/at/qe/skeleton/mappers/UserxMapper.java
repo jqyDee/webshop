@@ -2,9 +2,8 @@ package at.qe.skeleton.mappers;
 
 import at.qe.skeleton.dtos.UserxDTO;
 import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.services.UserxService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  * Mapping between UserxTypes and UserxDTOs.
@@ -12,57 +11,17 @@ import org.springframework.stereotype.Service;
  * This class is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-@Service
-public class UserxMapper implements DTOMapper<Userx, UserxDTO>{
-    
-    private final UserxService userxService;
-    
-    @Autowired
-    public UserxMapper(UserxService userxService) {
-        this.userxService = userxService;
-    }
-    
-   @Override
-    public UserxDTO mapTo(Userx user) {
-        if (user == null) {
-            return null;
-        }
-        UserxDTO dto = new UserxDTO(
-                user.getId(), 
-                user.getCreateUser().getId(), 
-                user.getCreateDate(), 
-                user.getUpdateUser() != null ? user.getUpdateUser().getId() : null, 
-                user.getUpdateDate(),
-                user.getUsername(), 
-                user.getFirstName(), 
-                user.getLastName(), 
-                user.getEmail(), 
-                user.getPhone(), 
-                user.isEnabled(), 
-                user.getRoles()
-        );
-        
-        return dto;
-    }
+@Mapper(componentModel = "spring")
+public abstract class UserxMapper extends DTOMapper<Userx, UserxDTO>{
+    @Mapping(source = "createUser.id", target = "createdBy")
+    @Mapping(source = "updateUser.id", target = "updatedBy")
+    public abstract UserxDTO mapTo(Userx entity);
 
-    @Override
-    public Userx mapFrom(UserxDTO userxDto) {
-        if (null == userxDto) {
-            return null;
-        }
-        Userx user;
-        if (null != userxDto.id()) {
-            user = userxService.loadUser(userxDto.id()).orElse(new Userx());
-        } else {
-            user = new Userx();
-        }
-        user.setFirstName(userxDto.firstName());
-        user.setLastName(userxDto.lastName());
-        user.setEmail(userxDto.email());
-        user.setPhone(userxDto.phone());
-        user.setEnabled(userxDto.enabled());
-        user.setRoles(userxDto.roles());
-
-        return user;
-    }
+    @Mapping(target = "createUser", ignore = true)
+    @Mapping(target = "updateUser", ignore = true)
+    @Mapping(target = "createDate", ignore = true)
+    @Mapping(target = "updateDate", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
+    public abstract Userx mapFrom(UserxDTO dto);
 }

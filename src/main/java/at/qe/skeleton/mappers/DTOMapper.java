@@ -9,8 +9,7 @@ package at.qe.skeleton.mappers;
  * @param <E> the entity a DTO is mapped from
  * @param <D> the DTO an entity is mapped to
  */
-public interface DTOMapper<E, D> {
-    
-    D mapTo(E entity);
-    E mapFrom(D dto);
+public abstract class DTOMapper<E, D> {
+    abstract D mapTo(E entity);
+    abstract E mapFrom(D dto);
 }

@@ -1,27 +1,21 @@
 package at.qe.skeleton.controllers;
 
-import at.qe.skeleton.dtos.UserxCreateDTO;
 import at.qe.skeleton.dtos.UserxDTO;
-import at.qe.skeleton.mappers.UserxCreateMapper;
+import at.qe.skeleton.dtos.UserxUpdateDTO;
 import at.qe.skeleton.mappers.UserxMapper;
+import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.UserxService;
 import jakarta.validation.Valid;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controllers for admin users.
@@ -32,13 +26,13 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-    private final UserxCreateMapper userCreateMapper;
+    private final UserxUpdateMapper userUpdateMapper;
     private final UserxMapper userMapper;
     private final UserxService userService;
 
     @Autowired
-    public AdminController(UserxCreateMapper userCreateMapper, UserxMapper userMapper, UserxService userService) {
-        this.userCreateMapper = userCreateMapper;
+    public AdminController( UserxMapper userMapper, UserxService userService, UserxUpdateMapper userCreateMapper) {
+        this.userUpdateMapper = userCreateMapper;
         this.userMapper = userMapper;
         this.userService = userService;
     }
@@ -51,7 +45,7 @@ public class AdminController {
     @GetMapping("")
     public ResponseEntity<Collection<UserxDTO>> getAllUsers() {
         Collection<Userx> allUsers = userService.getAllUsers();
-        List<UserxDTO> allUsersMapped = allUsers.stream().map(user -> userMapper.mapTo(user)).toList();
+        List<UserxDTO> allUsersMapped = allUsers.stream().map(userMapper::mapTo).toList();
         return ResponseEntity.ok(allUsersMapped);
     }
 
@@ -74,12 +68,12 @@ public class AdminController {
     /**
      * Creates a user if the username is not yet used.
      *
-     * @param userxDto the user tb created
+     * @param userxUpdateDto the user tb created
      * @return {@link ResponseEntity} with status {@code 201 (Created)} with the newly created user in the body, or with status {@code 409 (Conflict)} if the username is already in use
      */
     @PostMapping("")
-    public ResponseEntity<UserxDTO> createUser(@Valid @RequestBody UserxCreateDTO userxDto) {
-        Userx user = userService.saveUser(userCreateMapper.mapFrom(userxDto));
+    public ResponseEntity<UserxDTO> createUser(@Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
+        Userx user = userService.saveUser(userUpdateMapper.mapFrom(userxUpdateDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.mapTo(user));
     }
     
@@ -89,14 +83,14 @@ public class AdminController {
      * The update is partial because only a select subset of user fields can be modified after create.
      * 
      * @param id the id of the user tb updated
-     * @param userxDto the updated user information
+     * @param userxUpdateDto the updated user information
      * @return {@link ResponseEntity} with status {@code 201 (Created)} with the updated user in the body, or with status {@code 404 (Not Found)} if no user with this id exists
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<UserxDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserxDTO userxDto) {
+    public ResponseEntity<UserxDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
         Optional<Userx> existingUserx = userService.loadUser(id);
         if (existingUserx.isPresent()) {
-            Userx user = userMapper.mapFrom(userxDto);
+            Userx user = userUpdateMapper.mapFrom(userxUpdateDto, id);
             Userx savedUser = userService.saveUser(user);
             return ResponseEntity.ok(userMapper.mapTo(savedUser));
         } else {
