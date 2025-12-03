@@ -1,0 +1,23 @@
+@startuml
+
+actor Customer
+participant OrderService
+participant ProductService
+participant ProductRepository
+participant Order
+
+Customer -> OrderService: order(shoppingCart: ShoppingCart)
+OrderService -> Order: new
+loop For each CartItem c in shoppingCart
+    OrderService -> ProductService: checkAvailability(c: CartItem)
+    ProductService -> ProductRepository: checkAvailability(product: Product, quantity: int)
+    ProductRepository --> ProductService: checkAvailability: [status: unavailable]
+    ProductService --> OrderService: checkAvailability: [status: unavailable]
+    alt status == available
+        OrderService -> OrderService: addToOrder(o: Order, c: CartItem)
+    else status == unavailable
+        OrderService --> Customer: "CartItem c is sold out"
+    end
+end
+
+@enduml

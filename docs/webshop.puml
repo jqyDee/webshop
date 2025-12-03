@@ -1,0 +1,77 @@
+@startuml
+
+class Userx {
+    username: String
+    first_name: String
+    last_name: String
+    email: String
+    phone: String
+}
+
+enum UserxRole {
+    ADMIN
+    MANAGER
+    CUSTOMER
+}
+
+class Product {
+    name: String
+    price: double
+    stock: int
+    discount: double /'in interval [0, 1] 0 -> 0%, 1 -> 100% discount'/
+    picture: Stub
+}
+
+class Review {
+    rating: int /'in interval [1, 5]'/
+    comment: String
+    createDate: LocalDateTime
+}
+
+class ShoppingCart {
+}
+
+class CartItem {
+  quantity: int
+}
+
+class Order {
+    createDate: LocalDateTime
+    sum: double
+}
+
+enum OrderStatus {
+    NEW
+    PENDING_PAYMENT
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+class Notification {
+    message: String
+}
+
+'associations:
+Userx -- "1" UserxRole: role
+Userx -- "1" ShoppingCart: shoppingCart
+
+Userx .. Review: writes (role = CUSTOMER)
+Userx .. Order: places (role = CUSTOMER)
+Userx .. Product: manages (role = MANAGER)
+
+Review -- "1" Userx: author
+
+Product -- "0..*" Review: reviews
+
+ShoppingCart -- "0..*" CartItem: items
+CartItem -- "1" Product: product
+
+Order -- "1" OrderStatus: status
+Order -- "1" ShoppingCart: shoppingCart
+
+Notification -- "1" Userx: user
+Notification -- "1" Product: product
+
+@enduml
