@@ -5,6 +5,7 @@
 import {useNavigate} from "react-router-dom";
 import {useUser} from "../Contexts/authenticatedUserContext";
 import {useEffect} from "react";
+import {ROUTES} from "../utilities/routes.paths";
 
 /**
  * Logout component
@@ -20,7 +21,7 @@ const Logout = () => {
             // clear user data via user context regardless of success or failure
             logout();
             // redirect to login page
-            navigate('/login');
+            navigate(ROUTES.LOGIN);
         };
         void handleLogout();
     }, [logout, navigate]);

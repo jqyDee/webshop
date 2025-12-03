@@ -8,12 +8,15 @@ import {Menubar} from "primereact/menubar";
 import {useUser} from "../Contexts/authenticatedUserContext";
 import {menuConfig, MenuItemConfig} from "../config/menuConfig";
 import {UserxRole} from "../DTO/userx.types";
+import {MenuItem} from "primereact/menuitem";
+import {Link} from "react-router-dom";
 
 /**
  * Navbar component.
  */
 const NavbarComponent: React.FC = () => {
     const {currentUser: user} = useUser();
+
     const filterMenu = React.useCallback((items: MenuItemConfig[]): MenuItemConfig[] => {
         if (!user) return [];
 
@@ -33,11 +36,50 @@ const NavbarComponent: React.FC = () => {
             });
     }, [user]);
 
-    const filteredItems = React.useMemo(() => filterMenu(menuConfig), [filterMenu, menuConfig]);
+    // we want to use navigate (react router) to ensure pure client-side navigation on menu item click
+    // incidentally, we also want to fix primereact component-related aria warnings
+    const buildMenubar = React.useCallback((items: MenuItemConfig[]): MenuItem[] => {
+        return items.map(configItem => {
+            const children = configItem.items ? buildMenubar(configItem.items) : undefined;
+
+            const menuItem: MenuItem = {
+                label: configItem.label,
+                icon: configItem.icon,
+                items: children,
+            };
+
+            menuItem.template = (menuItem, options) => {
+                const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+                    options.onClick?.(e);
+                };
+
+                return (
+                    <Link
+                    to={configItem.route ?? "#"}
+                    className={`${options.className ?? ""} p-menuitem-link`}
+                    onClick={handleClick}
+                >
+                    {menuItem.icon && <span className={options.iconClassName} />}
+                    <span className={options.labelClassName}>{menuItem.label}</span>
+                </Link>
+                );
+            }
+            return menuItem;
+        });
+    }, []);
+
+    const filteredItems = React.useMemo(() => filterMenu(menuConfig), [filterMenu]);
+
+    const model = React.useMemo(() => buildMenubar(filteredItems), [filteredItems, buildMenubar]);
+
+    // don't render Menubar if no user is logged in
+    if (!user) {
+        return null;
+    }
 
     return (
         <div className="card">
-            <Menubar model={filteredItems} />
+            <Menubar model={model} />
         </div>
     );
 }

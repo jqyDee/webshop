@@ -4,11 +4,6 @@
  */
 import globalAxios from "axios";
 
-export const API_BASE_URL = process.env.REACT_APP_BACKEND_SERVER_URL
-
-// Configure the global axios which is used by the generated API
-globalAxios.defaults.baseURL = API_BASE_URL;
-
 // Add a request interceptor to add the bearer token to all requests if available
 globalAxios.interceptors.request.use(request => {
     const accessToken = localStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);

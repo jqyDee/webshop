@@ -63,8 +63,11 @@ export function UserProvider({children}: { children: React.ReactNode }) {
            if (e.key === BEARER_TOKEN_LOCAL_STORAGE_KEY) {
                setToken(e.newValue);
            }
-       }
-    });
+        };
+
+        window.addEventListener("storage", handler);
+        return () => window.removeEventListener("storage", handler);
+    }, []);
 
     /**
      * Login the user by setting the bearer token in the state and local storage.
@@ -90,6 +93,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
      */
     const logout = async () => {
         localStorage.removeItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
+        setToken(null);
     };
 
     /**

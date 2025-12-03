@@ -304,3 +304,7 @@ sketch
 /src/main/frontend/build/logo512.png
 /src/main/frontend/build/manifest.json
 /src/main/frontend/build/robots.txt
+
+# other
+.sdkmanrc
+*.swp
