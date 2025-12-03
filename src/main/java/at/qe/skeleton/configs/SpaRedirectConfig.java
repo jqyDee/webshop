@@ -21,10 +21,10 @@ public class SpaRedirectConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
 
-        registry.addViewController("/{path:^(?!api|authentication|h2-console|static|assets)[^.]*}")
+        registry.addViewController("/{path:^(?!api|authentication|swagger-ui|h2-console|static|assets)[^.]*}")
                 .setViewName("forward:/");
 
-        registry.addViewController("/{path:^(?!api|authentication|h2-console|static|assets)[^.]*}/**")
+        registry.addViewController("/{path:^(?!api|authentication|swagger-ui|h2-console|static|assets)[^.]*}/**")
                 .setViewName("forward:/");
     }
 }

@@ -48,7 +48,7 @@ buildNumber.properties
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # complete idea directory
-# .idea/
+.idea/
 
 ## alternatively uncomment for more fine-grained control:
 # User-specific stuff

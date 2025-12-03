@@ -29,6 +29,11 @@ Feel free to use this skeleton project as you see fit - but keep in mind that
 this project is primarily provided to be used for educational purposes. Don't
 use it for production!
 
+---
+## SPRINGDOC API
+Viewing the Spring Doc OpenApi defintions visit http://localhost:8080/swagger-ui/index.html.
+
+---
 
 Contributors:
 Christian Sillaber
