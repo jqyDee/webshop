@@ -49,6 +49,7 @@ buildNumber.properties
 
 # complete idea directory
 # .idea/
+.idea/misc.xml
 
 ## alternatively uncomment for more fine-grained control:
 # User-specific stuff

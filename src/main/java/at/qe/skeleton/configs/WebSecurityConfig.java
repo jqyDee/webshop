@@ -75,7 +75,7 @@ public class WebSecurityConfig {
                     // backend endpoints we want to handle here
                     .securityMatcher("/api/**", "/authentication/**", "/h2-console/**")
                     .authorizeHttpRequests(authorize -> authorize
-                            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").access(devOnly())
+                            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui/index.html").access(devOnly())
                             .requestMatchers("/h2-console/**").access(devOnly())
                             .requestMatchers("/authentication/**").permitAll()
                             .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
