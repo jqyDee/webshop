@@ -19,7 +19,6 @@ import java.util.Optional;
 
 /**
  * REST controllers for admin users.
- *
  * This class is part of the skeleton project provided for students of the
  * course "Software Architecture" offered by Innsbruck University.
  */
@@ -31,7 +30,7 @@ public class AdminController {
     private final UserxService userService;
 
     @Autowired
-    public AdminController( UserxMapper userMapper, UserxService userService, UserxUpdateMapper userCreateMapper) {
+    public AdminController(UserxMapper userMapper, UserxService userService, UserxUpdateMapper userCreateMapper) {
         this.userUpdateMapper = userCreateMapper;
         this.userMapper = userMapper;
         this.userService = userService;
@@ -79,7 +78,6 @@ public class AdminController {
     
     /**
      * Partially updates user of given id.
-     *
      * The update is partial because only a select subset of user fields can be modified after create.
      * 
      * @param id the id of the user tb updated
