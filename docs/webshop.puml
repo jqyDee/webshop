@@ -24,6 +24,8 @@ class Product {
     price: double
     stock: int
     discount: double /'in interval [0, 1] 0 -> 0%, 1 -> 100% discount'/
+    short_description: String
+    description: String
     picture: Stub
 }
 note left
@@ -36,6 +38,7 @@ end note
 
 class Review {
     rating: int /'in interval [1, 5]'/
+    title: String
     comment: String
     createDate: LocalDateTime
 }
