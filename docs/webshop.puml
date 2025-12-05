@@ -6,7 +6,7 @@ class Userx {
     last_name: String
     email: String
     phone: String
-    notifierTypes: Set<>
+    notifierTypes: ?
 }
 note right
     notifierTypes probably should be
@@ -53,7 +53,6 @@ class Order {
 }
 
 enum OrderStatus {
-    NEW
     PENDING
     PENDING_PAYMENT
     PROCESSING
@@ -62,16 +61,15 @@ enum OrderStatus {
     CANCELLED
 }
 
-class Notification {
-    message: String
+class ProductSubscriptions {
 }
 note left
     observer pattern
 end note
 
-enum NotificationType {
-    DISCOUNT
-    IN_STOCK
+enum ProductSubscriptionsType {
+    DISCOUNT_ProductSubscriptions
+    BACK_IN_STOCK_ProductSubscriptions
 }
 
 'associations:
@@ -92,8 +90,8 @@ CartItem -- "1" Product: product
 Order -- "1" OrderStatus: status
 Order -- "1" ShoppingCart: shoppingCart
 
-Notification -- "1" Userx: user
-Notification -- "1" Product: product
-Notification -- "1..*" NotificationType: types: Set<NotificationType>
+ProductSubscriptions -- "1" Userx: user
+ProductSubscriptions -- "1" Product: product
+ProductSubscriptions -- "1..*" ProductSubscriptionsType: types: Set<ProductSubscriptionsType>
 
 @enduml
