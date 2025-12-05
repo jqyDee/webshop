@@ -13,11 +13,10 @@ import 'primeicons/primeicons.css';
 import UserListComponent from "./UserListComponent";
 import UserDialog from "./UserDialog";
 
-import {UserDTO, UserxTypes} from "../DTO/userx.types";
+import {UserxDTO, UserxUpdateDTO} from "../DTO/api-generated.types";
 import {UserxApi} from "../utilities/userxApi";
 import {
-    createUserxFromInterfaces,
-    createUserxRoleArrayFromStrings, UserxValidationResult
+    createUserxRoleArrayFromStrings, emptyUserxUpdateDTO, fromUserxDTOtoUserxUpdateDTO, UserxValidationResult
 } from '../utilities/userxUtilities';
 import {CheckboxChangeEvent} from "primereact/checkbox";
 
@@ -25,9 +24,9 @@ import {CheckboxChangeEvent} from "primereact/checkbox";
  * Component for managing users.
  */
 const UserTable = () => {
-    const [users, setUsers] = useState<UserxTypes[]>([]);
+    const [users, setUsers] = useState<UserxDTO[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null);
+    const [selectedUser, setSelectedUser] = useState<UserxUpdateDTO | null>(null);
     const [isNewUser, setIsNewUser] = useState<boolean>(false);
     const [dialogVisible, setDialogVisible] = useState<boolean>(false);
     const [validation, setValidation] = useState<UserxValidationResult>({ valid: true });
@@ -41,8 +40,8 @@ const UserTable = () => {
         const fetchUsers = async () => {
             try {
                 const userxData = await UserxApi.fetchAllUsers();
-                const userxInstances = userxData.map((user: UserDTO) => createUserxFromInterfaces(user));
-                setUsers(userxInstances);
+                // Setting the received DTOs directly
+                setUsers(userxData);
             } catch (err: any) {
                 console.error('Error fetching users:', err);
             } finally {
@@ -57,13 +56,13 @@ const UserTable = () => {
      * @param user
      * @param opts
      */
-    const validateUser = (user: UserDTO | null, opts: { requirePassword?: boolean } = { requirePassword: true }): UserxValidationResult => {
+    const validateUser = (user: UserxUpdateDTO, opts: { requirePassword?: boolean } = { requirePassword: true }): UserxValidationResult => {
 
         if (!user) return { valid: false, message: 'No user selected' };
 
-        const required: (keyof UserDTO)[] = ['firstName', 'lastName', 'username'];
+        const required: (keyof UserxUpdateDTO)[] = ['firstName', 'lastName', 'username'];
         const { requirePassword = true } = opts; // password input on edit user not needed
-        const fieldErrors: Partial<Record<keyof UserDTO, string>> = {};
+        const fieldErrors: Partial<Record<keyof UserxUpdateDTO, string>> = {};
 
         required.forEach((k) => {
            const v = (user[k] as unknown as string) ?? '';
@@ -89,6 +88,8 @@ const UserTable = () => {
      * Handle the submit event for the user dialog.
      */
     const handleSubmit = async () => {
+        if (!selectedUser) return;
+
         const validationResult = validateUser(selectedUser, { requirePassword: isNewUser });
         if (!validationResult.valid) {
             // Display an error eventMessage or handle the validation error
@@ -114,7 +115,7 @@ const UserTable = () => {
         if (!selectedUser) return;
 
         try {
-            const newUser: UserxTypes = await UserxApi.createUser(selectedUser);
+            const newUser: UserxDTO = await UserxApi.createUser(selectedUser);
             setUsers([...users, newUser]);
         } catch (err: any) {
             console.error('Error saving user:', err);
@@ -129,8 +130,8 @@ const UserTable = () => {
         if (!selectedUser) return;
 
         try {
-            const updatedUser: UserxTypes = await UserxApi.updateUser(selectedUser);
-            setUsers(users.map((user: UserxTypes) => user.id === updatedUser.id ? updatedUser : user));
+            const updatedUser: UserxDTO = await UserxApi.updateUser(selectedUser);
+            setUsers(users.map((user: UserxDTO) => user.id === updatedUser.id ? updatedUser : user));
             hideDialog();
         } catch (err: any) {
             console.error('Error updating user:', err);
@@ -142,8 +143,8 @@ const UserTable = () => {
      * Open the edit dialog for a user.
      * @param user
      */
-    const openEditDialog = (user: UserxTypes) => {
-        setSelectedUser(user);
+    const openEditDialog = (user: UserxDTO) => {
+        setSelectedUser(fromUserxDTOtoUserxUpdateDTO(user));
         setValidation({ valid: true });
         setIsNewUser(false);
         showDialog()
@@ -153,7 +154,7 @@ const UserTable = () => {
      * Open the dialog for creating a new user.
      */
     const openNewUserDialog = () => {
-        setSelectedUser(UserxTypes.empty());
+        setSelectedUser(emptyUserxUpdateDTO);
         setValidation({ valid: true });
         showDialog()
         setIsNewUser(true);
@@ -210,7 +211,6 @@ const UserTable = () => {
 
         setSelectedUser({...selectedUser, roles: roles});
     }
-
 
     return (<Card title="User List" className="m-4">
             <Toast ref={toast} />

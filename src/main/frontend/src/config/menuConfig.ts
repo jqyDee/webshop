@@ -1,4 +1,4 @@
-import {UserxRole} from "../DTO/userx.types";
+import {UserxRole} from "../DTO/api-generated.types";
 import {ROUTES} from "../utilities/routes.paths";
 
 export type MenuItemConfig = {

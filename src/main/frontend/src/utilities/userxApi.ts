@@ -3,8 +3,8 @@
  * Architecture" offered by Innsbruck University.
  */
 import globalAxios from "axios";
-import {UserDTO, UserxTypes} from "../DTO/userx.types";
-import {createUserxFromInterfaces} from "./userxUtilities";
+import {UserxDTO, UserxUpdateDTO} from "../DTO/api-generated.types";
+import {userxDTOfromJson} from "./userxUtilities";
 
 /**
  * This file provides utility functions for CRUD operations on users.
@@ -12,10 +12,10 @@ import {createUserxFromInterfaces} from "./userxUtilities";
 
 /**
  * Fetch all users from the backend
- * @returns Promise<UserDTO[]> a promise that resolves with an array of UserDTO objects
+ * @returns Promise<UserxDTO[]> a promise that resolves with an array of UserxDTO objects
  * @throws Error if the request fails
  */
-const fetchAllUsers = async (): Promise<UserDTO[]> => {
+const fetchAllUsers = async (): Promise<UserxDTO[]> => {
     try {
         const response = await globalAxios.get("/api/admin");
         return response.data;
@@ -27,14 +27,13 @@ const fetchAllUsers = async (): Promise<UserDTO[]> => {
 /**
  * Create a new user
  * @param selectedUser the user to create
- * @returns Promise<UserxTypes> a promise that resolves with the created user
+ * @returns Promise<UserxDTO> a promise that resolves with the created user
  * @throws Error if the request fails
  */
-const createUser = async (selectedUser: UserDTO): Promise<UserxTypes> => {
+const createUser = async (selectedUser: UserxUpdateDTO): Promise<UserxDTO> => {
     try {
-        const userxInstance = createUserxFromInterfaces(selectedUser);
-        const response = await globalAxios.post("/api/admin", userxInstance.toCreateJSON());
-        return UserxTypes.fromJSON(response.data);
+        const response = await globalAxios.post("/api/admin", selectedUser);
+        return userxDTOfromJson(response.data);
     } catch (err: any) {
         throw new Error(`Error saving user: ${err?.message ?? String(err)}`);
     }
@@ -43,14 +42,13 @@ const createUser = async (selectedUser: UserDTO): Promise<UserxTypes> => {
 /**
  * Update an existing user
  * @param selectedUser the user to update
- * @returns Promise<UserxTypes> a promise that resolves with the updated user
+ * @returns Promise<UserxDTO> a promise that resolves with the updated user
  * @throws Error if the request fails
  */
-const updateUser = async (selectedUser: UserDTO): Promise<UserxTypes> => {
+const updateUser = async (selectedUser: UserxUpdateDTO): Promise<UserxDTO> => {
     try {
-        const userxInstance = createUserxFromInterfaces(selectedUser);
-        const response = await globalAxios.patch(`/api/admin/${selectedUser.id}`, userxInstance.toUpdateJSON());
-        return UserxTypes.fromJSON(response.data);
+        const response = await globalAxios.patch(`/api/admin/${selectedUser.id}`, selectedUser);
+        return userxDTOfromJson(response.data);
     } catch (err: any) {
         throw new Error(`Error updating user: ${err?.message ?? String(err)}`);
     }
@@ -62,7 +60,7 @@ const updateUser = async (selectedUser: UserDTO): Promise<UserxTypes> => {
  * @returns Promise<any> a promise that resolves with the response data
  * @throws Error if the request fails
  */
-const deleteUser = async (selectedUser: UserDTO) => {
+const deleteUser = async (selectedUser: UserxUpdateDTO) => {
     try {
         return await globalAxios.delete(`/api/admin/${selectedUser.id}`);
     } catch (err: any) {
@@ -72,13 +70,13 @@ const deleteUser = async (selectedUser: UserDTO) => {
 
 /**
  * Return currently logged-in user or throw Error
- * @returns Promise<UserxTypes> a promise that resolves with the response data
+ * @returns Promise<UserxDTO> a promise that resolves with the response data
  * @throws Error if the request fails (e.g. no user currently logged in)
  */
-const getCurrentUser = async (): Promise<UserxTypes> => {
+const getCurrentUser = async (): Promise<UserxDTO> => {
     try {
         const response = await globalAxios.get<string>("/api/users/me");
-        return UserxTypes.fromJSON(response.data);
+        return userxDTOfromJson(response.data);
     } catch (err: any) {
         throw new Error(`Error determining current user: ${err?.message ?? String(err)}`);
     }

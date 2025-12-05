@@ -7,7 +7,7 @@ import {Menubar} from "primereact/menubar";
 
 import {useUser} from "../Contexts/authenticatedUserContext";
 import {menuConfig, MenuItemConfig} from "../config/menuConfig";
-import {UserxRole} from "../DTO/userx.types";
+import {UserxRole} from "../DTO/api-generated.types";
 import {MenuItem} from "primereact/menuitem";
 import {Link} from "react-router-dom";
 

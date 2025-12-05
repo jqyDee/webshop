@@ -1,6 +1,9 @@
 package at.qe.skeleton.dtos;
 
 import at.qe.skeleton.model.UserxRole;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -17,11 +20,12 @@ public record UserxDTO (
     LocalDateTime createDate,
     Long updatedBy,
     LocalDateTime updateDate,
-    String username,
-    String firstName,
-    String lastName,
+    @NotBlank String username,
+    @NotBlank String firstName,
+    @NotBlank String lastName,
+    // obviously you do not have to update the email and phone every time
     String email,
     String phone,
-    boolean enabled,
-    Set<UserxRole> roles
+    @NotNull boolean enabled,
+    @NotEmpty Set<UserxRole> roles
 ) {}

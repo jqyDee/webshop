@@ -32,9 +32,16 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <duplicate-finder-maven-plugin.version>2.0.1</duplicate-finder-maven-plugin.version>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
     </properties>
 
     <dependencies>
+        <!-- MapStruct for Entity / DTO mapping -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
 
         <!-- SPRING DOC -->
         <dependency>
@@ -113,6 +120,48 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <release>21</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>cz.habarta.typescript-generator</groupId>
+                <artifactId>typescript-generator-maven-plugin</artifactId>
+                <version>3.2.1263</version>
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jsonLibrary>jackson2</jsonLibrary>
+                    <classPatterns>
+                        <pattern>at.qe.skeleton.dtos.*</pattern>
+                    </classPatterns>
+                    <outputKind>module</outputKind>
+                    <outputFile>src/main/frontend/src/DTO/api-generated.types.ts</outputFile>
+                    <outputFileType>implementationFile</outputFileType>
+                    <mapClasses>asInterfaces</mapClasses>
+
+                    <mapEnum>asEnum</mapEnum>
+                    <nonConstEnums>true</nonConstEnums>
+
+                    <optionalProperties>useSpecifiedAnnotations</optionalProperties>
+                    <requiredAnnotations>
+                        <annotation>jakarta.validation.constraints.NotNull</annotation>
+                        <annotation>jakarta.validation.constraints.NotBlank</annotation>
+                        <annotation>jakarta.validation.constraints.NotEmpty</annotation>
+                    </requiredAnnotations>
                 </configuration>
             </plugin>
 	    <!-- Enable jacoco analysis -->

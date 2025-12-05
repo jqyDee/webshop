@@ -1,4 +1,7 @@
 package at.qe.skeleton.dtos;
 
-public record LoginResponseDTO(String bearerToken) {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginResponseDTO(
+        @NotBlank String bearerToken
+) {}

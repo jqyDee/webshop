@@ -6,8 +6,8 @@ import React, {createContext, useContext, useEffect, useMemo, useState} from 're
 import {BEARER_TOKEN_LOCAL_STORAGE_KEY} from "../config/config";
 import {jwtDecode, JwtPayload} from "jwt-decode";
 import {UserxApi} from "../utilities/userxApi";
-import {UserDTO, UserxRole} from "../DTO/userx.types";
-import {LoginDTO} from "../DTO/auth.types";
+import {UserxDTO, UserxRole} from "../DTO/api-generated.types";
+import {LoginRequestDTO} from "../DTO/api-generated.types";
 import {AuthApi} from "../utilities/authApi";
 
 /**
@@ -24,8 +24,8 @@ import {AuthApi} from "../utilities/authApi";
  * the current user state to the components in the component tree.
  */
 interface UserContextType {
-    currentUser: UserDTO | null;
-    login: (loginDto: LoginDTO) => Promise<void>;
+    currentUser: UserxDTO | null;
+    login: (loginDto: LoginRequestDTO) => Promise<void>;
     logout: () => void;
     error: Error | null;
     isAdmin: boolean;
@@ -73,7 +73,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
      * Login the user by setting the bearer token in the state and local storage.
      * @param loginDto the login data
      */
-    const login = async (loginDto: LoginDTO) : Promise<void> => {
+    const login = async (loginDto: LoginRequestDTO) : Promise<void> => {
         const { bearerToken } = await AuthApi.login(loginDto);
         if (!bearerToken || bearerToken.length < 10) {
             setError(new Error('Missing or invalid bearer token in response!'));
@@ -99,7 +99,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
     /**
      * Get the current user by decoding the bearer token stored in the local storage.
      */
-    const currentUser = useMemo<UserDTO | null>(() => {
+    const currentUser = useMemo<UserxDTO | null>(() => {
         if (!token) {
             return null;
         }

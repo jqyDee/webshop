@@ -8,14 +8,14 @@ import {Button} from "primereact/button";
 import {Column} from "primereact/column";
 import {DataTable} from "primereact/datatable";
 
-import {UserxTypes} from "../DTO/userx.types";
 import {Checkbox} from "primereact/checkbox";
 import {rolesBodyTemplate} from "./rolesBodyTemplate";
+import {UserxDTO} from "../DTO/api-generated.types";
 
 interface UserListProps {
-    users: UserxTypes[];
+    users: UserxDTO[];
     loading: boolean;
-    onEditUser: (user: UserxTypes) => void;
+    onEditUser: (user: UserxDTO) => void;
 }
 
 
@@ -31,7 +31,7 @@ const UserListComponent: React.FC<UserListProps> = ({ users, loading, onEditUser
      * Renders the edit button for a user.
      * @param rowData
      */
-    const editButtonTemplate = (rowData: UserxTypes) => {
+    const editButtonTemplate = (rowData: UserxDTO) => {
         return (<Button
             label={"Details"}
             icon="pi pi-external-link"
@@ -45,7 +45,7 @@ const UserListComponent: React.FC<UserListProps> = ({ users, loading, onEditUser
      * Renders the enable button for a user.
      * @param rowData
      */
-    const enableButtonTemplate = (rowData: UserxTypes) => {
+    const enableButtonTemplate = (rowData: UserxDTO) => {
         return (
             <Checkbox checked={rowData.enabled} disabled={true}
                       className="p-mr-2"/>
@@ -55,6 +55,7 @@ const UserListComponent: React.FC<UserListProps> = ({ users, loading, onEditUser
 
     return (
         // DataTable for displaying users
+        // the value={users} shows a not assignable error but npm does not. I am not sure what to do with this info
         <DataTable value={users} loading={loading}>
             <Column field="username" header="Username" sortable></Column>
             <Column field="firstName" header="First Name" sortable></Column>

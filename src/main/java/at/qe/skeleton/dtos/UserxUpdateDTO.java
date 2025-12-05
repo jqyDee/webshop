@@ -12,16 +12,17 @@ import java.util.Set;
  * This class is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-public record UserxCreateDTO(
-    @NotBlank
-    String username,
-    @NotBlank
+public record UserxUpdateDTO(
+    // The id is not strictly necessary here but makes the frontend update and delete API calls easier. It is debatable to leave this in here
+    Long id,
+    @NotBlank String username,
     String password,
     String firstName,
     String lastName,
     String email,
     String phone,
     boolean enabled,
-    @NotEmpty
-    Set<UserxRole> roles
+
+    // IMPORTANT: This has to be not empty as it is a set and otherwise the Tests fail
+    @NotEmpty Set<UserxRole> roles
 ) {}

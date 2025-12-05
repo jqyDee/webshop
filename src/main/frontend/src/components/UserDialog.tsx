@@ -5,7 +5,7 @@
 import React from 'react';
 import {Dialog} from 'primereact/dialog';
 import {Button} from "primereact/button";
-import {UserDTO} from "../DTO/userx.types";
+import {UserxUpdateDTO} from "../DTO/api-generated.types";
 import UserForm from './UserForm';
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
@@ -14,7 +14,7 @@ import {Message} from "primereact/message";
 
 interface UserDialogProps {
     visible: boolean;
-    user: UserDTO | null;
+    user: UserxUpdateDTO | null;
     isNewUser: boolean;
     validation: UserxValidationResult;
     onHide: () => void;
