@@ -6,7 +6,12 @@ class Userx {
     last_name: String
     email: String
     phone: String
+    notifierTypes: ?
 }
+note right
+    notifierTypes probably should be
+    implemented with decorator pattern
+end note
 
 enum UserxRole {
     ADMIN
@@ -19,11 +24,21 @@ class Product {
     price: double
     stock: int
     discount: double /'in interval [0, 1] 0 -> 0%, 1 -> 100% discount'/
+    short_description: String
+    description: String
     picture: Stub
 }
+note left
+    filtering products done
+    in database;
+
+    product creation could be done
+    through factoryMethod/abstractFactory
+end note
 
 class Review {
     rating: int /'in interval [1, 5]'/
+    title: String
     comment: String
     createDate: LocalDateTime
 }
@@ -38,10 +53,11 @@ class CartItem {
 class Order {
     createDate: LocalDateTime
     sum: double
+    products: Map<Product, int>
 }
 
 enum OrderStatus {
-    NEW
+    PENDING
     PENDING_PAYMENT
     PROCESSING
     SHIPPED
@@ -49,8 +65,15 @@ enum OrderStatus {
     CANCELLED
 }
 
-class Notification {
-    message: String
+class ProductSubscriptions {
+}
+note left
+    observer pattern
+end note
+
+enum ProductSubscriptionsType {
+    DISCOUNT_ProductSubscriptions
+    BACK_IN_STOCK_ProductSubscriptions
 }
 
 'associations:
@@ -69,9 +92,10 @@ ShoppingCart -- "0..*" CartItem: items
 CartItem -- "1" Product: product
 
 Order -- "1" OrderStatus: status
-Order -- "1" ShoppingCart: shoppingCart
+Order ..> ShoppingCart: <<uses>>
 
-Notification -- "1" Userx: user
-Notification -- "1" Product: product
+ProductSubscriptions -- "1" Userx: user
+ProductSubscriptions -- "1" Product: product
+ProductSubscriptions -- "1..*" ProductSubscriptionsType: types: Set<ProductSubscriptionsType>
 
 @enduml
