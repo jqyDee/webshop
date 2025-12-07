@@ -53,6 +53,7 @@ class CartItem {
 class Order {
     createDate: LocalDateTime
     sum: double
+    products: Map<Product, int>
 }
 
 enum OrderStatus {
@@ -91,7 +92,7 @@ ShoppingCart -- "0..*" CartItem: items
 CartItem -- "1" Product: product
 
 Order -- "1" OrderStatus: status
-Order -- "1" ShoppingCart: shoppingCart
+Order ..> ShoppingCart: <<uses>>
 
 ProductSubscriptions -- "1" Userx: user
 ProductSubscriptions -- "1" Product: product
