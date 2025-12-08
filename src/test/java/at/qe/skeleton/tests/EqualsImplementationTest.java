@@ -1,5 +1,6 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -30,4 +31,12 @@ public class EqualsImplementationTest {
         EqualsVerifier.forClass(UserxRole.class).verify();
     }
 
+    @Test
+    public void testProductEqualsContract() {
+        Product product1 = new Product();
+        product1.setId(1L);
+        Product product2 = new Product();
+        product2.setId(2L);
+        EqualsVerifier.forClass(Product.class).withPrefabValues(Product.class, product1, product2).suppress(Warning.ALL_FIELDS_SHOULD_BE_USED).verify();
+    }
 }
