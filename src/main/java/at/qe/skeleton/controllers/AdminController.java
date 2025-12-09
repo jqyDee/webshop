@@ -35,13 +35,18 @@ public class AdminController {
         this.userMapper = userMapper;
         this.userService = userService;
     }
-    
+
+    @GetMapping("/managers")
+    public ResponseEntity<Collection<UserxDTO>> getAllManagers() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     /**
      * GET all existing Users
      *
      * @return {@link ResponseEntity} with status {@code 200 (OK)} with a collection of all existing users in the body
      */
-    @GetMapping("")
+    @GetMapping("/users")
     public ResponseEntity<Collection<UserxDTO>> getAllUsers() {
         Collection<Userx> allUsers = userService.getAllUsers();
         List<UserxDTO> allUsersMapped = allUsers.stream().map(userMapper::mapTo).toList();
@@ -54,7 +59,7 @@ public class AdminController {
      * @param id the id to search for
      * @return {@link ResponseEntity} with status {@code 200 (OK)} with the user of given id in the body, or with status {@code 404} if no such user exists
      */
-    @GetMapping("/{id}")
+    @GetMapping("/user/{id}")
     public ResponseEntity<UserxDTO> getUser(@PathVariable Long id) {
         Optional<Userx> existingUserx = userService.loadUser(id);
         if (existingUserx.isPresent()) {
@@ -70,7 +75,7 @@ public class AdminController {
      * @param userxUpdateDto the user tb created
      * @return {@link ResponseEntity} with status {@code 201 (Created)} with the newly created user in the body, or with status {@code 409 (Conflict)} if the username is already in use
      */
-    @PostMapping("")
+    @PostMapping("/createUser")
     public ResponseEntity<UserxDTO> createUser(@Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
         Userx user = userService.saveUser(userUpdateMapper.mapFrom(userxUpdateDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.mapTo(user));
@@ -84,7 +89,7 @@ public class AdminController {
      * @param userxUpdateDto the updated user information
      * @return {@link ResponseEntity} with status {@code 201 (Created)} with the updated user in the body, or with status {@code 404 (Not Found)} if no user with this id exists
      */
-    @PatchMapping("/{id}")
+    @PatchMapping("/user/{id}")
     public ResponseEntity<UserxDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
         Optional<Userx> existingUserx = userService.loadUser(id);
         if (existingUserx.isPresent()) {
@@ -102,7 +107,7 @@ public class AdminController {
      * @param id the id of the user tb deleted
      * @return {@link ResponseEntity} with status {@code 204 (No Content)} on successful delete, or with status {@code 404 (Not Found)} if no user with this id exists
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/user/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         Optional<Userx> existingUserx = userService.loadUser(id);
         if (existingUserx.isPresent()) {
@@ -111,5 +116,10 @@ public class AdminController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
+    }
+
+    @DeleteMapping("/product/{productId}/review/{reviewId}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
