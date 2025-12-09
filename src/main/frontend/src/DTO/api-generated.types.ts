@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-03 18:05:19.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-09 20:57:28.
 
 export interface LoginRequestDTO {
     username: string;

@@ -109,6 +109,22 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
         return imageUrl;
     }
 
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
+    }
+
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
