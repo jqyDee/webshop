@@ -30,7 +30,7 @@ interface UserContextType {
     error: Error | null;
     isAdmin: boolean;
     isManager: boolean;
-    isEmployee: boolean;
+    isCustomer: boolean;
     userIsAuthenticated: () => Promise<boolean>;
 }
 
@@ -158,7 +158,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
     const roles = currentUser?.roles ?? [];
     const isAdmin = roles.includes(UserxRole.ADMIN);
     const isManager = roles.includes(UserxRole.MANAGER);
-    const isEmployee = roles.includes(UserxRole.CUSTOMER);
+    const isCustomer = roles.includes(UserxRole.CUSTOMER);
 
     return (
         <UserContext.Provider
@@ -169,7 +169,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
                 error,
                 isAdmin,
                 isManager,
-                isEmployee,
+                isCustomer: isCustomer,
                 userIsAuthenticated
             }}
         >
