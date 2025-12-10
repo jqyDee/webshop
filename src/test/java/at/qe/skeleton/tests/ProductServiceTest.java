@@ -124,10 +124,6 @@ public class ProductServiceTest {
 
         Collection<Product> products = productService.getProducts(0, 4, sort, null);
 
-        for (Product product : products) {
-            System.out.println(product.getName());
-        }
-
         Assertions.assertEquals(product1, products.stream().toList().get(0));
         Assertions.assertEquals(product3, products.stream().toList().get(1));
         Assertions.assertEquals(product2, products.stream().toList().get(2));
