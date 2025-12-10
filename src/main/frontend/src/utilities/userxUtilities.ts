@@ -24,8 +24,8 @@ export const createUserxRoleArrayFromStrings = (roles: string[]): UserxRole[] =>
                 return UserxRole.ADMIN;
             case UserxRole.MANAGER.valueOf():
                 return UserxRole.MANAGER;
-            case UserxRole.EMPLOYEE.valueOf():
-                return UserxRole.EMPLOYEE;
+            case UserxRole.CUSTOMER.valueOf():
+                return UserxRole.CUSTOMER;
             default:
                 throw new Error(`Invalid role: ${role}`);
         }
