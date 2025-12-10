@@ -228,6 +228,7 @@ public class ProductServiceTest {
 
         Assertions.assertNotNull(freshlySavedProduct.getCreatedDate(),
                                  "Created Date of saved product was not initialized");
+
     }
 
     @DirtiesContext
