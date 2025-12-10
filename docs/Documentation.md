@@ -12,9 +12,10 @@ the frontend.
 Types that are annotated with `@NotBlank`, `@NotNull` and `@NotEmpty` are being mapped to non optional types in
 typescript.
 
-- `@NotBlank` is used for non primitive datatypes
-- `@NotNull` is used for primitive datatypes
+- `@NotBlank` is used for Strings
+- `@NotNull` is used for non primitive datatypes
 - `@NotEmpty` is used for Collections
+- primitive datatypes cannot be null (Keep in mind)
 
 The annotations are also important for testing the DTOs and API endpoints, so if errors occur we might have to change to
 other annotations.

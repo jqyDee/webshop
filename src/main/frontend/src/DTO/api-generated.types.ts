@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-09 23:20:48.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-10 23:46:00.
 
 export interface AddressDTO {
     street: string;
@@ -40,21 +40,30 @@ export interface OrderResponseDTO {
 export interface PageableListDTO<T> {
     pageSize?: number;
     pageIdAfter?: number;
-    totalCount: number;
+    totalCount?: number;
     items?: T[];
 }
 
 export interface ProductDTO {
     id: number;
     name: string;
-    price: number;
-    stock: number;
+    price?: number;
+    stock?: number;
     discount?: number;
     shortDescription?: string;
     description?: string;
+    rating?: number;
     imageUrl?: string;
     createdDate?: Date;
     updatedDate?: Date;
+}
+
+export interface ProductFilterDTO {
+    name?: string;
+    minRating?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    minStock?: number;
 }
 
 export interface ReviewDTO {

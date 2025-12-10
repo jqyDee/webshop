@@ -6,13 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record ProductDTO(
-        @NotBlank Long id,
-        @NotNull String name,
-        @NotBlank double price,
-        @NotBlank int stock,
+        @NotNull Long id,
+        @NotBlank String name,
+        double price,
+        int stock,
         double discount,
         String shortDescription,
         String description,
+        Double rating,
         String imageUrl,
         LocalDateTime createdDate,
         LocalDateTime updatedDate

@@ -1,14 +1,13 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.services.ProductService;
-import at.qe.skeleton.specifications.ProductSpecification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -79,12 +78,12 @@ public class ProductServiceTest {
     @Test
     public void testGetProductsFiltered() {
         // Single Filter Tests
-        Specification<Product> spec1 = ProductSpecification.nameContains("13");
-        Specification<Product> spec2 = ProductSpecification.priceBetween(300.0, 400.0);
-        Specification<Product> spec3 = ProductSpecification.priceBetween(null, 400.0);
-        Specification<Product> spec4 = ProductSpecification.priceBetween(300.0, null);
-        Specification<Product> spec5 = ProductSpecification.ratingGreaterThan(4.0);
-        Specification<Product> spec6 = ProductSpecification.stockGreaterThan(9);
+        ProductFilterDTO spec1 = new ProductFilterDTO("13", null, null, null, null);
+        ProductFilterDTO spec2 = new ProductFilterDTO(null, null, 300.0, 400.0, null);
+        ProductFilterDTO spec3 = new ProductFilterDTO(null, null, null, 400.0, null);
+        ProductFilterDTO spec4 = new ProductFilterDTO(null, null, 300.0, null, null);
+        ProductFilterDTO spec5 = new ProductFilterDTO(null, 4.0, null, null, null);
+        ProductFilterDTO spec6 = new ProductFilterDTO(null, null, null, null, 9);
 
         Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).size(),
                                 "Insufficient amount of products retrieved");
@@ -100,7 +99,7 @@ public class ProductServiceTest {
                                 "Insufficient amount of products retrieved");
 
         // Combination
-        Specification<Product> spec7 = Specification.allOf(spec1, spec2, spec5, spec6);
+        ProductFilterDTO spec7 = new ProductFilterDTO("13", 4.0, 300.0, 400.0, 9);
         Assertions.assertEquals(1, productService.getProducts(null, null, null, spec7).size(),
                                 "Insufficient amount of products retrieved");
     }

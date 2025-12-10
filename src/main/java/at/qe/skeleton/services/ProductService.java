@@ -1,7 +1,9 @@
 package at.qe.skeleton.services;
 
+import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.repositories.ProductRepository;
+import at.qe.skeleton.specifications.ProductSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -35,17 +37,18 @@ public class ProductService {
      * @param pageId id of page (0 indexed) or null
      * @param pageSize size of page or null
      * @param sort how the output should be sorted
-     * @param filter filter for the products or null
+     * @param filter filterDTO for the products or null
      * @return collection of filtered and paged products
      */
-    public Collection<Product> getProducts(Integer pageId, Integer pageSize, Sort sort, Specification<Product> filter) {
+    public Collection<Product> getProducts(Integer pageId, Integer pageSize, Sort sort,
+                                           ProductFilterDTO filter) {
         Sort finalSort = (sort != null) ? sort : Sort.unsorted();
 
         Pageable pageable = (pageId != null && pageSize != null && pageSize > 0)
                 ? PageRequest.of(pageId, pageSize, finalSort)
                 : Pageable.unpaged();
 
-        Specification<Product> spec = (filter != null) ? filter : Specification.unrestricted();
+        Specification<Product> spec = ProductSpecification.createFromFilterDTO(filter);
 
         return productRepository.findAll(spec, pageable).getContent();
     }
