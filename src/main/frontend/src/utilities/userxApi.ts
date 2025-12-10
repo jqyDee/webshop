@@ -17,7 +17,7 @@ import {userxDTOfromJson} from "./userxUtilities";
  */
 const fetchAllUsers = async (): Promise<UserxDTO[]> => {
     try {
-        const response = await globalAxios.get("/api/admin");
+        const response = await globalAxios.get("/api/admin/users");
         return response.data;
     } catch (err: any) {
         throw new Error(`Error fetching users: ${err?.message ?? String(err)}`);
@@ -32,7 +32,7 @@ const fetchAllUsers = async (): Promise<UserxDTO[]> => {
  */
 const createUser = async (selectedUser: UserxUpdateDTO): Promise<UserxDTO> => {
     try {
-        const response = await globalAxios.post("/api/admin", selectedUser);
+        const response = await globalAxios.post("/api/admin/createUser", selectedUser);
         return userxDTOfromJson(response.data);
     } catch (err: any) {
         throw new Error(`Error saving user: ${err?.message ?? String(err)}`);
@@ -47,7 +47,7 @@ const createUser = async (selectedUser: UserxUpdateDTO): Promise<UserxDTO> => {
  */
 const updateUser = async (selectedUser: UserxUpdateDTO): Promise<UserxDTO> => {
     try {
-        const response = await globalAxios.patch(`/api/admin/${selectedUser.id}`, selectedUser);
+        const response = await globalAxios.patch(`/api/admin/users/${selectedUser.id}`, selectedUser);
         return userxDTOfromJson(response.data);
     } catch (err: any) {
         throw new Error(`Error updating user: ${err?.message ?? String(err)}`);
@@ -62,7 +62,7 @@ const updateUser = async (selectedUser: UserxUpdateDTO): Promise<UserxDTO> => {
  */
 const deleteUser = async (selectedUser: UserxUpdateDTO) => {
     try {
-        return await globalAxios.delete(`/api/admin/${selectedUser.id}`);
+        return await globalAxios.delete(`/api/admin/users/${selectedUser.id}`);
     } catch (err: any) {
         throw new Error(`Error deleting user: ${err?.message ?? String(err)}`);
     }
