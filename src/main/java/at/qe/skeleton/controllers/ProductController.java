@@ -32,6 +32,9 @@ public class ProductController {
     }
 
     /**
+     * GET all products / products for a pageable list component. Filtering and Sorting can be
+     * applied as well
+     *
      * @param pageId id of page (0 indexed) or null
      * @param pageSize size of page or null
      * @param sort how the output should be sorted
