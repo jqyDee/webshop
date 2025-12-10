@@ -1,6 +1,14 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-09 20:57:28.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-09 23:20:48.
+
+export interface AddressDTO {
+    street: string;
+    number: number;
+    postalCode: string;
+    city: string;
+    country: string;
+}
 
 export interface LoginRequestDTO {
     username: string;
@@ -9,6 +17,58 @@ export interface LoginRequestDTO {
 
 export interface LoginResponseDTO {
     bearerToken: string;
+}
+
+export interface OrderDTO {
+    id?: number;
+    userId?: number;
+    status?: OrderStatus;
+    shippingAddress?: AddressDTO;
+    paymentAddress?: AddressDTO;
+    sum?: number;
+    products?: { [index: string]: number };
+    createdDate?: Date;
+}
+
+export interface OrderResponseDTO {
+    failed: boolean;
+    orderId?: number;
+    order?: OrderDTO;
+    productsInStock?: { [index: string]: number };
+}
+
+export interface PageableListDTO<T> {
+    pageSize?: number;
+    pageIdAfter?: number;
+    totalCount: number;
+    items?: T[];
+}
+
+export interface ProductDTO {
+    id: number;
+    name: string;
+    price: number;
+    stock: number;
+    discount?: number;
+    shortDescription?: string;
+    description?: string;
+    imageUrl?: string;
+    createdDate?: Date;
+    updatedDate?: Date;
+}
+
+export interface ReviewDTO {
+    id: number;
+    productId: number;
+    rating: number;
+    title: string;
+    comment: string;
+    createdDate: Date;
+}
+
+export interface ShoppingCartItemDTO {
+    productId: number;
+    quantity: number;
 }
 
 export interface UserxDTO {
@@ -36,6 +96,15 @@ export interface UserxUpdateDTO {
     phone?: string;
     enabled?: boolean;
     roles: UserxRole[];
+}
+
+export enum OrderStatus {
+    PENDING = "PENDING",
+    PENDING_PAYMENT = "PENDING_PAYMENT",
+    PROCESSING = "PROCESSING",
+    SHIPPED = "SHIPPED",
+    DELIVERED = "DELIVERED",
+    CANCELLED = "CANCELLED",
 }
 
 export enum UserxRole {

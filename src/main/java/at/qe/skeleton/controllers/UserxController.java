@@ -1,16 +1,16 @@
 package at.qe.skeleton.controllers;
 
 import at.qe.skeleton.dtos.UserxDTO;
+import at.qe.skeleton.dtos.UserxUpdateDTO;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.UserxService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Userx endpoints exposed by the server.
@@ -30,12 +30,22 @@ public class UserxController {
         this.userMapper = userMapper;
         this.userService = userService;
     }
-    
+
+    @PostMapping("/me")
+    public ResponseEntity<UserxDTO> createCurrentUser(@Valid @RequestBody UserxUpdateDTO user) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserxDTO> updateCurrentUser(@AuthenticationPrincipal Userx user) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     @GetMapping("/me")
     public ResponseEntity<UserxDTO> getCurrentUser(@AuthenticationPrincipal Userx user) {
         return ResponseEntity.ok(userMapper.mapTo(user));
     }
-     
+
     @GetMapping("/authenticated")
     public ResponseEntity<String> isAuthenticated(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
