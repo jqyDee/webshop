@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-09 23:20:48.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-11 00:48:34.
 
 export interface AddressDTO {
     street: string;
@@ -110,5 +110,5 @@ export enum OrderStatus {
 export enum UserxRole {
     ADMIN = "ADMIN",
     MANAGER = "MANAGER",
-    EMPLOYEE = "EMPLOYEE",
+    CUSTOMER = "CUSTOMER",
 }
