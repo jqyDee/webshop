@@ -1,12 +1,13 @@
 package at.qe.skeleton.tests;
 
 import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Product_;
 import at.qe.skeleton.services.ProductService;
+import at.qe.skeleton.specifications.ProductSpecification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -44,7 +45,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void testGetPagedProducts() {
+    public void testGetProductsPaged() {
         List<Product> productsPage1Expected = new ArrayList<>();
         List<Product> productsPage2Expected = new ArrayList<>();
 
@@ -60,28 +61,77 @@ public class ProductServiceTest {
         productsPage1Expected.add(product0.get());
         productsPage1Expected.add(product1.get());
         productsPage1Expected.add(product2.get());
-
         productsPage2Expected.add(product3.get());
 
         Collection<Product> productsPaged1 = productService.getProducts(0, 3, null, null);
         Collection<Product> productsPaged2 = productService.getProducts(1, 3, null, null);
+        Collection<Product> productsPaged3 = productService.getProducts(2, 3, null, null);
 
         Assertions.assertEquals(3, productsPaged1.size(), "Insufficient amount of products retrieved");
         Assertions.assertEquals(productsPage1Expected, productsPaged1, "Wrong products in page");
 
         Assertions.assertEquals(1, productsPaged2.size(), "Insufficient amount of products retrieved");
         Assertions.assertEquals(productsPage2Expected, productsPaged2, "Wrong products in page");
+
+        Assertions.assertEquals(0, productsPaged3.size(), "Too many products retrieved");
     }
 
     @Test
     public void testGetProductsFiltered() {
-        Specification<Product> spec = (root, query, builder) -> {
-            return builder.greaterThan(root.get(Product_.price), 400.0);
-        };
+        // Single Filter Tests
+        Specification<Product> spec1 = ProductSpecification.nameContains("13");
+        Specification<Product> spec2 = ProductSpecification.priceBetween(300.0, 400.0);
+        Specification<Product> spec3 = ProductSpecification.priceBetween(null, 400.0);
+        Specification<Product> spec4 = ProductSpecification.priceBetween(300.0, null);
+        Specification<Product> spec5 = ProductSpecification.ratingGreaterThan(4.0);
+        Specification<Product> spec6 = ProductSpecification.stockGreaterThan(9);
 
-        Collection<Product> products = productService.getProducts(null, null, spec, null);
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).size(),
+                                "Insufficient amount of products retrieved");
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec2).size(),
+                                "Insufficient amount of products retrieved");
+        Assertions.assertEquals(2, productService.getProducts(null, null, null, spec3).size(),
+                                "Insufficient amount of products retrieved");
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec4).size(),
+                                "Insufficient amount of products retrieved");
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec5).size(),
+                                "Insufficient amount of products retrieved");
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec6).size(),
+                                "Insufficient amount of products retrieved");
 
-        Assertions.assertEquals(2, products.size(), "Insufficient amount of products retrieved");
+        // Combination
+        Specification<Product> spec7 = Specification.allOf(spec1, spec2, spec5, spec6);
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec7).size(),
+                                "Insufficient amount of products retrieved");
+    }
+
+    @Test
+    public void testGetProductsSorted() {
+        Optional<Product> productOpt0 = productService.loadProduct(1000L);
+        Optional<Product> productOpt1 = productService.loadProduct(2000L);
+        Optional<Product> productOpt2 = productService.loadProduct(3000L);
+        Optional<Product> productOpt3 = productService.loadProduct(4000L);
+        Assertions.assertTrue(productOpt0.isPresent());
+        Assertions.assertTrue(productOpt1.isPresent());
+        Assertions.assertTrue(productOpt2.isPresent());
+        Assertions.assertTrue(productOpt3.isPresent());
+        Product product0 = productOpt0.get();
+        Product product1 = productOpt1.get();
+        Product product2 = productOpt2.get();
+        Product product3 = productOpt3.get();
+
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+
+        Collection<Product> products = productService.getProducts(0, 4, sort, null);
+
+        for (Product product : products) {
+            System.out.println(product.getName());
+        }
+
+        Assertions.assertEquals(product1, products.stream().toList().get(0));
+        Assertions.assertEquals(product3, products.stream().toList().get(1));
+        Assertions.assertEquals(product2, products.stream().toList().get(2));
+        Assertions.assertEquals(product0, products.stream().toList().get(3));
     }
 
     @DirtiesContext
@@ -187,7 +237,7 @@ public class ProductServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void testDeleteProductAdmin() {
+    public void testDeleteProductByAdmin() {
         Long deleteProductId = 1000L;
         Optional<Product> productOpt = productService.loadProduct(deleteProductId);
         Assertions.assertFalse(productOpt.isEmpty(),
@@ -211,7 +261,7 @@ public class ProductServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "manager", authorities = {"MANAGER"})
-    public void testDeleteProductManager() {
+    public void testDeleteProductByManager() {
         Long deleteProductId = 1000L;
         Optional<Product> productOpt = productService.loadProduct(deleteProductId);
         Assertions.assertFalse(productOpt.isEmpty(),

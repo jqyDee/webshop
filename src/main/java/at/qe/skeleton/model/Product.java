@@ -29,17 +29,14 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     @Column(nullable = false)
     private int stock;
 
-    @Column(nullable = true)
     private double discount;
-    @Column(nullable = true)
     private String shortDescription;
-    @Column(nullable = true)
     private String description;
+    private Double rating; // This should be derived from the reviews, null if no reviews ([0, 5] stars)
 
     // it seems that storing the actual image in the database is not a viable option for a high
     // performance application like a webshop. You would want to store the images in a Cloud Object
     // Storage system (AWS S3) and pair this with a Content Delivery Network (AWS Cloudfront).
-    @Column(nullable = true)
     private String imageUrl;
 
     @Column(nullable = false)
@@ -99,6 +96,14 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
 
     public String getDescription() {
         return description;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public Double getRating() {
+        return rating;
     }
 
     public void setImageUrl(String imageUrl) {

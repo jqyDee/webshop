@@ -34,30 +34,20 @@ public class ProductService {
      *
      * @param pageId id of page (0 indexed) or null
      * @param pageSize size of page or null
+     * @param sort how the output should be sorted
      * @param filter filter for the products or null
      * @return collection of filtered and paged products
      */
-    public Collection<Product> getProducts(Integer pageId, Integer pageSize, Specification<Product> filter, Sort sort) {
-        if (pageId != null && pageSize != null && pageSize > 0) {
-            Pageable pageable;
-            if (sort != null) {
-                pageable = PageRequest.of(pageId, pageSize, sort);
-            } else {
-                pageable = PageRequest.of(pageId, pageSize);
-            }
+    public Collection<Product> getProducts(Integer pageId, Integer pageSize, Sort sort, Specification<Product> filter) {
+        Sort finalSort = (sort != null) ? sort : Sort.unsorted();
 
-            if (filter != null) {
-                return (productRepository.findAll(filter, pageable)).getContent();
-            }
+        Pageable pageable = (pageId != null && pageSize != null && pageSize > 0)
+                ? PageRequest.of(pageId, pageSize, finalSort)
+                : Pageable.unpaged();
 
-            return (productRepository.findAll(pageable)).getContent();
-        }
+        Specification<Product> spec = (filter != null) ? filter : Specification.unrestricted();
 
-        if (filter != null) {
-            return productRepository.findAll(filter);
-        }
-
-        return productRepository.findAll();
+        return productRepository.findAll(spec, pageable).getContent();
     }
 
     /**
@@ -128,5 +118,24 @@ public class ProductService {
         int rowsUpdated = this.productRepository.decreaseStock(productId, quantity);
 
         return rowsUpdated > 0;
+    }
+
+    /**
+     * Update the rating of a product. This should be called when a review is created or deleted.
+     * (In future also review updates)
+     *
+     * @param product the product to update the rating for
+     */
+    @Transactional
+    public void updateRating(Product product) {
+        // TODO: when reviews are done; getAverage call should be DB query
+        // Double calculatedAverage = reviewRepository.getAverageRatingByProduct(product);
+        Double calculatedAverage = null;
+
+        double newRating = (calculatedAverage != null) ? calculatedAverage : 0.0;
+
+        product.setRating(newRating);
+
+        productRepository.save(product);
     }
 }
