@@ -312,4 +312,40 @@ public class ProductServiceTest {
             productService.deleteProduct(product);
         });
     }
+
+    @Test
+    public void testCheckAvailability() {
+        Long productId = 1000L;
+        int quantity = 2;
+
+        Assertions.assertFalse(productService.checkAvailability(productId, quantity));
+
+        quantity = 1;
+        Assertions.assertTrue(productService.checkAvailability(productId, quantity));
+    }
+
+    @DirtiesContext
+    @Test
+    public void testCheckAvailabilityAndReserve() {
+        Long productId = 1000L;
+        int quantity = 2;
+
+        Optional<Product> productBeforeOpt = productService.loadProduct(productId);
+        Assertions.assertFalse(productBeforeOpt.isEmpty());
+        Product productBefore = productBeforeOpt.get();
+        Assertions.assertEquals(1, productBefore.getStock());
+
+        Assertions.assertFalse(productService.checkAvailabilityAndReserve(productId, quantity));
+        Optional<Product> productAfterOpt = productService.loadProduct(productId);
+        Assertions.assertFalse(productAfterOpt.isEmpty());
+        Product productAfter = productAfterOpt.get();
+        Assertions.assertEquals(1, productAfter.getStock());
+
+        quantity = 1;
+        Assertions.assertTrue(productService.checkAvailabilityAndReserve(productId, quantity));
+        productAfterOpt = productService.loadProduct(productId);
+        Assertions.assertFalse(productAfterOpt.isEmpty());
+        productAfter = productAfterOpt.get();
+        Assertions.assertEquals(0, productAfter.getStock());
+    }
 }
