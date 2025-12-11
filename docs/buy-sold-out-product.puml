@@ -7,34 +7,39 @@ participant ProductRepository
 participant Order
 participant OrderRepository
 
+== 1 Create Order ==
+
 Customer -> OrderService: createOrder()
 
-OrderService -> ProductService: reserveProducts(c: CartItems)
-ProductService -> ProductRepository: tryReserveAllProducts(products: Map<Product, quantity: int>)
-ProductRepository --> ProductService: tryReserveAllProducts: [status: allOK | notOK]
-note left
-    this is important to ensure atomicity
-end note
-ProductService --> OrderService: reserveProducts: [status: allOK | notOK]
+OrderService -> OrderService: cartItemsToOrderItems(cartItems: Collection<CartItems>) = orderItems: Collection<OrderItems>
+
+OrderService -> ProductService: reserveCartItems(cartItems: Collection<CartItems>)
+    ProductService -> ProductRepository: reserveProducts(products: Collection<Products>)
+    note left
+        this is done atomically
+    end note
+    ProductRepository --> ProductService: reserveProducts: lastReservedProductIndex: int
+ProductService --> OrderService: reserveCartItems: [status: OK | notOK]
 alt status == allOK
     OrderService -> Order: new
     note left
         create order with products
     end note
     Order --> OrderService: new [o: Order]
-    OrderService -> OrderService: addAllProducts()
+    OrderService -> OrderService: addOrderItems(orderItems)
     OrderService -> OrderService: setOrderStatus(o: Order, s: OrderStatus = PENDING)
     OrderService -> OrderRepository: saveOrder(o: Order)
     OrderRepository --> OrderService: ok
-    OrderService --> Customer: createOrder: [order overview]
+    OrderService --> Customer: createOrder: OrderResponseDTO(failed == false)
     note left
         customer has to confirm and proceed with payment
     end note
+== 2 Case of failure ==
 else status == notOK
-    OrderService --> Customer: createOrder: [shoppingCart: ShoppingCart]
+    OrderService --> Customer: createOrder: OrderResponseDTO(failed == true)
     note left
         inform Customer that he has to try again
-        (go back to start)
+        (go back to 1)
     end note
 end alt
 
