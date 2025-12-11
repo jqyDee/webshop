@@ -6,6 +6,7 @@ import at.qe.skeleton.repositories.ProductRepository;
 import at.qe.skeleton.specifications.ProductSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -40,7 +41,7 @@ public class ProductService {
      * @param filter filterDTO for the products or null
      * @return collection of filtered and paged products
      */
-    public Collection<Product> getProducts(Integer pageId, Integer pageSize, Sort sort,
+    public Page<Product> getProducts(Integer pageId, Integer pageSize, Sort sort,
                                            ProductFilterDTO filter) {
         Sort finalSort = (sort != null) ? sort : Sort.unsorted();
 
@@ -50,7 +51,7 @@ public class ProductService {
 
         Specification<Product> spec = ProductSpecification.createFromFilterDTO(filter);
 
-        return productRepository.findAll(spec, pageable).getContent();
+        return productRepository.findAll(spec, pageable);
     }
 
     /**

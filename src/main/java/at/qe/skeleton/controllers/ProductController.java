@@ -8,12 +8,12 @@ import at.qe.skeleton.mappers.ProductMapper;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -50,16 +50,16 @@ public class ProductController {
             @ModelAttribute ProductFilterDTO filter
             ) {
 
-        Collection<Product> products = productService.getProducts(pageId, pageSize, sort, filter);
+        Page<Product> productPage = productService.getProducts(pageId, pageSize, sort, filter);
 
-        PageableListDTO<ProductDTO> list = new PageableListDTO<>(
+        PageableListDTO<ProductDTO> pageableListDTO = new PageableListDTO<>(
                 pageSize,
                 (pageId != null) ? pageId + 1 : null,
-                products.size(),
-                products.stream().map(productMapper::mapTo).toList()
+                productPage.getTotalElements(),
+                productPage.getContent().stream().map(productMapper::mapTo).toList()
         );
 
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(pageableListDTO);
     }
 
     /**

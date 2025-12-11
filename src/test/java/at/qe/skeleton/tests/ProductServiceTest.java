@@ -24,7 +24,7 @@ public class ProductServiceTest {
 
     @Test
     public void testDataInitialization() {
-        Assertions.assertEquals(4, productService.getProducts(null, null, null, null).size(),
+        Assertions.assertEquals(4, productService.getProducts(null, null, null, null).getContent().size(),
                                 "Insufficient amount of products initialized for test data source");
 
         for (Product product : productService.getProducts(null, null, null, null)) {
@@ -62,9 +62,12 @@ public class ProductServiceTest {
         productsPage1Expected.add(product2.get());
         productsPage2Expected.add(product3.get());
 
-        Collection<Product> productsPaged1 = productService.getProducts(0, 3, null, null);
-        Collection<Product> productsPaged2 = productService.getProducts(1, 3, null, null);
-        Collection<Product> productsPaged3 = productService.getProducts(2, 3, null, null);
+        Collection<Product> productsPaged1 = productService.getProducts(0, 3, null, null).getContent();
+        Collection<Product> productsPaged2 = productService.getProducts(1, 3, null, null).getContent();
+        Collection<Product> productsPaged3 = productService.getProducts(2, 3, null, null).getContent();
+
+        Assertions.assertEquals(4, productService.getProducts(0, 3, null, null).getTotalElements(),
+                                "Total element count is wrong");
 
         Assertions.assertEquals(3, productsPaged1.size(), "Insufficient amount of products retrieved");
         Assertions.assertEquals(productsPage1Expected, productsPaged1, "Wrong products in page");
@@ -85,22 +88,23 @@ public class ProductServiceTest {
         ProductFilterDTO spec5 = new ProductFilterDTO(null, 4.0, null, null, null);
         ProductFilterDTO spec6 = new ProductFilterDTO(null, null, null, null, 9);
 
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec2).size(),
+
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec2).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(2, productService.getProducts(null, null, null, spec3).size(),
+        Assertions.assertEquals(2, productService.getProducts(null, null, null, spec3).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec4).size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec4).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec5).size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec5).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec6).size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec6).getContent().size(),
                                 "Insufficient amount of products retrieved");
 
         // Combination
         ProductFilterDTO spec7 = new ProductFilterDTO("13", 4.0, 300.0, 400.0, 9);
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec7).size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec7).getContent().size(),
                                 "Insufficient amount of products retrieved");
     }
 
@@ -121,7 +125,7 @@ public class ProductServiceTest {
 
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
 
-        Collection<Product> products = productService.getProducts(0, 4, sort, null);
+        Collection<Product> products = productService.getProducts(0, 4, sort, null).getContent();
 
         Assertions.assertEquals(product1, products.stream().toList().get(0));
         Assertions.assertEquals(product3, products.stream().toList().get(1));
@@ -242,7 +246,7 @@ public class ProductServiceTest {
         Product toBeDeletedProduct = productOpt.get();
         productService.deleteProduct(toBeDeletedProduct);
 
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).getContent().size(),
                                 "No Product has been deleted after calling deleteProduct");
         Optional<Product> freshlyDeletedProduct = productService.loadProduct(deleteProductId);
         Assertions.assertTrue(freshlyDeletedProduct.isEmpty(),
@@ -266,7 +270,7 @@ public class ProductServiceTest {
         Product toBeDeletedProduct = productOpt.get();
         productService.deleteProduct(toBeDeletedProduct);
 
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).getContent().size(),
                                 "No Product has been deleted after calling deleteProduct");
         Optional<Product> freshlyDeletedProduct = productService.loadProduct(deleteProductId);
         Assertions.assertTrue(freshlyDeletedProduct.isEmpty(),

@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 public record ProductDTO(
         @NotNull Long id,
         @NotBlank String name,
-        double price,
-        int stock,
-        double discount,
+        @NotNull double price,
+        @NotNull int stock,
+        @NotNull double discount,
         String shortDescription,
         String description,
         Double rating,
