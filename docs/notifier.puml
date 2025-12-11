@@ -1,0 +1,75 @@
+@startuml
+enum NotifierType {
+    EMAIL
+    SMS
+}
+
+class Userx {
+    username: String
+    first_name: String
+    last_name: String
+    email: String
+    phone: String
+    notifyOptions: Set<NotifierType>
+}
+
+note right of Userx::notifyOptions
+    With this set every user can control how to receive notifications
+end note
+
+abstract class Notifier {
+    - type: NotifierType
+    + Notifier(type: NotifierType)
+    + send(message: String, user: Userx): void
+    + {abstract} sendImplementation(message: String, user: Userx): void
+}
+
+note right of Notifier::send
+    if (user.notifyOptions.contains(type)) then
+      sendImplementation(message, user)
+    else
+      do nothing (user hasnt choose to receive notifications on this medium)
+    endif
+end note
+
+class EmailNotifier {
+    + EmailNotifier()
+}
+
+abstract class NotificationDecorator {
+   - wrappee: Notifier
+   + NotificationDecorator(wrappee: Notifier, type: NotifierType)
+}
+
+note right of NotificationDecorator
+    send(...) {
+        super.send(...)
+        this.wrappee.send(...)
+    }
+end note
+
+class SMSNotifier {
+    + SMSNotifier(wrappee: Notifier)
+}
+
+note left of SMSNotifier
+    SMSNotifier(wrappee: Notifier) {
+        super(wrappee, NotifierType.SMS)
+    }
+end note
+
+Notifier <|-- EmailNotifier
+Notifier <|-- NotificationDecorator
+
+NotificationDecorator <|-- SMSNotifier
+
+Notifier <.. Userx : <use>
+Notifier -- NotifierType
+Userx -- NotifierType
+
+note left of Notifier
+   The classes extending Notifier if they are not abstract have to implement the sendImplementation which is their
+   business logic
+end note
+
+@enduml
