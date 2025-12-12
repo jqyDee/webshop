@@ -5,8 +5,10 @@ import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.repositories.ProductRepository;
+import at.qe.skeleton.repositories.ReviewRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,13 +27,15 @@ import java.util.Set;
 public class ProductService {
     private final ProductRepository productRepository;
     private final AuthenticatedUserService authenticatedUserService;
+    private final ReviewRepository reviewRepository;
 
     @Autowired
     public ProductService(
             ProductRepository productRepository,
-            AuthenticatedUserService authenticatedUserService) {
+            AuthenticatedUserService authenticatedUserService, ReviewRepository reviewRepository) {
         this.productRepository = productRepository;
         this.authenticatedUserService = authenticatedUserService;
+        this.reviewRepository = reviewRepository;
     }
 
     /**
@@ -122,6 +126,26 @@ public class ProductService {
         int rowsUpdated = this.productRepository.decreaseStock(productId, quantity);
 
         return rowsUpdated > 0;
+    }
+
+    /**
+     * Get Products for the specified page. If parameters are left null they are ignored.
+     *
+     * @param productId product id to get the reviews for
+     * @param pageId id of page (0 indexed) or null
+     * @param pageSize size of page or null
+     * @param sort how the output should be sorted
+     * @return page of reviews
+     */
+    public Page<Review> getReviews(Long productId, Integer pageId, Integer pageSize,
+                                   Sort sort) {
+        Sort finalSort = (sort != null) ? sort : Sort.unsorted();
+
+        Pageable pageable = (pageId != null && pageSize != null && pageSize > 0)
+                ? PageRequest.of(pageId, pageSize, finalSort)
+                : Pageable.unpaged();
+
+        return reviewRepository.findByProductId(productId, pageable);
     }
 
     /**
