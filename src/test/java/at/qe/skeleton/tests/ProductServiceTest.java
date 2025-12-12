@@ -317,19 +317,19 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void testCheckAvailability() {
+    public void testCheckStock() {
         Long productId = 1000L;
         int quantity = 2;
 
-        Assertions.assertFalse(productService.checkAvailability(productId, quantity));
+        Assertions.assertFalse(productService.checkStock(productId, quantity));
 
         quantity = 1;
-        Assertions.assertTrue(productService.checkAvailability(productId, quantity));
+        Assertions.assertTrue(productService.checkStock(productId, quantity));
     }
 
     @DirtiesContext
     @Test
-    public void testCheckAvailabilityAndReserve() {
+    public void testReserveStock() {
         Long productId = 1000L;
         int quantity = 2;
 
@@ -338,14 +338,14 @@ public class ProductServiceTest {
         Product productBefore = productBeforeOpt.get();
         Assertions.assertEquals(1, productBefore.getStock());
 
-        Assertions.assertFalse(productService.checkAvailabilityAndReserve(productId, quantity));
+        Assertions.assertFalse(productService.reserveStock(productId, quantity));
         Optional<Product> productAfterOpt = productService.loadProduct(productId);
         Assertions.assertFalse(productAfterOpt.isEmpty());
         Product productAfter = productAfterOpt.get();
         Assertions.assertEquals(1, productAfter.getStock());
 
         quantity = 1;
-        Assertions.assertTrue(productService.checkAvailabilityAndReserve(productId, quantity));
+        Assertions.assertTrue(productService.reserveStock(productId, quantity));
         productAfterOpt = productService.loadProduct(productId);
         Assertions.assertFalse(productAfterOpt.isEmpty());
         productAfter = productAfterOpt.get();

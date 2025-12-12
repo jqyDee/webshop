@@ -14,7 +14,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -103,7 +102,7 @@ public class ProductService {
      * @return true when the quantity could be reserved, false if not.
      */
     @Transactional
-    public boolean checkAvailability(Long productId, int quantity) {
+    public boolean checkStock(Long productId, int quantity) {
         int rowsMatching = this.productRepository.checkStock(productId, quantity);
 
         return rowsMatching == 1;
@@ -118,8 +117,8 @@ public class ProductService {
      * @return true when the quantity got reserved, false if not.
      */
     @Transactional
-    public boolean checkAvailabilityAndReserve(Long productId, int quantity) {
-        int rowsUpdated = this.productRepository.decreaseStock(productId, quantity);
+    public boolean reserveStock(Long productId, int quantity) {
+        int rowsUpdated = this.productRepository.reserveStock(productId, quantity);
 
         return rowsUpdated > 0;
     }
