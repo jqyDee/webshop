@@ -8,7 +8,9 @@ import org.springframework.data.domain.Persistable;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Entity representing products.
@@ -32,7 +34,6 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     private double discount;
     private String shortDescription;
     private String description;
-    private Double rating; // This should be derived from the reviews, null if no reviews ([0, 5] stars)
 
     // it seems that storing the actual image in the database is not a viable option for a high
     // performance application like a webshop. You would want to store the images in a Cloud Object
@@ -46,9 +47,9 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 
-    // TODO: Reviews
-    // @OneToMany
-    // private Set<Reviews> reviews;
+    // this ensures the reviews get deleted on product deletion
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Review> reviews = new HashSet<>();
 
     public void setName(String name) {
         this.name = name;
@@ -98,12 +99,15 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
         return description;
     }
 
-    public void setRating(Double rating) {
-        this.rating = rating;
-    }
-
     public Double getRating() {
-        return rating;
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
+        }
+
+        return reviews.stream()
+                      .mapToInt(Review::getRating)
+                      .average()
+                      .orElse(0.0);
     }
 
     public void setImageUrl(String imageUrl) {
@@ -128,6 +132,19 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
 
     public LocalDateTime getUpdatedDate() {
         return updatedDate;
+    }
+
+    public void setReviews(Set<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public Set<Review> getReviews() {
+        return reviews;
+    }
+
+    public void addReview(Review review) {
+        reviews.add(review);
+        review.setProduct(this);
     }
 
     @Override
