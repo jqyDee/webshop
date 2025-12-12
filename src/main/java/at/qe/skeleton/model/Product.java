@@ -34,6 +34,7 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     private double discount;
     private String shortDescription;
     private String description;
+    private Double rating; // This should be derived from the reviews, null if no reviews ([0, 5] stars)
 
     // it seems that storing the actual image in the database is not a viable option for a high
     // performance application like a webshop. You would want to store the images in a Cloud Object
@@ -99,15 +100,12 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
         return description;
     }
 
-    public Double getRating() {
-        if (reviews == null || reviews.isEmpty()) {
-            return 0.0;
-        }
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
 
-        return reviews.stream()
-                      .mapToInt(Review::getRating)
-                      .average()
-                      .orElse(0.0);
+    public Double getRating() {
+        return rating;
     }
 
     public void setImageUrl(String imageUrl) {
