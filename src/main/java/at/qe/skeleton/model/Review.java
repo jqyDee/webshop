@@ -11,6 +11,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * Entity representing Reviews
+ */
 @Entity
 public class Review implements Persistable<Long>, Serializable {
     @Serial
