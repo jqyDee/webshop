@@ -1,6 +1,9 @@
 package at.qe.skeleton.services;
 
 import at.qe.skeleton.model.Product;
+import at.qe.skeleton.model.Review;
+import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service for accessing and manipulating product data.
@@ -20,12 +24,14 @@ import java.util.Optional;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     @Autowired
     public ProductService(
-            ProductRepository productRepository
-    ) {
+            ProductRepository productRepository,
+            AuthenticatedUserService authenticatedUserService) {
         this.productRepository = productRepository;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     /**
@@ -85,8 +91,6 @@ public class ProductService {
     public void deleteProduct(Product product) {
         this.productRepository.delete(product);
 
-        // TODO: Reviews should be deleted without having to do anything.
-
         // TODO: ProductSubscriptions that match the product have to be deleted if the product gets
         //       deleted.
     }
@@ -121,21 +125,82 @@ public class ProductService {
     }
 
     /**
+     * Add a review to a product
+     *
+     * @param productId the product id of the product which the review should be saved at
+     * @param newReview the new review, IMPORTANT: review_id has to be null
+     * @param author the author of the review: get through @AuthorisationPrincipal
+     * @return the updated Product
+     */
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public Product addReview(Long productId, Review newReview, Userx author) {
+        Optional<Product> productOpt = this.loadProduct(productId);
+        if (productOpt.isEmpty()) {
+            return null;
+        }
+        Product product = productOpt.get();
+
+        newReview.setAuthor(author);
+        product.addReview(newReview);
+
+        updateRating(product);
+
+        return this.productRepository.save(product);
+    }
+
+    /**
+     * Remove a review from a product
+     *
+     * @param productId the product id of the product which the review should be deleted at
+     * @param reviewId the review id of the review tha should be deleted
+     */
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public void removeReview(Long productId, Long reviewId) {
+        Optional<Product> productOpt = this.loadProduct(productId);
+        if (productOpt.isEmpty() || reviewId == null) {
+            return;
+        }
+        Product product = productOpt.get();
+        Userx currentUser = authenticatedUserService.getAuthenticatedUser();
+        Collection<Review> reviews = product.getReviews();
+
+        reviews.stream()
+               .filter(review -> review.getId().equals(reviewId))
+               .findFirst()
+               .ifPresent(review -> {
+                   boolean isAuthor = review.getAuthor().equals(currentUser);
+                   boolean isAdmin = currentUser.getRoles().contains(UserxRole.ADMIN);
+
+                   if (isAdmin || isAuthor) {
+                       product.removeReview(review);
+                       updateRating(product);
+                       productRepository.save(product);
+                   }
+               });
+
+    }
+
+    /**
      * Update the rating of a product. This should be called when a review is created or deleted.
      * (In future also review updates)
      *
      * @param product the product to update the rating for
      */
-    @Transactional
     public void updateRating(Product product) {
-        // TODO: when reviews are done; getAverage call should be DB query
-        // Double calculatedAverage = reviewRepository.getAverageRatingByProduct(product);
-        Double calculatedAverage = null;
+        Set<Review> reviews = product.getReviews();
 
-        double newRating = (calculatedAverage != null) ? calculatedAverage : 0.0;
+        if (reviews == null || reviews.isEmpty()) {
+            product.setRating(null);
+            return;
+        }
 
-        product.setRating(newRating);
+        Double calculatedAverage = reviews.stream()
+                                          .mapToInt(Review::getRating)
+                                          .average()
+                                          .orElse(0.0);
 
-        productRepository.save(product);
+        product.setRating(calculatedAverage);
     }
 }

@@ -29,7 +29,7 @@ public class Review implements Persistable<Long>, Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "user_id")
-    private Userx user;
+    private Userx author;
 
     @Column(nullable = false)
     private int rating; // between [0,5] stars
@@ -50,12 +50,12 @@ public class Review implements Persistable<Long>, Serializable {
         return product;
     }
 
-    public void setUser(Userx user) {
-        this.user = user;
+    public void setAuthor(Userx author) {
+        this.author = author;
     }
 
-    public Userx getUser() {
-        return user;
+    public Userx getAuthor() {
+        return author;
     }
 
     public void setRating(int rating) {
