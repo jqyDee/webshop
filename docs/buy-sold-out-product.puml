@@ -7,58 +7,42 @@ participant ProductRepository
 participant Order
 participant OrderRepository
 
-Customer -> OrderService: createOrder(shoppingCart: ShoppingCart)
-OrderService -> Order: new
-Order --> OrderService: new [o: Order]
-loop For each CartItem c in shoppingCart
-    OrderService -> ProductService: checkAvailability(c: CartItem)
-    ProductService -> ProductRepository: checkAvailabilityAndReduceProductQuantity(product: Product, quantity: int)
-    ProductRepository --> ProductService: checkAvailabilityAndReduceProductQuantity: [status: unavailable or available]
+== 1 Create Order ==
+
+Customer -> OrderService: createOrder()
+
+OrderService -> OrderService: cartItemsToOrderItems(cartItems: Collection<CartItems>) = orderItems: Collection<OrderItems>
+
+OrderService -> ProductService: reserveCartItems(cartItems: Collection<CartItems>)
+    ProductService -> ProductRepository: reserveProducts(products: Collection<Products>)
     note left
-        this is important because to ensure
-        atomicity
+        this is done atomically
     end note
-    ProductService --> OrderService: checkAvailability: [status: unavailable or available]
-    alt status == available
-        OrderService -> OrderService: addToOrder(o: Order, c: CartItem)
-        note left
-            the cart items product is stored
-            in the order, not the cart item itself
-        end note
-    else status == unavailable
-        OrderService -> OrderService: addToNotInStock(notInStock: List<Product>, c: CartItem)
-        note left
-            notInStock is an internal List in the
-            OrderService method
-        end note
-    end
-end
-
-OrderService -> OrderService: setOrderStatus(o: Order, s: OrderStatus = PENDING)
-
-OrderService -> OrderRepository: saveOrder(o: Order)
-OrderRepository --> OrderService: ok
-
-OrderService --> Customer: createOrder: [order overview]
-
-alt user wants to place the order
-    Customer -> OrderService: executeOrder(o: Order)
-    OrderService -> OrderService: setOrderStatus(o: Order, s: OrderStatus = PENDING_PAYMENT)
+    ProductRepository --> ProductService: reserveProducts: lastReservedProductIndex: int
+ProductService --> OrderService: reserveCartItems: [status: OK | notOK]
+alt status == allOK
+    OrderService -> Order: new
+    note left
+        create order with products
+    end note
+    Order --> OrderService: new [o: Order]
+    OrderService -> OrderService: addOrderItems(orderItems)
+    OrderService -> OrderService: setOrderStatus(o: Order, s: OrderStatus = PENDING)
     OrderService -> OrderRepository: saveOrder(o: Order)
     OrderRepository --> OrderService: ok
-
+    OrderService --> Customer: createOrder: OrderResponseDTO(failed == false)
     note left
-        here the processing would be continued in the
-        PaymentProcessing Service
+        customer has to confirm and proceed with payment
     end note
+== 2 Case of failure ==
+else status == notOK
+    OrderService --> Customer: createOrder: OrderResponseDTO(failed == true)
+    note left
+        inform Customer that he has to try again
+        (go back to 1)
+    end note
+end alt
 
-    OrderService --> Customer: ok
-else
-    Customer -> OrderService: discardOrder(o: Order)
-    OrderService -> OrderRepository: deleteOrder(o: Order)
-    OrderRepository --> OrderService: ok
 
-    OrderService --> Customer: ok
-end
 
 @enduml
