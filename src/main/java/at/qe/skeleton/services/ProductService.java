@@ -1,10 +1,12 @@
 package at.qe.skeleton.services;
 
+import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.repositories.ProductRepository;
+import at.qe.skeleton.specifications.ProductSpecification;
 import at.qe.skeleton.repositories.ReviewRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,19 +48,20 @@ public class ProductService {
      * @param pageId id of page (0 indexed) or null
      * @param pageSize size of page or null
      * @param sort how the output should be sorted
-     * @param filter filter for the products or null
+     * @param filter filterDTO for the products or null
      * @return collection of filtered and paged products
      */
-    public Collection<Product> getProducts(Integer pageId, Integer pageSize, Sort sort, Specification<Product> filter) {
+    public Page<Product> getProducts(Integer pageId, Integer pageSize, Sort sort,
+                                           ProductFilterDTO filter) {
         Sort finalSort = (sort != null) ? sort : Sort.unsorted();
 
         Pageable pageable = (pageId != null && pageSize != null && pageSize > 0)
                 ? PageRequest.of(pageId, pageSize, finalSort)
                 : Pageable.unpaged();
 
-        Specification<Product> spec = (filter != null) ? filter : Specification.unrestricted();
+        Specification<Product> spec = ProductSpecification.createFromFilterDTO(filter);
 
-        return productRepository.findAll(spec, pageable).getContent();
+        return productRepository.findAll(spec, pageable);
     }
 
     /**
@@ -108,7 +111,7 @@ public class ProductService {
      * @return true when the quantity could be reserved, false if not.
      */
     @Transactional
-    public boolean checkAvailability(Long productId, int quantity) {
+    public boolean checkStock(Long productId, int quantity) {
         int rowsMatching = this.productRepository.checkStock(productId, quantity);
 
         return rowsMatching == 1;
@@ -123,8 +126,8 @@ public class ProductService {
      * @return true when the quantity got reserved, false if not.
      */
     @Transactional
-    public boolean checkAvailabilityAndReserve(Long productId, int quantity) {
-        int rowsUpdated = this.productRepository.decreaseStock(productId, quantity);
+    public boolean reserveStock(Long productId, int quantity) {
+        int rowsUpdated = this.productRepository.reserveStock(productId, quantity);
 
         return rowsUpdated > 0;
     }

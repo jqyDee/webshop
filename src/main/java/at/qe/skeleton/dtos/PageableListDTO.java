@@ -1,12 +1,13 @@
 package at.qe.skeleton.dtos;
 
-import jakarta.validation.constraints.NotBlank;
+
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Collection;
 
 public record PageableListDTO<T>(
-        int pageSize,
-        int pageIdAfter,
-        @NotBlank int totalCount,
+        Integer pageSize,
+        Integer pageIdAfter,
+        @NotNull Long totalCount,
         Collection<T> items
 ) {}
