@@ -8,7 +8,9 @@ import org.springframework.data.domain.Persistable;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Entity representing products.
@@ -46,9 +48,9 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     @UpdateTimestamp
     private LocalDateTime updatedDate;
 
-    // TODO: Reviews
-    // @OneToMany
-    // private Set<Reviews> reviews;
+    // this ensures the reviews get deleted on product deletion
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Review> reviews = new HashSet<>();
 
     public void setName(String name) {
         this.name = name;
@@ -128,6 +130,19 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
 
     public LocalDateTime getUpdatedDate() {
         return updatedDate;
+    }
+
+    public void setReviews(Set<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public Set<Review> getReviews() {
+        return reviews;
+    }
+
+    public void addReview(Review review) {
+        reviews.add(review);
+        review.setProduct(this);
     }
 
     @Override

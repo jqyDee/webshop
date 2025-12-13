@@ -284,7 +284,7 @@ public class ProductServiceTest {
 
     @DirtiesContext
     @Test
-    @WithMockUser(username = "normalUser", authorities = {"EMPLOYEE"})
+    @WithMockUser(username = "normalUser", authorities = {"CUSTOMER"})
     public void testUnauthorizedSaveProduct() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             Long productId = 1000L;
@@ -301,7 +301,7 @@ public class ProductServiceTest {
 
     @DirtiesContext
     @Test
-    @WithMockUser(username = "normalUser", authorities = {"EMPLOYEE"})
+    @WithMockUser(username = "normalUser", authorities = {"CUSTOMER"})
     public void testUnauthorizedDeleteProduct() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             Long productId = 1000L;

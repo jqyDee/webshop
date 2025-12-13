@@ -57,8 +57,8 @@ public class UserxServiceTest {
                 Assertions.assertNull(user.getUpdateDate(),
                         "User \"" + user + "\" has a updateDate defined");
             } else if ("user2".equals(user.getUsername())) {
-                Assertions.assertTrue(user.getRoles().contains(UserxRole.EMPLOYEE),
-                        "User \"" + user + "\" does not have role EMPLOYEE");
+                Assertions.assertTrue(user.getRoles().contains(UserxRole.CUSTOMER),
+                        "User \"" + user + "\" does not have role CUSTOMER");
                 Assertions.assertNotNull(user.getCreateUser(),
                         "User \"" + user + "\" does not have a createUser defined");
                 Assertions.assertNotNull(user.getCreateDate(),
@@ -171,7 +171,7 @@ public class UserxServiceTest {
         toBeCreatedUser.setLastName(lName);
         toBeCreatedUser.setEmail(email);
         toBeCreatedUser.setPhone(phone);
-        toBeCreatedUser.setRoles(Sets.newSet(UserxRole.EMPLOYEE, UserxRole.MANAGER));
+        toBeCreatedUser.setRoles(Sets.newSet(UserxRole.CUSTOMER, UserxRole.MANAGER));
         Userx savedUser = userService.saveUser(toBeCreatedUser);
 
         Optional<Userx> freshlyCreatedUserOpt = userService.loadUser(savedUser.getId());
@@ -194,8 +194,8 @@ public class UserxServiceTest {
                 "User \"" + username + "\" does not have a the correct phone attribute stored being saved");
         Assertions.assertTrue(freshlyCreatedUser.getRoles().contains(UserxRole.MANAGER),
                 "User \"" + username + "\" does not have role MANAGER");
-        Assertions.assertTrue(freshlyCreatedUser.getRoles().contains(UserxRole.EMPLOYEE),
-                "User \"" + username + "\" does not have role EMPLOYEE");
+        Assertions.assertTrue(freshlyCreatedUser.getRoles().contains(UserxRole.CUSTOMER),
+                "User \"" + username + "\" does not have role CUSTOMER");
         Assertions.assertNotNull(freshlyCreatedUser.getCreateUser(),
                 "User \"" + username + "\" does not have a createUser defined after being saved");
         Assertions.assertEquals(adminUser, freshlyCreatedUser.getCreateUser(),
@@ -244,7 +244,7 @@ public class UserxServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"EMPLOYEE"})
+    @WithMockUser(username = "user", authorities = {"CUSTOMER"})
     public void testUnauthorizedLoadUsers() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             for (Userx user : userService.getAllUsers()) {
@@ -255,7 +255,7 @@ public class UserxServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user1", authorities = {"EMPLOYEE"})
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testUnauthorizedLoadUser() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             Optional<Userx> user = userService.loadUser(1000L);
@@ -265,7 +265,7 @@ public class UserxServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user1", authorities = {"EMPLOYEE"})
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testUnauthorizedSaveUser() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             Long userId = 2000L;
@@ -280,7 +280,7 @@ public class UserxServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user1", authorities = {"EMPLOYEE"})
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testUnauthorizedDeleteUser() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             Long userId = 2000L;

@@ -12,7 +12,7 @@ public enum UserxRole implements GrantedAuthority {
 
     ADMIN,
     MANAGER,
-    EMPLOYEE;
+    CUSTOMER;
 
     @Override
     public String getAuthority() {

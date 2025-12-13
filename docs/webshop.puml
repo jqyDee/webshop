@@ -1,4 +1,5 @@
 @startuml
+left to right direction
 
 class Userx {
     username: String
@@ -8,7 +9,7 @@ class Userx {
     phone: String
     notifierTypes: ?
 }
-note right
+note bottom
     notifierTypes probably should be
     implemented with decorator pattern
 end note
@@ -28,7 +29,7 @@ class Product {
     description: String
     picture: Stub
 }
-note left
+note right
     filtering products done
     in database;
 
@@ -41,9 +42,6 @@ class Review {
     title: String
     comment: String
     createDate: LocalDateTime
-}
-
-class ShoppingCart {
 }
 
 class CartItem {
@@ -76,9 +74,24 @@ enum ProductSubscriptionsType {
     BACK_IN_STOCK_ProductSubscriptions
 }
 
+class OrderItem {
+    name: String
+    price: double
+    quantity: int
+    product: Product
+}
+
+class Address {
+    street: String
+    number: int
+    postalCode: String
+    city: String
+    country: String
+}
+
 'associations:
 Userx -- "1" UserxRole: role
-Userx -- "1" ShoppingCart: shoppingCart
+Userx -- "1" Address: address
 
 Userx .. Review: writes (role = CUSTOMER)
 Userx .. Order: places (role = CUSTOMER)
@@ -88,11 +101,15 @@ Review -- "1" Userx: author
 
 Product -- "0..*" Review: reviews
 
-ShoppingCart -- "0..*" CartItem: items
 CartItem -- "1" Product: product
 
 Order -- "1" OrderStatus: status
-Order ..> ShoppingCart: <<uses>>
+Order -- "1..*" OrderItem: orderItems
+Order -- "1" Userx: orderingUser
+
+OrderItem ..> CartItem: <<uses>>
+OrderItem ..> Product: <<uses>>
+Userx ..> CartItem: <<has Cart Items>>
 
 ProductSubscriptions -- "1" Userx: user
 ProductSubscriptions -- "1" Product: product
