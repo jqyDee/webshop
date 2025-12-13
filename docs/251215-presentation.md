@@ -25,7 +25,7 @@
 
 ![api-screenshot-for-pres.png](api-screenshot-for-pres.png)
 
-[Swagger UI for API endpoints](http://localhost:8080/swagger-ui/index.html#/shopping-cart-controller)
+[Swagger UI for API endpoints](http://localhost:8080/swagger-ui/index.html)
 
 ## Currently in work
 
