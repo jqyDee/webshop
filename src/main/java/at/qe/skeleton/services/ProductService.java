@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -158,10 +159,10 @@ public class ProductService {
      */
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public Product addReview(Long productId, Review newReview, Userx author) {
+    public Optional<Product> addReview(Long productId, Review newReview, Userx author) {
         Optional<Product> productOpt = this.loadProduct(productId);
         if (productOpt.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
         Product product = productOpt.get();
 
@@ -170,7 +171,7 @@ public class ProductService {
 
         updateRating(product);
 
-        return this.productRepository.save(product);
+        return Optional.of(this.productRepository.save(product));
     }
 
     /**
@@ -197,11 +198,14 @@ public class ProductService {
                    boolean isAuthor = review.getAuthor().equals(currentUser);
                    boolean isAdmin = currentUser.getRoles().contains(UserxRole.ADMIN);
 
-                   if (isAdmin || isAuthor) {
-                       product.removeReview(review);
-                       updateRating(product);
-                       productRepository.save(product);
+                   if (!isAdmin && !isAuthor) {
+                       throw new AccessDeniedException(
+                               "You are not authorized to perform this action.");
                    }
+
+                   product.removeReview(review);
+                   updateRating(product);
+                   productRepository.save(product);
                });
 
     }

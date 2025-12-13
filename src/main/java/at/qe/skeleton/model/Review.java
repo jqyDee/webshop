@@ -28,7 +28,7 @@ public class Review implements Persistable<Long>, Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "author_id")
     private Userx author;
 
     @Column(nullable = false)

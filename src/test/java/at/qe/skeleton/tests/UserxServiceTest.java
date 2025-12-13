@@ -1,13 +1,16 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.UserxService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -27,6 +30,8 @@ public class UserxServiceTest {
 
     @Autowired
     UserxService userService;
+    @Autowired
+    private ProductService productService;
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
@@ -34,52 +39,44 @@ public class UserxServiceTest {
         Assertions.assertEquals(4, userService.getAllUsers().size(),
                 "Insufficient amount of users initialized for test data source");
         for (Userx user : userService.getAllUsers()) {
-            if ("admin".equals(user.getUsername())) {
-                Assertions.assertTrue(user.getRoles().contains(UserxRole.ADMIN),
-                        "User \"" + user + "\" does not have role ADMIN");
-                Assertions.assertNotNull(user.getCreateUser(),
-                        "User \"" + user + "\" does not have a createUser defined");
-                Assertions.assertNotNull(user.getCreateDate(),
-                        "User \"" + user + "\" does not have a createDate defined");
-                Assertions.assertNull(user.getUpdateUser(),
-                        "User \"" + user + "\" has a updateUser defined");
-                Assertions.assertNull(user.getUpdateDate(),
-                        "User \"" + user + "\" has a updateDate defined");
-            } else if ("user1".equals(user.getUsername())) {
-                Assertions.assertTrue(user.getRoles().contains(UserxRole.MANAGER),
-                        "User \"" + user + "\" does not have role MANAGER");
-                Assertions.assertNotNull(user.getCreateUser(),
-                        "User \"" + user + "\" does not have a createUser defined");
-                Assertions.assertNotNull(user.getCreateDate(),
-                        "User \"" + user + "\" does not have a createDate defined");
-                Assertions.assertNull(user.getUpdateUser(),
-                        "User \"" + user + "\" has a updateUser defined");
-                Assertions.assertNull(user.getUpdateDate(),
-                        "User \"" + user + "\" has a updateDate defined");
-            } else if ("user2".equals(user.getUsername())) {
-                Assertions.assertTrue(user.getRoles().contains(UserxRole.CUSTOMER),
-                        "User \"" + user + "\" does not have role CUSTOMER");
-                Assertions.assertNotNull(user.getCreateUser(),
-                        "User \"" + user + "\" does not have a createUser defined");
-                Assertions.assertNotNull(user.getCreateDate(),
-                        "User \"" + user + "\" does not have a createDate defined");
-                Assertions.assertNull(user.getUpdateUser(),
-                        "User \"" + user + "\" has a updateUser defined");
-                Assertions.assertNull(user.getUpdateDate(),
-                        "User \"" + user + "\" has a updateDate defined");
-            } else if ("elvis".equals(user.getUsername())) {
-                Assertions.assertTrue(user.getRoles().contains(UserxRole.ADMIN),
-                        "User \"" + user + "\" does not have role ADMIN");
-                Assertions.assertNotNull(user.getCreateUser(),
-                        "User \"" + user + "\" does not have a createUser defined");
-                Assertions.assertNotNull(user.getCreateDate(),
-                        "User \"" + user + "\" does not have a createDate defined");
-                Assertions.assertNull(user.getUpdateUser(),
-                        "User \"" + user + "\" has a updateUser defined");
-                Assertions.assertNull(user.getUpdateDate(),
-                        "User \"" + user + "\" has a updateDate defined");
-            } else {
-                Assertions.fail(
+            switch (user.getUsername()) {
+                case "admin", "elvis" -> {
+                    Assertions.assertTrue(user.getRoles().contains(UserxRole.ADMIN),
+                                          "User \"" + user + "\" does not have role ADMIN");
+                    Assertions.assertNotNull(user.getCreateUser(),
+                                             "User \"" + user + "\" does not have a createUser defined");
+                    Assertions.assertNotNull(user.getCreateDate(),
+                                             "User \"" + user + "\" does not have a createDate defined");
+                    Assertions.assertNull(user.getUpdateUser(),
+                                          "User \"" + user + "\" has a updateUser defined");
+                    Assertions.assertNull(user.getUpdateDate(),
+                                          "User \"" + user + "\" has a updateDate defined");
+                }
+                case "user1" -> {
+                    Assertions.assertTrue(user.getRoles().contains(UserxRole.MANAGER),
+                                          "User \"" + user + "\" does not have role MANAGER");
+                    Assertions.assertNotNull(user.getCreateUser(),
+                                             "User \"" + user + "\" does not have a createUser defined");
+                    Assertions.assertNotNull(user.getCreateDate(),
+                                             "User \"" + user + "\" does not have a createDate defined");
+                    Assertions.assertNull(user.getUpdateUser(),
+                                          "User \"" + user + "\" has a updateUser defined");
+                    Assertions.assertNull(user.getUpdateDate(),
+                                          "User \"" + user + "\" has a updateDate defined");
+                }
+                case "user2" -> {
+                    Assertions.assertTrue(user.getRoles().contains(UserxRole.CUSTOMER),
+                                          "User \"" + user + "\" does not have role CUSTOMER");
+                    Assertions.assertNotNull(user.getCreateUser(),
+                                             "User \"" + user + "\" does not have a createUser defined");
+                    Assertions.assertNotNull(user.getCreateDate(),
+                                             "User \"" + user + "\" does not have a createDate defined");
+                    Assertions.assertNull(user.getUpdateUser(),
+                                          "User \"" + user + "\" has a updateUser defined");
+                    Assertions.assertNull(user.getUpdateDate(),
+                                          "User \"" + user + "\" has a updateDate defined");
+                }
+                case null, default -> Assertions.fail(
                         "Unknown user \"" + user.getUsername() + "\" loaded from test data source via UserService.getAllUsers");
             }
         }
@@ -119,6 +116,7 @@ public class UserxServiceTest {
         Long userId = 2000L;
         Optional<Userx> adminUserOpt = userService.loadUser(1000L);
         Assertions.assertNotNull(adminUserOpt, "Admin user could not be loaded from test data source");
+        Assertions.assertFalse(adminUserOpt.isEmpty());
         Userx adminUser = adminUserOpt.get();
 
         Optional<Userx> toBeSavedUserOpt = userService.loadUser(userId);
@@ -292,5 +290,39 @@ public class UserxServiceTest {
                     "Call to userService.loadUser returned wrong user");
             userService.deleteUser(user);
         });
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testDeleteUserReviewAuthorNull() {
+        Long deleteUserId = 2000L;
+        Optional<Userx> adminUser = userService.loadUser(1000L);
+        Assertions.assertFalse(adminUser.isEmpty(),
+                               "Admin user could not be loaded from test data source");
+        Optional<Userx> toBeDeletedUserOpt = userService.loadUser(deleteUserId);
+        Assertions.assertFalse(toBeDeletedUserOpt.isEmpty(),
+                               "User with id \"" + deleteUserId + "\" could not be loaded from test data source");
+        Userx toBeDeletedUser = toBeDeletedUserOpt.get();
+
+        userService.deleteUser(toBeDeletedUser);
+
+        Long productId1 = 1000L;
+        Long productId2 = 4000L;
+        Page<Review> pageProduct1 = productService.getReviews(productId1, null, null, null);
+        Assertions.assertNotNull(pageProduct1);
+
+        Optional<Review> review1Opt = pageProduct1.stream().findFirst();
+        Assertions.assertFalse(review1Opt.isEmpty());
+        Review review1 = review1Opt.get();
+        Assertions.assertNull(review1.getAuthor());
+
+        Page<Review> pageProduct2 = productService.getReviews(productId2, null, null, null);
+        Assertions.assertNotNull(pageProduct2);
+
+        Optional<Review> review2Opt = pageProduct2.stream().findFirst();
+        Assertions.assertFalse(review2Opt.isEmpty());
+        Review review2 = review1Opt.get();
+        Assertions.assertNull(review2.getAuthor());
     }
 }

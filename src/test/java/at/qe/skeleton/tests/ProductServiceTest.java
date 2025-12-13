@@ -1,12 +1,17 @@
 package at.qe.skeleton.tests;
 
 import at.qe.skeleton.model.Product;
+import at.qe.skeleton.model.Review;
+import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.ProductService;
+import at.qe.skeleton.services.UserxService;
 import at.qe.skeleton.specifications.ProductSpecification;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -22,9 +27,11 @@ public class ProductServiceTest {
 
     @Autowired
     ProductService productService;
+    @Autowired
+    private UserxService userxService;
 
     @Test
-    public void testDataInitialization() {
+    public void testProductDataInitialization() {
         Assertions.assertEquals(4, productService.getProducts(null, null, null, null).size(),
                                 "Insufficient amount of products initialized for test data source");
 
@@ -40,6 +47,25 @@ public class ProductServiceTest {
                                              "Product " +  product.getName() + " does not have create Date");
                     break;
                 default: Assertions.fail("Unknown product name " + product.getName());
+            }
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testReviewDataInitialization() {
+        Assertions.assertEquals(4, productService.getProducts(null, null, null, null).size());
+
+        for (Product product : productService.getProducts(null, null, null, null)) {
+            switch (product.getName()) {
+                case "Iphone 12":
+                case "Iphone 14":
+                    Assertions.assertEquals(1, product.getReviews().size());
+                    break;
+                case "Iphone 13":
+                case "Iphone 15":
+                    Assertions.assertEquals(2, product.getReviews().size());
+                    break;
             }
         }
     }
@@ -347,5 +373,117 @@ public class ProductServiceTest {
         Assertions.assertFalse(productAfterOpt.isEmpty());
         productAfter = productAfterOpt.get();
         Assertions.assertEquals(0, productAfter.getStock());
+    }
+
+    @Test
+    @Transactional
+    public void testGetReviews() {
+        Long productId = 1000L;
+
+        Optional<Product> productOpt = productService.loadProduct(productId);
+        Assertions.assertFalse(productOpt.isEmpty());
+        Product product = productOpt.get();
+
+        Page<Review> page = productService.getReviews(productId, 0, 1, null);
+
+        Assertions.assertNotNull(page);
+        Assertions.assertEquals(2, page.getTotalElements()); // Total records in DB
+        Assertions.assertEquals(1, page.getContent().size()); // Records in this page
+
+        Review reviewOnPage = page.getContent().getFirst();
+        Assertions.assertEquals(productId, reviewOnPage.getProduct().getId());
+
+        Assertions.assertTrue(product.getReviews().contains(reviewOnPage));
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user2", authorities = {"CUSTOMER"})
+    @Transactional
+    public void testAddReview() {
+        Long productId = 1000L;
+
+        Userx user = userxService.getUserByUsername("user2");
+
+        Review review = new Review();
+        review.setRating(2);
+        review.setTitle("Test review");
+        review.setComment("Test comment");
+
+        Optional<Product> productOpt = productService.addReview(productId, review, user);
+        Assertions.assertFalse(productOpt.isEmpty());
+        Product product = productOpt.get();
+
+        Assertions.assertTrue(product.getReviews().stream().anyMatch(r -> r.getTitle().equals("Test review")));
+        Assertions.assertEquals(2.0, product.getRating(), 0.01);
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user2", authorities = {"CUSTOMER"})
+    @Transactional
+    public void testDeleteReviewOwner() {
+        Long productId = 1000L;
+        Long reviewId = 2000L;
+
+        productService.removeReview(productId, reviewId);
+
+        Page<Review> page = productService.getReviews(productId, null, null, null);
+        Assertions.assertNotNull(page);
+
+        Assertions.assertEquals(1, page.getTotalElements());
+        Assertions.assertEquals(1, page.getContent().size());
+        Assertions.assertNotEquals(reviewId, page.getContent().getFirst().getId());
+
+        Optional<Product> productOpt = productService.loadProduct(productId);
+        Assertions.assertFalse(productOpt.isEmpty());
+        Product product = productOpt.get();
+
+        Assertions.assertEquals(1.0, product.getRating(), 0.01);
+    }
+
+    @Test
+    @WithMockUser(username = "user2", authorities = {"CUSTOMER"})
+    @Transactional
+    public void testDeleteReviewNonOwner() {
+        Long productId = 1000L;
+        Long reviewId = 1000L;
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> productService.removeReview(productId, reviewId));
+
+        Page<Review> page = productService.getReviews(productId, null, null, null);
+        Assertions.assertNotNull(page);
+        Assertions.assertEquals(2, page.getTotalElements());
+        Assertions.assertEquals(2, page.getContent().size());
+
+        Optional<Product> productOpt = productService.loadProduct(productId);
+        Assertions.assertFalse(productOpt.isEmpty());
+        Product product = productOpt.get();
+
+        Assertions.assertEquals(product.getReviews().stream().toList(), page.getContent());
+
+        Assertions.assertEquals(2.0, product.getRating(), 0.01);
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    @Transactional
+    public void testDeleteReviewAdmin() {
+        Long productId = 1000L;
+        Long reviewId = 1000L;
+
+        productService.removeReview(productId, reviewId);
+
+        Page<Review> page = productService.getReviews(productId, null, null, null);
+        Assertions.assertNotNull(page);
+        Assertions.assertEquals(1, page.getTotalElements());
+        Assertions.assertEquals(1, page.getContent().size());
+
+        Optional<Product> productOpt = productService.loadProduct(productId);
+        Assertions.assertFalse(productOpt.isEmpty());
+        Product product = productOpt.get();
+        Assertions.assertEquals(product.getReviews().stream().toList(), page.getContent());
+
+        Assertions.assertEquals(3.0, product.getRating(), 0.01);
     }
 }
