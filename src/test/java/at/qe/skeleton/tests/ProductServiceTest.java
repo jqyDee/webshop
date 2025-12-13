@@ -1,14 +1,13 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.services.ProductService;
-import at.qe.skeleton.specifications.ProductSpecification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -25,7 +24,7 @@ public class ProductServiceTest {
 
     @Test
     public void testDataInitialization() {
-        Assertions.assertEquals(4, productService.getProducts(null, null, null, null).size(),
+        Assertions.assertEquals(4, productService.getProducts(null, null, null, null).getContent().size(),
                                 "Insufficient amount of products initialized for test data source");
 
         for (Product product : productService.getProducts(null, null, null, null)) {
@@ -63,9 +62,12 @@ public class ProductServiceTest {
         productsPage1Expected.add(product2.get());
         productsPage2Expected.add(product3.get());
 
-        Collection<Product> productsPaged1 = productService.getProducts(0, 3, null, null);
-        Collection<Product> productsPaged2 = productService.getProducts(1, 3, null, null);
-        Collection<Product> productsPaged3 = productService.getProducts(2, 3, null, null);
+        Collection<Product> productsPaged1 = productService.getProducts(0, 3, null, null).getContent();
+        Collection<Product> productsPaged2 = productService.getProducts(1, 3, null, null).getContent();
+        Collection<Product> productsPaged3 = productService.getProducts(2, 3, null, null).getContent();
+
+        Assertions.assertEquals(4, productService.getProducts(0, 3, null, null).getTotalElements(),
+                                "Total element count is wrong");
 
         Assertions.assertEquals(3, productsPaged1.size(), "Insufficient amount of products retrieved");
         Assertions.assertEquals(productsPage1Expected, productsPaged1, "Wrong products in page");
@@ -79,29 +81,30 @@ public class ProductServiceTest {
     @Test
     public void testGetProductsFiltered() {
         // Single Filter Tests
-        Specification<Product> spec1 = ProductSpecification.nameContains("13");
-        Specification<Product> spec2 = ProductSpecification.priceBetween(300.0, 400.0);
-        Specification<Product> spec3 = ProductSpecification.priceBetween(null, 400.0);
-        Specification<Product> spec4 = ProductSpecification.priceBetween(300.0, null);
-        Specification<Product> spec5 = ProductSpecification.ratingGreaterThan(4.0);
-        Specification<Product> spec6 = ProductSpecification.stockGreaterThan(9);
+        ProductFilterDTO spec1 = new ProductFilterDTO("13", null, null, null, null);
+        ProductFilterDTO spec2 = new ProductFilterDTO(null, null, 300.0, 400.0, null);
+        ProductFilterDTO spec3 = new ProductFilterDTO(null, null, null, 400.0, null);
+        ProductFilterDTO spec4 = new ProductFilterDTO(null, null, 300.0, null, null);
+        ProductFilterDTO spec5 = new ProductFilterDTO(null, 4.0, null, null, null);
+        ProductFilterDTO spec6 = new ProductFilterDTO(null, null, null, null, 9);
 
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec2).size(),
+
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec2).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(2, productService.getProducts(null, null, null, spec3).size(),
+        Assertions.assertEquals(2, productService.getProducts(null, null, null, spec3).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec4).size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec4).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec5).size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec5).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec6).size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec6).getContent().size(),
                                 "Insufficient amount of products retrieved");
 
         // Combination
-        Specification<Product> spec7 = Specification.allOf(spec1, spec2, spec5, spec6);
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec7).size(),
+        ProductFilterDTO spec7 = new ProductFilterDTO("13", 4.0, 300.0, 400.0, 9);
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec7).getContent().size(),
                                 "Insufficient amount of products retrieved");
     }
 
@@ -122,7 +125,7 @@ public class ProductServiceTest {
 
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
 
-        Collection<Product> products = productService.getProducts(0, 4, sort, null);
+        Collection<Product> products = productService.getProducts(0, 4, sort, null).getContent();
 
         Assertions.assertEquals(product1, products.stream().toList().get(0));
         Assertions.assertEquals(product3, products.stream().toList().get(1));
@@ -243,7 +246,7 @@ public class ProductServiceTest {
         Product toBeDeletedProduct = productOpt.get();
         productService.deleteProduct(toBeDeletedProduct);
 
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).getContent().size(),
                                 "No Product has been deleted after calling deleteProduct");
         Optional<Product> freshlyDeletedProduct = productService.loadProduct(deleteProductId);
         Assertions.assertTrue(freshlyDeletedProduct.isEmpty(),
@@ -267,7 +270,7 @@ public class ProductServiceTest {
         Product toBeDeletedProduct = productOpt.get();
         productService.deleteProduct(toBeDeletedProduct);
 
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).getContent().size(),
                                 "No Product has been deleted after calling deleteProduct");
         Optional<Product> freshlyDeletedProduct = productService.loadProduct(deleteProductId);
         Assertions.assertTrue(freshlyDeletedProduct.isEmpty(),
@@ -314,19 +317,19 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void testCheckAvailability() {
+    public void testCheckStock() {
         Long productId = 1000L;
         int quantity = 2;
 
-        Assertions.assertFalse(productService.checkAvailability(productId, quantity));
+        Assertions.assertFalse(productService.checkStock(productId, quantity));
 
         quantity = 1;
-        Assertions.assertTrue(productService.checkAvailability(productId, quantity));
+        Assertions.assertTrue(productService.checkStock(productId, quantity));
     }
 
     @DirtiesContext
     @Test
-    public void testCheckAvailabilityAndReserve() {
+    public void testReserveStock() {
         Long productId = 1000L;
         int quantity = 2;
 
@@ -335,14 +338,14 @@ public class ProductServiceTest {
         Product productBefore = productBeforeOpt.get();
         Assertions.assertEquals(1, productBefore.getStock());
 
-        Assertions.assertFalse(productService.checkAvailabilityAndReserve(productId, quantity));
+        Assertions.assertFalse(productService.reserveStock(productId, quantity));
         Optional<Product> productAfterOpt = productService.loadProduct(productId);
         Assertions.assertFalse(productAfterOpt.isEmpty());
         Product productAfter = productAfterOpt.get();
         Assertions.assertEquals(1, productAfter.getStock());
 
         quantity = 1;
-        Assertions.assertTrue(productService.checkAvailabilityAndReserve(productId, quantity));
+        Assertions.assertTrue(productService.reserveStock(productId, quantity));
         productAfterOpt = productService.loadProduct(productId);
         Assertions.assertFalse(productAfterOpt.isEmpty());
         productAfter = productAfterOpt.get();

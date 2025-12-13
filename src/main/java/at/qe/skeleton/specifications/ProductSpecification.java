@@ -1,5 +1,6 @@
 package at.qe.skeleton.specifications;
 
+import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Product_;
 import org.springframework.data.jpa.domain.Specification;
@@ -8,6 +9,17 @@ import org.springframework.data.jpa.domain.Specification;
  * Filter specification for the Product entity.
  */
 public class ProductSpecification {
+    public static Specification<Product> createFromFilterDTO(ProductFilterDTO filterDTO) {
+        if (filterDTO == null) {
+            return null;
+        }
+
+        return Specification.allOf(nameContains(filterDTO.name()),
+                                   ratingGreaterThan(filterDTO.minRating()),
+                                   priceBetween(filterDTO.minPrice(), filterDTO.maxPrice()),
+                                   stockGreaterThan(filterDTO.minStock()));
+    }
+
     public static Specification<Product> nameContains(String name) {
         return (root, query, builder) -> {
             if (name == null || name.isEmpty()) {
