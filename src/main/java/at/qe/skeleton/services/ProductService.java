@@ -146,6 +146,8 @@ public class ProductService {
                 ? PageRequest.of(pageId, pageSize, finalSort)
                 : Pageable.unpaged();
 
+        // It seems easier to just load the products directly from the product itself,
+        // but then pagination is really difficult
         return reviewRepository.findByProductId(productId, pageable);
     }
 
