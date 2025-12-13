@@ -55,6 +55,7 @@ public class ProductController {
         PageableListDTO<ProductDTO> pageableListDTO = new PageableListDTO<>(
                 pageSize,
                 (pageId != null) ? pageId + 1 : null,
+                productPage.getTotalPages(),
                 productPage.getTotalElements(),
                 productPage.getContent().stream().map(productMapper::mapTo).toList()
         );
