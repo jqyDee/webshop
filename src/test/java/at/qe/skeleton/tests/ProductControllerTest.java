@@ -150,7 +150,8 @@ public class ProductControllerTest {
                .andExpect(MockMvcResultMatchers.jsonPath("$.items", Matchers.hasSize(2)))
                .andExpect(MockMvcResultMatchers.jsonPath("$.items[0].name").value("Product 1"))
                .andExpect(MockMvcResultMatchers.jsonPath("$.items[1].name").value("Product 2"))
-               .andExpect(MockMvcResultMatchers.jsonPath("$.totalCount").value(3));
+               .andExpect(MockMvcResultMatchers.jsonPath("$.totalCount").value(3))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.pageCount").value(2));
     }
 
     @Test

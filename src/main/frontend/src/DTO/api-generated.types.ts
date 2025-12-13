@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-11 17:31:18.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-13 18:53:17.
 
 export interface AddressDTO {
     street: string;
@@ -40,6 +40,7 @@ export interface OrderResponseDTO {
 export interface PageableListDTO<T> {
     pageSize?: number;
     pageIdAfter?: number;
+    pageCount?: number;
     totalCount: number;
     items?: T[];
 }
