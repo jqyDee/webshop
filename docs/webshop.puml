@@ -1,0 +1,118 @@
+@startuml
+left to right direction
+
+class Userx {
+    username: String
+    first_name: String
+    last_name: String
+    email: String
+    phone: String
+    notifierTypes: ?
+}
+note bottom
+    notifierTypes probably should be
+    implemented with decorator pattern
+end note
+
+enum UserxRole {
+    ADMIN
+    MANAGER
+    CUSTOMER
+}
+
+class Product {
+    name: String
+    price: double
+    stock: int
+    discount: double /'in interval [0, 1] 0 -> 0%, 1 -> 100% discount'/
+    short_description: String
+    description: String
+    picture: Stub
+}
+note right
+    filtering products done
+    in database;
+
+    product creation could be done
+    through factoryMethod/abstractFactory
+end note
+
+class Review {
+    rating: int /'in interval [1, 5]'/
+    title: String
+    comment: String
+    createDate: LocalDateTime
+}
+
+class CartItem {
+  quantity: int
+}
+
+class Order {
+    createDate: LocalDateTime
+    sum: double
+    products: Map<Product, int>
+}
+
+enum OrderStatus {
+    PENDING
+    PENDING_PAYMENT
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+class ProductSubscriptions {
+}
+note left
+    observer pattern
+end note
+
+enum ProductSubscriptionsType {
+    DISCOUNT_ProductSubscriptions
+    BACK_IN_STOCK_ProductSubscriptions
+}
+
+class OrderItem {
+    name: String
+    price: double
+    quantity: int
+    product: Product
+}
+
+class Address {
+    street: String
+    number: int
+    postalCode: String
+    city: String
+    country: String
+}
+
+'associations:
+Userx -- "1" UserxRole: role
+Userx -- "1" Address: address
+
+Userx .. Review: writes (role = CUSTOMER)
+Userx .. Order: places (role = CUSTOMER)
+Userx .. Product: manages (role = MANAGER)
+
+Review -- "1" Userx: author
+
+Product -- "0..*" Review: reviews
+
+CartItem -- "1" Product: product
+
+Order -- "1" OrderStatus: status
+Order -- "1..*" OrderItem: orderItems
+Order -- "1" Userx: orderingUser
+
+OrderItem ..> CartItem: <<uses>>
+OrderItem ..> Product: <<uses>>
+Userx ..> CartItem: <<has Cart Items>>
+
+ProductSubscriptions -- "1" Userx: user
+ProductSubscriptions -- "1" Product: product
+ProductSubscriptions -- "1..*" ProductSubscriptionsType: types: Set<ProductSubscriptionsType>
+
+@enduml

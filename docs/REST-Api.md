@@ -1,0 +1,1 @@
+Link to REST API docs website (Note: the Backend must be running): http://localhost:8080/swagger-ui/index.html.
