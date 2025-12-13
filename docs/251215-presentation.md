@@ -10,6 +10,7 @@
         ii) MVP (12.01.2026)
         iii) Project deadline (30.01.2026)
     - API endpoints
+    - Product Model, Service, Controller + Tests
 
 ## Diagrams
 ### UML
