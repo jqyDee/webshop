@@ -145,6 +145,10 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
         review.setProduct(this);
     }
 
+    public void removeReview(Review review) {
+        reviews.remove(review);
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;

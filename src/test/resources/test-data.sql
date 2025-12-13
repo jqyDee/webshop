@@ -45,3 +45,26 @@ VALUES (3000, 'Iphone 14', 480.99, 5, 0.3, 'Apple Iphone 14', 'This is an Apple 
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
 VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+
+-- Insert reviews into the REVIEW table
+-- Reviews for Iphone 15 (ID: 1000) - Avg Rating in Product table is 2.0
+INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_AT)
+VALUES (1000, 1000, 2000, 1, 'Overheating issues', 'The phone gets really hot after 10 minutes of use.', '2024-01-10 10:00:00');
+
+INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_AT)
+VALUES (2000, 1000, 3000, 3, 'It is okay', 'Not much different from the previous version.', '2024-01-12 14:30:00');
+
+-- Reviews for Iphone 12 (ID: 2000) - Avg Rating in Product table is 3.0
+INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_AT)
+VALUES (3000, 2000, 4000, 3, 'Good budget option', 'Good value for money now that the price dropped.', '2024-01-15 09:00:00');
+
+-- Reviews for Iphone 13 (ID: 4000) - Avg Rating in Product table is 5.0
+INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_AT)
+VALUES (4000, 4000, 2000, 5, 'Perfect', 'Battery life is amazing and the camera is great.', '2024-01-20 18:15:00');
+
+INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_AT)
+VALUES (5000, 4000, 4000, 5, 'Love it', 'Best phone I have ever owned. Elvis approves.', '2024-01-21 11:45:00');
+
+-- Review for Iphone 14 (ID: 3000) - Avg Rating in Product table is 2.0
+INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_AT)
+VALUES (6000, 3000, 3000, 2, 'Meh', 'I should have bought the 13 or waited for the 15.', '2024-01-25 16:20:00');
