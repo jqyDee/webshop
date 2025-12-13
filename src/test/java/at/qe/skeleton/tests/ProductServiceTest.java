@@ -6,7 +6,6 @@ import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.UserxService;
-import at.qe.skeleton.specifications.ProductSpecification;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
