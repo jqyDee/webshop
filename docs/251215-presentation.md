@@ -1,20 +1,34 @@
 # SWA Project Group 6 Group 2 - Presentation 1
 
+## Progress so far
+
+    - UML diagram (webshop-UML.pdf, notifier-UML.pdf)
+    - Sequenzdiagram (buy-sold-out-product.pdf)
+    - Coding issues in GitLab
+    - Milestones in GitLab                              
+        i) Project Arcitecture (15.12.2025)
+        ii) MVP (12.01.2026)
+        iii) Project deadline (30.01.2026)
+    - API endpoints
+
 ## Diagrams
 ### UML
 ![UML Diagram](./images/251213-webshop.png)
 
-### Sequence
-![Sequence Diagram](./images/251213-buy-sold-out-product.png)
-
 ### Notifier
 ![Notifier Diagram](./images/251213-notifier.png)
 
-## Progress
+### Sequence
+![Sequence Diagram](./images/251213-buy-sold-out-product.png)
+
+## API
+
+![api-screenshot-for-pres.png](api-screenshot-for-pres.png)
+
+[Swagger UI for API endpoints](http://localhost:8080/swagger-ui/index.html#/shopping-cart-controller)
 
 ## Currently in work
 
-### Tim
-### Johanna
-### Paul
-### Matti
+    - Deletion policies
+    - Testing strategies 
+    - Coding the controllers and services
