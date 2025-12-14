@@ -429,7 +429,9 @@ public class ProductServiceTest {
         Long productId = 1000L;
         Long reviewId = 2000L;
 
-        productService.removeReview(productId, reviewId);
+        Userx user = userxService.getUserByUsername("user2");
+
+        productService.removeReview(productId, reviewId, user);
 
         Page<Review> page = productService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
@@ -452,7 +454,10 @@ public class ProductServiceTest {
         Long productId = 1000L;
         Long reviewId = 1000L;
 
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> productService.removeReview(productId, reviewId));
+        Userx user = userxService.getUserByUsername("user2");
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                                () -> productService.removeReview(productId, reviewId, user));
 
         Page<Review> page = productService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
@@ -475,7 +480,9 @@ public class ProductServiceTest {
         Long productId = 1000L;
         Long reviewId = 1000L;
 
-        productService.removeReview(productId, reviewId);
+        Userx user = userxService.getUserByUsername("user2");
+
+        productService.removeReview(productId, reviewId, user);
 
         Page<Review> page = productService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
