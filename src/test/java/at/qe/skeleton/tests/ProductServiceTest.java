@@ -480,7 +480,7 @@ public class ProductServiceTest {
         Long productId = 1000L;
         Long reviewId = 1000L;
 
-        Userx user = userxService.getUserByUsername("user2");
+        Userx user = userxService.getUserByUsername("admin");
 
         productService.removeReview(productId, reviewId, user);
 
