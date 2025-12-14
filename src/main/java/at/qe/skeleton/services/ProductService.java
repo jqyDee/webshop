@@ -29,15 +29,13 @@ import java.util.Set;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
-    private final AuthenticatedUserService authenticatedUserService;
     private final ReviewRepository reviewRepository;
 
     @Autowired
     public ProductService(
             ProductRepository productRepository,
-            AuthenticatedUserService authenticatedUserService, ReviewRepository reviewRepository) {
+            ReviewRepository reviewRepository) {
         this.productRepository = productRepository;
-        this.authenticatedUserService = authenticatedUserService;
         this.reviewRepository = reviewRepository;
     }
 
@@ -164,7 +162,7 @@ public class ProductService {
      */
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public Optional<Product> addReview(Long productId, Review newReview, Userx author) {
+    public Optional<Product> addReview(Long productId, Review newReview, Userx author) throws AccessDeniedException {
         Optional<Product> productOpt = this.loadProduct(productId);
         if (productOpt.isEmpty()) {
             return Optional.empty();
@@ -187,20 +185,19 @@ public class ProductService {
      */
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public void removeReview(Long productId, Long reviewId) {
+    public void removeReview(Long productId, Long reviewId, Userx currentUser) throws AccessDeniedException {
         Optional<Product> productOpt = this.loadProduct(productId);
         if (productOpt.isEmpty() || reviewId == null) {
             return;
         }
         Product product = productOpt.get();
-        Userx currentUser = authenticatedUserService.getAuthenticatedUser();
         Collection<Review> reviews = product.getReviews();
 
         reviews.stream()
                .filter(review -> review.getId().equals(reviewId))
                .findFirst()
                .ifPresent(review -> {
-                   boolean isAuthor = review.getAuthor().equals(currentUser);
+                   boolean isAuthor = review.getAuthor() != null && review.getAuthor().equals(currentUser);
                    boolean isAdmin = currentUser.getRoles().contains(UserxRole.ADMIN);
 
                    if (!isAdmin && !isAuthor) {
