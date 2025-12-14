@@ -1,8 +1,6 @@
 package at.qe.skeleton.tests;
 
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.model.*;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Test;
@@ -38,5 +36,23 @@ public class EqualsImplementationTest {
         Product product2 = new Product();
         product2.setId(2L);
         EqualsVerifier.forClass(Product.class).withPrefabValues(Product.class, product1, product2).suppress(Warning.ALL_FIELDS_SHOULD_BE_USED).verify();
+    }
+
+    @Test
+    public void testReviewEqualsContract() {
+        Review review1 = new Review();
+        review1.setId(1L);
+        Review review2 = new Review();
+        review2.setId(2L);
+        EqualsVerifier.forClass(Review.class).withPrefabValues(Review.class, review1, review2).suppress(Warning.ALL_FIELDS_SHOULD_BE_USED).verify();
+    }
+
+    @Test
+    public void testCartItemEqualsContract() {
+        CartItem cartItem1 = new CartItem();
+        cartItem1.setId(1L);
+        CartItem cartItem2 = new CartItem();
+        cartItem2.setId(2L);
+        EqualsVerifier.forClass(CartItem.class).withPrefabValues(CartItem.class, cartItem1, cartItem2).suppress(Warning.ALL_FIELDS_SHOULD_BE_USED).verify();
     }
 }
