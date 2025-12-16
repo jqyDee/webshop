@@ -9,6 +9,7 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -20,14 +21,16 @@ public class Order implements Serializable, Comparable<Order>{
     private OrderStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "shipping_address_id")
+    @JoinColumn(name = "shipping_address_id", nullable = false)
     private Address shippingAddress;
     @ManyToOne
-    @JoinColumn(name = "payment_address_id")
+    @JoinColumn(name = "payment_address_id", nullable = false)
     private Address paymentAddress;
-    double sum;
-    private Map<Product, Integer> products;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> products;
+
+    double sum;
 
     @Column(nullable = false)
     @CreationTimestamp
