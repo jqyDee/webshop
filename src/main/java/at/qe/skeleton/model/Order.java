@@ -1,19 +1,16 @@
 package at.qe.skeleton.model;
 
-import at.qe.skeleton.dtos.AddressDTO;
-import at.qe.skeleton.dtos.ProductDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails;
-import org.springframework.data.domain.Persistable;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 @Entity
-public class Order implements Serializable, Comparable<Order>{
+public class Order{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,13 +25,56 @@ public class Order implements Serializable, Comparable<Order>{
     private Address paymentAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> products;
-
+    private Set<OrderItem> products = new HashSet<>();
     double sum;
 
     @Column(nullable = false)
     @CreationTimestamp
     private LocalDateTime createdDate;
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Set<OrderItem> getProducts() {
+        return products;
+    }
+
+    public void addProduct(OrderItem orderItem) {
+        products.add(orderItem);
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
+    public double getSum() {
+        return sum;
+    }
+
+    public void setSum(double sum) {
+        this.sum = sum;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
 
     public Address getPaymentAddress() {
         return paymentAddress;
@@ -52,9 +92,5 @@ public class Order implements Serializable, Comparable<Order>{
         this.shippingAddress = shippingAddress;
     }
 
-    @Override
-    public int compareTo(Order o) {
-        return 0;
-    }
 
 }
