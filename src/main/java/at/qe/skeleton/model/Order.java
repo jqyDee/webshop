@@ -19,18 +19,22 @@ public class Order implements Persistable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Userx user;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_address_id", nullable = false)
     private Address shippingAddress;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_address_id", nullable = false)
     private Address paymentAddress;
 
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Set<OrderItem> products = new HashSet<>();
 
     @Column(nullable = false)
@@ -40,13 +44,18 @@ public class Order implements Persistable<Long>, Serializable {
     @CreationTimestamp
     private LocalDateTime createdDate;
 
-    public Long getUserId() {return userId;}
-    public void setUserId(Long userId) {this.userId = userId;}
+    public Userx getUser() {
+        return user;
+    }
+
+    public void setUser(Userx user) {
+        this.user = user;
+    }
 
     public Set<OrderItem> getProducts() {return products;}
     public void addProduct(OrderItem orderItem) {
         products.add(orderItem); // The sum will always be updated whenever a product is added
-        calculateSum();
+        sum += orderItem.getTotalPrice()*orderItem.getQuantity();
         orderItem.setOrder(this);
     }
 
@@ -63,12 +72,6 @@ public class Order implements Persistable<Long>, Serializable {
 
     public Address getShippingAddress() {return shippingAddress;}
     public void setShippingAddress(Address shippingAddress) {this.shippingAddress = shippingAddress;}
-
-    public void calculateSum () {
-        this.sum = products.stream()
-                .mapToDouble(OrderItem::getTotalPrice)
-                .sum();
-    }
 
     @Override
     public Long getId() {return id;}

@@ -18,17 +18,21 @@ public class OrderItem implements Persistable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Product product;
+
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Order order;
 
+    @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
     private double price; //price of the product at time of purchase not total price
+    @Column(nullable = false)
     private int quantity;
 
     public Product getProduct() {return product;}
