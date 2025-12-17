@@ -28,7 +28,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
     private Order order;
 
     private String name;
-    private double price; //price of the product not total price
+    private double price; //price of the product at time of purchase not total price
     private int quantity;
 
     public Product getProduct() {return product;}

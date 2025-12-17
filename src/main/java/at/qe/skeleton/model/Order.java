@@ -1,7 +1,6 @@
 package at.qe.skeleton.model;
 
 import jakarta.persistence.*;
-import org.aspectj.weaver.ast.Or;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.domain.Persistable;
 
@@ -19,6 +18,7 @@ public class Order implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Long userId;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
@@ -64,7 +64,7 @@ public class Order implements Persistable<Long>, Serializable {
     public Address getShippingAddress() {return shippingAddress;}
     public void setShippingAddress(Address shippingAddress) {this.shippingAddress = shippingAddress;}
 
-    public void setSum () {
+    public void calculateSum () {
         this.sum = products.stream()
                 .mapToDouble(OrderItem::getTotalPrice)
                 .sum();
