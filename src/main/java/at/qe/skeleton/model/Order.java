@@ -1,20 +1,26 @@
 package at.qe.skeleton.model;
 
 import jakarta.persistence.*;
+import org.aspectj.weaver.ast.Or;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.domain.Persistable;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
-public class Order{
+public class Order implements Persistable<Long>, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long userId;
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @ManyToOne
@@ -26,71 +32,67 @@ public class Order{
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> products = new HashSet<>();
-    double sum;
+
+    @Column(nullable = false)
+    double sum = 0; // bigDecimal would be better for money
 
     @Column(nullable = false)
     @CreationTimestamp
     private LocalDateTime createdDate;
 
-    public Long getId() {
-        return id;
-    }
+    public Long getUserId() {return userId;}
+    public void setUserId(Long userId) {this.userId = userId;}
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Set<OrderItem> getProducts() {
-        return products;
-    }
-
+    public Set<OrderItem> getProducts() {return products;}
     public void addProduct(OrderItem orderItem) {
         products.add(orderItem);
+        orderItem.setOrder(this);
     }
 
-    public OrderStatus getStatus() {
-        return status;
+    public OrderStatus getStatus() {return status;}
+    public void setStatus(OrderStatus status) {this.status = status;}
+
+    public double getSum() {return sum;}
+    public void setSum(double sum) {this.sum = sum;}
+
+    public void setCreatedDate(LocalDateTime createdDate) {this.createdDate = createdDate;}
+    public LocalDateTime getCreatedDate() {return createdDate;}
+
+    public Address getPaymentAddress() {return paymentAddress;}
+    public void setPaymentAddress(Address paymentAddress) {this.paymentAddress = paymentAddress;}
+
+    public Address getShippingAddress() {return shippingAddress;}
+    public void setShippingAddress(Address shippingAddress) {this.shippingAddress = shippingAddress;}
+
+    public void setSum () {
+        this.sum = products.stream()
+                .mapToDouble(OrderItem::getTotalPrice)
+                .sum();
     }
 
-    public void setStatus(OrderStatus status) {
-        this.status = status;
+    @Override
+    public Long getId() {return id;}
+
+    public void setId(Long id) {this.id = id;}
+
+    @Override
+    public boolean isNew() {return null == this.id;}
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.getId());
+        return hash;
     }
 
-    public double getSum() {
-        return sum;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Order)) {
+            return false;
+        }
+        return Objects.equals(this.getId(), ((Order) obj).getId());
     }
-
-    public void setSum(double sum) {
-        this.sum = sum;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public Address getPaymentAddress() {
-        return paymentAddress;
-    }
-
-    public void setPaymentAddress(Address paymentAddress) {
-        this.paymentAddress = paymentAddress;
-    }
-
-    public Address getShippingAddress() {
-        return shippingAddress;
-    }
-
-    public void setShippingAddress(Address shippingAddress) {
-        this.shippingAddress = shippingAddress;
-    }
-
-
 }

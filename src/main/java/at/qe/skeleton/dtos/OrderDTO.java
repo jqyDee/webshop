@@ -12,6 +12,6 @@ public record OrderDTO(
         AddressDTO shippingAddress,
         AddressDTO paymentAddress,
         double sum,
-        Map<ProductDTO, Integer> products,
+        Map<ProductDTO, Integer> products, //should be changed to a set of orderItemDTO --> We need OrderItemDTO
         LocalDateTime createdDate
 ) {}
