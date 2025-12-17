@@ -1,9 +1,6 @@
 package at.qe.skeleton.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 
 @Entity
 public class Address {
@@ -21,4 +18,21 @@ public class Address {
     private String city;
     @Column(nullable = false)
     private String country;
+
+    public String getStreet() {return street;}
+    public void setStreet(String street) {this.street = street;}
+
+    public int getNumber() {return number;}
+    public void setNumber(int number) {this.number = number;}
+
+    public String getPostalCode() {return postalCode;}
+    public void setPostalCode(String postalCode) {this.postalCode = postalCode;}
+
+    public String getCity() {return city;}
+    public void setCity(String city) {this.city = city;}
+
+    public String getCountry() {return country;}
+    public void setCountry(String country) {this.country = country;}
+
+    public Long getId() {return id;}
 }
