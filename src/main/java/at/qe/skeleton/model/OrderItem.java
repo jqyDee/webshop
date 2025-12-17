@@ -46,8 +46,10 @@ public class OrderItem implements Persistable<Long>, Serializable {
     public int getQuantity() {return quantity;}
     public void setQuantity(int quantity) {this.quantity = quantity;}
 
-    // discount needs to be subtracted -> here or in product model?
-    public double getTotalPrice() {return price*quantity;}
+    // discount needs to be subtracted
+    public double getTotalPrice() {
+        double discountPrice = price*product.getDiscount();
+        return discountPrice*quantity;}
 
     @Override
     public int hashCode() {

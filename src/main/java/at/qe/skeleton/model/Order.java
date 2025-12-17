@@ -30,7 +30,7 @@ public class Order implements Persistable<Long>, Serializable {
     @JoinColumn(name = "payment_address_id", nullable = false)
     private Address paymentAddress;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> products = new HashSet<>();
 
     @Column(nullable = false)
@@ -45,7 +45,8 @@ public class Order implements Persistable<Long>, Serializable {
 
     public Set<OrderItem> getProducts() {return products;}
     public void addProduct(OrderItem orderItem) {
-        products.add(orderItem);
+        products.add(orderItem); // The sum will always be updated whenever a product is added
+        calculateSum();
         orderItem.setOrder(this);
     }
 
@@ -53,7 +54,6 @@ public class Order implements Persistable<Long>, Serializable {
     public void setStatus(OrderStatus status) {this.status = status;}
 
     public double getSum() {return sum;}
-    public void setSum(double sum) {this.sum = sum;}
 
     public void setCreatedDate(LocalDateTime createdDate) {this.createdDate = createdDate;}
     public LocalDateTime getCreatedDate() {return createdDate;}
