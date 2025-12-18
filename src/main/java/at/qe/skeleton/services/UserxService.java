@@ -3,6 +3,8 @@ package at.qe.skeleton.services;
 import at.qe.skeleton.exceptions.UsernameDuplicateException;
 import at.qe.skeleton.model.Userx;
 import java.util.Collection;
+
+import at.qe.skeleton.model.UserxRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,6 +44,19 @@ public class UserxService implements UserDetailsService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<Userx> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    /**
+     * Returns a collection of all managers.
+     *
+     * @return the userx collection
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Collection<Userx> getAllManagers() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRoles().contains(UserxRole.MANAGER))
+                .toList();
     }
 
     /**

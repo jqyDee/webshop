@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-13 18:53:17.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-18 14:53:30.
 
 export interface AddressDTO {
     street: string;
