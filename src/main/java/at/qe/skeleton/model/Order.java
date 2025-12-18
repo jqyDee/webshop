@@ -38,7 +38,7 @@ public class Order implements Persistable<Long>, Serializable {
     private Set<OrderItem> products = new HashSet<>();
 
     @Column(nullable = false)
-    double sum = 0; // bigDecimal would be better for money
+    double sum = 0;
 
     @Column(nullable = false)
     @CreationTimestamp
