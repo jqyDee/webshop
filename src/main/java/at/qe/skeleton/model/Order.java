@@ -27,7 +27,7 @@ public class Order implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_address_id", nullable = false)
     private Address shippingAddress;
     @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
