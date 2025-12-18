@@ -19,7 +19,8 @@ public class OrderItem implements Persistable<Long>, Serializable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    // fix: this needs to be nullable, as we set it to null on product delete
+    @JoinColumn(name = "product_id", nullable = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Product product;
 
