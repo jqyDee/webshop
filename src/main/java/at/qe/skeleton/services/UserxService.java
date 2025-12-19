@@ -53,10 +53,7 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<Userx> getAllManagers() {
-        return userRepository.findAll()
-                .stream()
-                .filter(user -> user.getRoles().contains(UserxRole.MANAGER))
-                .toList();
+        return userRepository.findByRole(UserxRole.MANAGER);
     }
 
     /**
