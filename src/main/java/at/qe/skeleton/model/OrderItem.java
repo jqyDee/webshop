@@ -32,7 +32,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
-    private double price; //price of the product at time of purchase not total price
+    private double price; //price including discount of the product at time of purchase
     @Column(nullable = false)
     private int quantity;
 
@@ -46,15 +46,14 @@ public class OrderItem implements Persistable<Long>, Serializable {
     public void setName(String name) {this.name = name;}
 
     public double getPrice() {return price;}
-    public void setPrice(double price) {this.price = price;}
+    public void setPrice(double price, double discount) {this.price = price*discount;}
 
     public int getQuantity() {return quantity;}
     public void setQuantity(int quantity) {this.quantity = quantity;}
 
     // discount needs to be subtracted
     public double getTotalPrice() {
-        double discountPrice = price*product.getDiscount();
-        return discountPrice*quantity;}
+        return price*quantity;}
 
     @Override
     public int hashCode() {

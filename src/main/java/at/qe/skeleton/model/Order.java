@@ -55,7 +55,7 @@ public class Order implements Persistable<Long>, Serializable {
     public Set<OrderItem> getProducts() {return products;}
     public void addProduct(OrderItem orderItem) {
         products.add(orderItem); // The sum will always be updated whenever a product is added
-        sum += orderItem.getTotalPrice()*orderItem.getQuantity();
+        sum += orderItem.getTotalPrice();
         orderItem.setOrder(this);
     }
 
