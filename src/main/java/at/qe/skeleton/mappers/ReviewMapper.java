@@ -11,6 +11,6 @@ public abstract class ReviewMapper extends DTOMapper<Review, ReviewDTO> {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "product", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
     public abstract Review mapFrom(ReviewDTO dto);
 }

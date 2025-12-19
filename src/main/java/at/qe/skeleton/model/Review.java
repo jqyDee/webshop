@@ -1,6 +1,9 @@
 package at.qe.skeleton.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -31,16 +34,20 @@ public class Review implements Persistable<Long>, Serializable {
     @JoinColumn(name = "author_id")
     private Userx author;
 
+    @Min(1)
+    @Max(5)
     @Column(nullable = false)
     private int rating; // between [0,5] stars
+    @Size(max = 100)
     @Column(nullable = false)
     private String title;
+    @Size(max = 512)
     @Column(nullable = false)
     private String comment;
 
     @Column(nullable = false)
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private LocalDateTime createdDate;
 
     public void setProduct(Product product) {
         this.product = product;
@@ -82,12 +89,12 @@ public class Review implements Persistable<Long>, Serializable {
         return comment;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedDate(LocalDateTime createdAt) {
+        this.createdDate = createdAt;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
     }
 
     @Override
