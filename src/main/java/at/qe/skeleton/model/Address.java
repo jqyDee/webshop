@@ -33,6 +33,9 @@ public class Address implements Serializable, Persistable<Long> {
     @Column(nullable = false)
     private String country;
 
+    public Long getId() {return id;}
+    public void setId(Long id) {this.id = id;}
+
     public String getStreet() {return street;}
     public void setStreet(String street) {this.street = street;}
 
@@ -47,8 +50,6 @@ public class Address implements Serializable, Persistable<Long> {
 
     public String getCountry() {return country;}
     public void setCountry(String country) {this.country = country;}
-
-    public Long getId() {return id;}
 
     @Override
     public boolean isNew() {return (null == this.id);}
