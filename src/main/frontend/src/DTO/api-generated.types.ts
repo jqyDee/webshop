@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-12-13 18:53:17.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-14 14:18:53.
 
 export interface AddressDTO {
     street: string;
@@ -68,12 +68,13 @@ export interface ProductFilterDTO {
 }
 
 export interface ReviewDTO {
-    id: number;
-    productId: number;
-    rating: number;
+    id?: number;
+    product?: ProductDTO;
+    author?: UserxDTO;
+    rating?: number;
     title: string;
     comment: string;
-    createdDate: Date;
+    createdAt?: Date;
 }
 
 export interface ShoppingCartItemDTO {

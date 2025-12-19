@@ -62,11 +62,8 @@ public class AdminController {
     @GetMapping("/user/{id}")
     public ResponseEntity<UserxDTO> getUser(@PathVariable Long id) {
         Optional<Userx> existingUserx = userService.loadUser(id);
-        if (existingUserx.isPresent()) {
-            return ResponseEntity.ok(userMapper.mapTo(existingUserx.get()));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return existingUserx.map(userx -> ResponseEntity.ok(userMapper.mapTo(userx)))
+                            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -116,10 +113,5 @@ public class AdminController {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
-    }
-
-    @DeleteMapping("/product/{productId}/review/{reviewId}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
