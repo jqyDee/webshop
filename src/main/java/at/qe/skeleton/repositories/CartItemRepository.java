@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import java.util.Collection;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-    Collection<CartItem> getShoppingCartItems(Userx currentUser);
+    Collection<CartItem> findAllByUser(Userx currentUser);
     @Modifying
     void deleteAllByUser(Userx currentUser);
 }

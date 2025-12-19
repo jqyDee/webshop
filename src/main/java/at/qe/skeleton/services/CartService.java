@@ -32,7 +32,7 @@ public class CartService {
             return Collections.emptyList();
         }
 
-        return cartItemRepository.getShoppingCartItems(currentUser);
+        return cartItemRepository.findAllByUser(currentUser);
     }
 
     /**
