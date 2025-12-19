@@ -130,6 +130,19 @@ public class ProductService {
         return rowsUpdated > 0;
     }
 
+    /** When an order is cancelled we need to unreserve the relating Stocks again
+     *
+     * @param productId the product Id of the Product which goes back in stock
+     * @param quantity the quantity to be released
+     * @return
+     */
+    @Transactional
+    public boolean unreserveStock(Long productId, int quantity) {
+        int rowsUpdated = this.productRepository.increaseStock(productId, quantity);
+
+        return rowsUpdated > 0;
+    }
+
     /**
      * Get Products for the specified page. If parameters are left null they are ignored.
      *
