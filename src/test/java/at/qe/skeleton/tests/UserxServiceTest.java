@@ -36,7 +36,7 @@ public class UserxServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testDatainitialization() {
-        Assertions.assertEquals(4, userService.getAllUsers().size(),
+        Assertions.assertEquals(5, userService.getAllUsers().size(),
                 "Insufficient amount of users initialized for test data source");
         for (Userx user : userService.getAllUsers()) {
             switch (user.getUsername()) {
@@ -52,7 +52,7 @@ public class UserxServiceTest {
                     Assertions.assertNull(user.getUpdateDate(),
                                           "User \"" + user + "\" has a updateDate defined");
                 }
-                case "user1" -> {
+                case "user1", "manager" -> {
                     Assertions.assertTrue(user.getRoles().contains(UserxRole.MANAGER),
                                           "User \"" + user + "\" does not have role MANAGER");
                     Assertions.assertNotNull(user.getCreateUser(),
@@ -97,7 +97,7 @@ public class UserxServiceTest {
 
         userService.deleteUser(toBeDeletedUser);
 
-        Assertions.assertEquals(3, userService.getAllUsers().size(),
+        Assertions.assertEquals(4, userService.getAllUsers().size(),
                 "No user has been deleted after calling UserService.deleteUser");
         Optional<Userx> deletedUserOpt = userService.loadUser(deleteUserId);
         Assertions.assertTrue(deletedUserOpt.isEmpty(),

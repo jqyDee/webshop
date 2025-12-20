@@ -4,6 +4,7 @@ import at.qe.skeleton.model.CartItem;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.repositories.CartItemRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -44,19 +45,17 @@ public class CartService {
      */
     public void saveCartItem(Userx currentUser, CartItem cartItem) throws AccessDeniedException {
         if (currentUser == null
-                || cartItem == null
-                || cartItem.getUser() == null) {
-            throw new AccessDeniedException("Invalid Arguments");
+                || cartItem == null) {
+            return;
         }
 
-        boolean isCustomer = currentUser.getRoles().contains(UserxRole.CUSTOMER);
-        boolean isOwner = cartItem.getUser().equals(currentUser);
-
-        if (!isCustomer) {
+        // 1. check if user is customer
+        if (!currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
             throw new AccessDeniedException("You are not authorized to perform this action.");
         }
 
-        if (!cartItem.isNew() && !isOwner) {
+        // 2. check if cart item is not new
+        if (!cartItem.isNew() && !cartItem.getUser().equals(currentUser)) {
             throw new AccessDeniedException("You are not authorized to perform this action.");
         }
 
@@ -78,7 +77,7 @@ public class CartService {
         if (currentUser == null
                 || cartItem == null
                 || cartItem.getUser() == null) {
-            throw new AccessDeniedException("Invalid Arguments");
+            return;
         }
 
         boolean isCustomer = currentUser.getRoles().contains(UserxRole.CUSTOMER);
@@ -98,6 +97,7 @@ public class CartService {
      *
      * @param currentUser the currently authenticated user
      */
+    @Transactional
     public void clearCartItems(Userx currentUser) {
         if (currentUser != null) {
             cartItemRepository.deleteAllByUser(currentUser);
