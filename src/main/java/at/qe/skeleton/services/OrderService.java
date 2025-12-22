@@ -135,4 +135,20 @@ public class OrderService {
             throw new IllegalStateException("Can't cancel order. Order status is not <= PENDING_PAYMENT.");
         }
     }
+
+    public Order confirmOrder(Long orderID, Userx user) {
+        Order order = orderRepository.findById(orderID)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
+        if (!order.getUser().equals(user)) {
+            throw new AccessDeniedException("You do not have permission to confirm this order");
+        }
+
+        if (!order.getStatus().equals(OrderStatus.PENDING_PAYMENT)) {
+            throw new IllegalStateException("Can't confirm order. Order status is not PENDING_PAYMENT.");
+        }
+
+        order.setStatus(OrderStatus.PROCESSING);
+        return orderRepository.save(order);
+    }
 }

@@ -20,6 +20,7 @@ public class OrderController {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    //What do we need this method1 for?
     @PatchMapping("")
     public ResponseEntity<OrderDTO> updateOrder(@AuthenticationPrincipal Userx user,
                                                 OrderDTO orderDTO) {
