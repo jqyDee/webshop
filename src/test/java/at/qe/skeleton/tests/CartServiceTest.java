@@ -1,10 +1,9 @@
 package at.qe.skeleton.tests;
 
 import at.qe.skeleton.model.CartItem;
-import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.repositories.CartItemRepository;
 import at.qe.skeleton.services.CartService;
-import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.UserxService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,9 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Tests for the Cart Service
@@ -27,9 +24,10 @@ public class CartServiceTest {
     @Autowired
     private UserxService userxService;
     @Autowired
-    private ProductService productService;
+    private CartItemRepository cartItemRepository;
 
     @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testDataInitialization() {
         Userx u1 = userxService.getUserByUsername("user1");
         Userx u2 = userxService.getUserByUsername("user2");
@@ -56,11 +54,10 @@ public class CartServiceTest {
     public void testAddItemToCartUnauthorizedAdmin() {
         Userx u1 = userxService.getUserByUsername("admin");
 
-        CartItem c1 = new CartItem();
-        c1.setQuantity(1);
+        Long productId = 1000L;
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> cartService.saveCartItem(u1, c1));
+                                () -> cartService.saveCartItem(u1, productId, 1));
     }
 
     @Test
@@ -68,11 +65,10 @@ public class CartServiceTest {
     public void testAddItemToCartUnauthorizedManager() {
         Userx u1 = userxService.getUserByUsername("manager");
 
-        CartItem c1 = new CartItem();
-        c1.setQuantity(1);
+        Long productId = 1000L;
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> cartService.saveCartItem(u1, c1));
+                                () -> cartService.saveCartItem(u1, productId, 1));
     }
 
     @DirtiesContext
@@ -80,19 +76,14 @@ public class CartServiceTest {
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testAddItemToCartAuthorizedUser() {
         Userx u1 = userxService.getUserByUsername("user1");
-        Optional<Product> p1Opt = productService.loadProduct(1000L);
 
-        Assertions.assertTrue(p1Opt.isPresent());
-        Product p1 = p1Opt.get();
+        Long productId = 3000L;
+        int quantity = 4;
 
-        CartItem c1 = new CartItem();
-        c1.setQuantity(2);
-        c1.setProduct(p1);
-
-        cartService.saveCartItem(u1, c1);
+        cartService.saveCartItem(u1, productId, quantity);
 
         Optional<CartItem> addedCartItemOpt = cartService.getCartItems(u1).stream()
-                                                         .filter(c -> c.getQuantity() == c1.getQuantity())
+                                                         .filter(c -> c.getQuantity() == quantity)
                                                          .findFirst();
         Assertions.assertTrue(addedCartItemOpt.isPresent());
         CartItem addedCartItem = addedCartItemOpt.get();
@@ -102,43 +93,29 @@ public class CartServiceTest {
         Assertions.assertNotNull(addedCartItem.getProduct());
         Assertions.assertNotNull(addedCartItem.getUser());
         Assertions.assertEquals("user1",  addedCartItem.getUser().getUsername());
-        Assertions.assertEquals("Iphone 15", addedCartItem.getProduct().getName());
+        Assertions.assertEquals("Iphone 14", addedCartItem.getProduct().getName());
     }
 
     @Test
-    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testUpdateCartItemUnauthorizedAdmin() {
         Userx u1 = userxService.getUserByUsername("admin");
-        Userx u =  userxService.getUserByUsername("user1");
 
-        Optional<CartItem> cartItemToUpdateOpt = cartService.getCartItems(u).stream().findFirst();
-
-        Assertions.assertTrue(cartItemToUpdateOpt.isPresent());
-        CartItem cartItemToBeUpdated = cartItemToUpdateOpt.get();
-
-        Assertions.assertEquals(1, cartItemToBeUpdated.getQuantity());
-        cartItemToBeUpdated.setQuantity(2);
+        Long productId = 1000L;
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> cartService.saveCartItem(u1, cartItemToBeUpdated));
+                                () -> cartService.saveCartItem(u1, productId, 1));
     }
 
     @Test
     @WithMockUser(username = "manager", authorities = {"MANAGER"})
     public void testUpdateCartItemUnauthorizedManager() {
         Userx u1 = userxService.getUserByUsername("manager");
-        Userx u =  userxService.getUserByUsername("user1");
 
-        Optional<CartItem> cartItemToUpdateOpt = cartService.getCartItems(u).stream().findFirst();
-
-        Assertions.assertTrue(cartItemToUpdateOpt.isPresent());
-        CartItem cartItemToBeUpdated = cartItemToUpdateOpt.get();
-
-        Assertions.assertEquals(1, cartItemToBeUpdated.getQuantity());
-        cartItemToBeUpdated.setQuantity(2);
+        Long productId = 1000L;
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> cartService.saveCartItem(u1, cartItemToBeUpdated));
+                                () -> cartService.saveCartItem(u1, productId, 1));
     }
 
     @DirtiesContext
@@ -147,60 +124,56 @@ public class CartServiceTest {
     public void testUpdateCartItemAuthorizedUser() {
         Userx u1 = userxService.getUserByUsername("user1");
 
-        Optional<CartItem> cartItemToUpdateOpt = cartService.getCartItems(u1).stream().findFirst();
+        Long productId = 1000L;
+        int quantity = 2;
 
-        Assertions.assertTrue(cartItemToUpdateOpt.isPresent());
-        CartItem cartItemToBeUpdated = cartItemToUpdateOpt.get();
-
-        Assertions.assertEquals(1, cartItemToBeUpdated.getQuantity());
-        cartItemToBeUpdated.setQuantity(2);
-
-        cartService.saveCartItem(u1, cartItemToBeUpdated);
+        cartService.saveCartItem(u1, productId, quantity);
 
         Assertions.assertEquals(2, cartService.getCartItems(u1).size());
         Optional<CartItem> cartItemUpdated =  cartService.getCartItems(u1).stream().findFirst();
         Assertions.assertTrue(cartItemUpdated.isPresent());
-        Assertions.assertEquals(2, cartItemUpdated.get().getQuantity());
+        Assertions.assertEquals(quantity, cartItemUpdated.get().getQuantity());
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testUpdateCartItemQuantityZero() {
+        Userx u1 = userxService.getUserByUsername("user1");
+
+        Long productId = 1000L;
+        int quantity = 0;
+
+        Optional<CartItem> cOpt = cartItemRepository.findFirstByUserAndProduct_Id(u1, productId);
+        Assertions.assertTrue(cOpt.isPresent());
+        CartItem cartItem = cOpt.get();
+
+        cartService.saveCartItem(u1, productId, quantity);
+        Assertions.assertEquals(1, cartService.getCartItems(u1).size());
+
+        Assertions.assertFalse(cartService.getCartItems(u1).contains(cartItem));
     }
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testRemoveCartItemUnauthorizedAdmin() {
         Userx u1 = userxService.getUserByUsername("admin");
-        Userx u =  userxService.getUserByUsername("user1");
-        Optional<CartItem> cartItemOpt = cartService.getCartItems(u).stream().findFirst();
-        Assertions.assertTrue(cartItemOpt.isPresent());
-        CartItem cartItem = cartItemOpt.get();
+
+        Long productId = 1000L;
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> cartService.removeCartItem(u1, cartItem));
+                                () -> cartService.removeCartItem(u1, productId));
     }
 
     @Test
     @WithMockUser(username = "manager", authorities = {"MANAGER"})
     public void testRemoveCartItemUnauthorizedManager() {
         Userx u1 = userxService.getUserByUsername("manager");
-        Userx u =  userxService.getUserByUsername("user1");
-        Optional<CartItem> cartItemOpt = cartService.getCartItems(u).stream().findFirst();
-        Assertions.assertTrue(cartItemOpt.isPresent());
-        CartItem cartItem = cartItemOpt.get();
+
+        Long productId = 1000L;
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> cartService.removeCartItem(u1, cartItem));
-    }
-
-    @Test
-    @WithMockUser(username = "user2", authorities = {"CUSTOMER"})
-    public void testRemoveCartItemUnauthorizedUser() {
-        Userx u1 =  userxService.getUserByUsername("user2");
-        Userx u = userxService.getUserByUsername("user1");
-
-        Optional<CartItem> cartItemOpt = cartService.getCartItems(u).stream().findFirst();
-        Assertions.assertTrue(cartItemOpt.isPresent());
-        CartItem cartItem = cartItemOpt.get();
-
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> cartService.removeCartItem(u1, cartItem));
+                                () -> cartService.removeCartItem(u1, productId));
     }
 
     @DirtiesContext
@@ -209,15 +182,12 @@ public class CartServiceTest {
     public void testRemoveCartItemAuthorizedUser() {
         Userx u =  userxService.getUserByUsername("user1");
 
-        Optional<CartItem> cartItemOpt = cartService.getCartItems(u).stream().findFirst();
-        Assertions.assertTrue(cartItemOpt.isPresent());
-        CartItem cartItem = cartItemOpt.get();
+        Long productId = 1000L;
 
-        cartService.removeCartItem(u, cartItem);
+        cartService.removeCartItem(u, productId);
 
         Collection<CartItem> cartItems = cartService.getCartItems(u);
         Assertions.assertEquals(1, cartItems.size());
-        Assertions.assertFalse(cartItems.contains(cartItem));
     }
 
     @DirtiesContext
@@ -229,5 +199,55 @@ public class CartServiceTest {
         cartService.clearCartItems(u);
 
         Assertions.assertTrue(cartService.getCartItems(u).isEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testAddItemsUnauthorizedAdmin() {
+        Userx u1 = userxService.getUserByUsername("admin");
+
+        Map<Long, Integer> productId_Quantity = new HashMap<>();
+        productId_Quantity.put(1000L, 1);
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                                () -> cartService.saveCartItems(u1, productId_Quantity));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"MANAGER"})
+    public void testAddItemsUnauthorizedManager() {
+        Userx u1 = userxService.getUserByUsername("admin");
+
+        Map<Long, Integer> productId_Quantity = new HashMap<>();
+        productId_Quantity.put(1000L, 1);
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                                () -> cartService.saveCartItems(u1, productId_Quantity));
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testAddItemsAuthorizedUser() {
+        Userx u =  userxService.getUserByUsername("user1");
+
+        Map<Long, Integer> productId_Quantity = new HashMap<>();
+        productId_Quantity.put(2000L, 1);
+        productId_Quantity.put(3000L, 3);
+
+        cartService.saveCartItems(u, productId_Quantity);
+
+        Collection<CartItem> cartItems = cartService.getCartItems(u);
+        Assertions.assertEquals(4, cartItems.size());
+        Optional<CartItem> c2Opt = cartItemRepository.findFirstByUserAndProduct_Id(u, 2000L);
+        Optional<CartItem> c3Opt = cartItemRepository.findFirstByUserAndProduct_Id(u, 3000L);
+        Assertions.assertTrue(c2Opt.isPresent());
+        Assertions.assertTrue(c3Opt.isPresent());
+
+        CartItem c2 = c2Opt.get();
+        CartItem c3 = c3Opt.get();
+
+        Assertions.assertEquals(1, c2.getQuantity());
+        Assertions.assertEquals(3, c3.getQuantity());
     }
 }

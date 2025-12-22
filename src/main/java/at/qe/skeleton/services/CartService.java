@@ -1,24 +1,28 @@
 package at.qe.skeleton.services;
 
 import at.qe.skeleton.model.CartItem;
+import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.repositories.CartItemRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class CartService {
     private final CartItemRepository cartItemRepository;
+    private final ProductService productService;
 
     @Autowired
-    public CartService(CartItemRepository cartItemRepository) {
+    public CartService(CartItemRepository cartItemRepository, ProductService productService) {
         this.cartItemRepository = cartItemRepository;
+        this.productService = productService;
     }
 
 
@@ -28,6 +32,7 @@ public class CartService {
      * @param currentUser user to get the cart items for
      * @return collection of {@link CartItem}
      */
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public Collection<CartItem> getCartItems(Userx currentUser) {
         if (currentUser == null) {
             return Collections.emptyList();
@@ -37,59 +42,78 @@ public class CartService {
     }
 
     /**
-     * Save a Cart Item to the database
+     * Save a cart item to the database
      *
-     * @param currentUser the currently authenticated user
-     * @param cartItem that should be saved (either new or to be updated)
-     * @throws AccessDeniedException when user is not allowed to save an item (non customer, not his own)
+     * @param currentUser current authenticated user
+     * @param productId product id of cart item
+     * @param quantity quantity of the cart item
      */
-    public void saveCartItem(Userx currentUser, CartItem cartItem) throws AccessDeniedException {
-        if (currentUser == null
-                || cartItem == null) {
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public void saveCartItem(Userx currentUser, Long productId, int quantity) {
+        if (currentUser == null || productId == null) {
             return;
         }
 
-        // 1. check if user is customer
-        if (!currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
-            throw new AccessDeniedException("You are not authorized to perform this action.");
+        Optional<CartItem> existingItem = cartItemRepository.findFirstByUserAndProduct_Id(currentUser, productId);
+
+        if (quantity <= 0) {
+            removeCartItem(currentUser, productId);
+            return;
         }
 
-        // 2. check if cart item is not new
-        if (!cartItem.isNew() && !cartItem.getUser().equals(currentUser)) {
-            throw new AccessDeniedException("You are not authorized to perform this action.");
+        if (existingItem.isPresent()) {
+            CartItem updatedItem = existingItem.get();
+            updatedItem.setQuantity(quantity);
+            cartItemRepository.save(updatedItem);
+            return;
         }
 
-        if (cartItem.isNew()) {
-            cartItem.setUser(currentUser);
+        Optional<Product> product = productService.loadProduct(productId);
+        if (product.isEmpty()) {
+            return;
         }
 
-        cartItemRepository.save(cartItem);
+        CartItem newCartItem = new CartItem();
+        newCartItem.setUser(currentUser);
+        newCartItem.setProduct(product.get());
+        newCartItem.setQuantity(quantity);
+
+        cartItemRepository.save(newCartItem);
     }
 
     /**
-     * Delete a Cart Item from the database
+     * Save all cart items constructed by the product id, user and quantity given in a map
      *
-     * @param currentUser the currently authenticated user
-     * @param cartItem that should be deleted (if new skipped)
-     * @throws AccessDeniedException when user is not allowed to delete an item (non customer, not his own)
+     * @param currentUser currently authenticated user
+     * @param productIdAndQuantity map of product ids and the respective quantity
      */
-    public void removeCartItem(Userx currentUser, CartItem cartItem) throws AccessDeniedException {
-        if (currentUser == null
-                || cartItem == null
-                || cartItem.getUser() == null) {
+    @Transactional
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public void saveCartItems(Userx currentUser, Map<Long, Integer> productIdAndQuantity) {
+        if (currentUser == null ||  productIdAndQuantity == null || productIdAndQuantity.isEmpty()) {
             return;
         }
 
-        boolean isCustomer = currentUser.getRoles().contains(UserxRole.CUSTOMER);
-        boolean isOwner = cartItem.getUser().equals(currentUser);
+        for (Map.Entry<Long, Integer> entry : productIdAndQuantity.entrySet()) {
+            saveCartItem(currentUser, entry.getKey(), entry.getValue());
+        }
+    }
 
-        if (!isCustomer || !isOwner) {
-            throw new AccessDeniedException("You are not authorized to perform this action.");
+    /**
+     * Delete a cart item of a user and a product
+     *
+     * @param currentUser currently authenticated user
+     * @param productId id of the product which cart item to delete
+     */
+    @PreAuthorize("hasAuthority('CUSTOMER')")
+    public void removeCartItem(Userx currentUser, Long productId) {
+        if (currentUser == null || productId == null) {
+            return;
         }
 
-        if (!cartItem.isNew()) {
-            cartItemRepository.delete(cartItem);
-        }
+        Optional<CartItem> existingItem = cartItemRepository.findFirstByUserAndProduct_Id(currentUser, productId);
+
+        existingItem.ifPresent(cartItemRepository::delete);
     }
 
     /**
@@ -98,6 +122,7 @@ public class CartService {
      * @param currentUser the currently authenticated user
      */
     @Transactional
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public void clearCartItems(Userx currentUser) {
         if (currentUser != null) {
             cartItemRepository.deleteAllByUser(currentUser);
