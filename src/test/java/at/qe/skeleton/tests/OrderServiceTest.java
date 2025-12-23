@@ -7,8 +7,6 @@ import at.qe.skeleton.repositories.OrderRepository;
 import at.qe.skeleton.repositories.ProductRepository;
 import at.qe.skeleton.repositories.UserxRepository;
 import at.qe.skeleton.services.OrderService;
-import at.qe.skeleton.services.ProductService;
-import at.qe.skeleton.services.UserxService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
