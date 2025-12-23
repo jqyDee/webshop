@@ -16,8 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * Entity representing users.
- *
+ * Entity representing users.*
  * This class is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
