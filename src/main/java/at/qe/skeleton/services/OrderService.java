@@ -83,7 +83,7 @@ public class OrderService {
      * @throws OutOfStockExeption if Item is out of Stock
       */
 
-    public Collection<OrderItem> convertAndReserveStock(Collection<CartItem> cartItems) {
+    private Collection<OrderItem> convertAndReserveStock(Collection<CartItem> cartItems) {
 
         Collection<OrderItem> orderItems = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
@@ -102,7 +102,7 @@ public class OrderService {
     }
 
 
-    public Order saveOrder(Order order) {
+    private Order saveOrder(Order order) {
         return this.orderRepository.save(order);
     }
 

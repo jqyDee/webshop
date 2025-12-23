@@ -46,7 +46,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
     public void setName(String name) {this.name = name;}
 
     public double getPrice() {return price;}
-    public void setPrice(double price, double discount) {this.price = price*discount;}
+    public void setPrice(double price, double discount) {this.price = price*(1-discount);}
 
     public int getQuantity() {return quantity;}
     public void setQuantity(int quantity) {this.quantity = quantity;}

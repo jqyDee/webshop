@@ -29,4 +29,5 @@ public interface UserxRepository extends AbstractRepository<Userx, Long> {
 
     boolean existsByUsername(String username);
 
+    Userx getByUsername(String username);
 }

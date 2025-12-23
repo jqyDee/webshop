@@ -35,7 +35,7 @@ VALUES ((SELECT ID FROM USERX WHERE USERNAME = 'elvis'), 'CUSTOMER');
 
 -- Insert products into the PRODUCT table
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (1000, 'Iphone 15', 580.99, 1, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
+VALUES (1000, 'Iphone 15', 580.99, 3, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
 VALUES (2000, 'Iphone 12', 280.99, 9, 0, 'Apple Iphone 12', 'This is an Apple Iphone 12', 'https://www.google.com/', '2024-01-01 00:00:00', 3.0);

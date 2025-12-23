@@ -7,12 +7,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * Repository for managing {@link Product} entities.
  */
 public interface ProductRepository extends JpaRepository<Product, Long>,
                                            JpaSpecificationExecutor<Product> {
-    @Modifying
+    @Modifying(clearAutomatically = true) // needed in the @transactional test, so data isnt loaded from cache after change in database
     @Query("UPDATE Product p SET p.stock = p.stock - :quantity WHERE p.id = :id AND p.stock >= :quantity")
     int reserveStock(@Param("id") Long productId, @Param("quantity") int quantity);
 
@@ -22,4 +25,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     @Query("SELECT COUNT(*) FROM Product p WHERE p.id = :id AND p.stock >= :quantity")
     int checkStock(@Param("id") Long productId, @Param("quantity") int quantity);
+
+    List<Product> getFirstByCreatedDate(LocalDateTime createdDate);
 }

@@ -22,7 +22,7 @@ public class Address implements Serializable, Persistable<Long> {
     private String street;
     @NotBlank
     @Column(nullable = false)
-    private int number;
+    private String number;
     @NotBlank
     @Column(nullable = false)
     private String postalCode;
@@ -36,8 +36,8 @@ public class Address implements Serializable, Persistable<Long> {
     public String getStreet() {return street;}
     public void setStreet(String street) {this.street = street;}
 
-    public int getNumber() {return number;}
-    public void setNumber(int number) {this.number = number;}
+    public String getNumber() {return number;}
+    public void setNumber(String number) {this.number = number;}
 
     public String getPostalCode() {return postalCode;}
     public void setPostalCode(String postalCode) {this.postalCode = postalCode;}

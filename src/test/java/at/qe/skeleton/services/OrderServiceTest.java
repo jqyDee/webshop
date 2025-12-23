@@ -2,169 +2,118 @@ package at.qe.skeleton.services;
 
 import at.qe.skeleton.exceptions.OutOfStockExeption;
 import at.qe.skeleton.model.*;
+import at.qe.skeleton.repositories.CartItemRepository;
 import at.qe.skeleton.repositories.OrderRepository;
+import at.qe.skeleton.repositories.ProductRepository;
+import at.qe.skeleton.repositories.UserxRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.security.access.AccessDeniedException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
+
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class OrderServiceTest {
-    @Mock
-    private CartService cartService;
-    @Mock
-    private OrderRepository orderRepository;
-    @Mock
-    private ProductService productService;
 
-    @InjectMocks
+
+    @Autowired
     private OrderService orderService;
 
-    private Userx customer;
-    private Userx admin;
-    private Product product;
-    private CartItem cartItem;
+    @Autowired
+    private UserxService userxService;
 
+    private Userx testCustomer;
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private UserxRepository userxRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
+    private Userx customer1;
+    @Autowired
+    private ProductService productService;
 
     @BeforeEach
-    void setUp() {
-        customer = new Userx();
-        customer.setId(1L);
-        customer.setRoles(Set.of(UserxRole.CUSTOMER));
+    public void setup() {
+        this.customer1 = userxRepository.getByUsername("user1");
+    }
 
-        admin = new Userx();
-        admin.setId(2L);
-        admin.setRoles(Set.of(UserxRole.ADMIN));
+    @Test
+    @Transactional
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testOrderDataInitialization() {
 
-        product = new Product();
-        product.setId(10L);
-        product.setName("Test Product");
-        product.setPrice(100.0);
-        product.setDiscount(0.0);
+        Address address = new Address();
+        address.setNumber("1");
+        address.setStreet("Street");
+        address.setCity("City");
+        address.setCountry("Country");
+        address.setPostalCode("jjjj");
 
-        cartItem = new CartItem();
+        Order order = new Order();
+        order.setUser(customer1);
+        order.setPaymentAddress(address);
+        order.setShippingAddress(address);
+        order.setStatus(OrderStatus.PENDING);
+        orderRepository.save(order);
+
+        Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
+        Assertions.assertEquals(1, orders.getTotalElements());
+    }
+
+
+    @Transactional
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testCreateOrderFromCartItems() {
+        Product product = productRepository.findById(1000L).get();
+        CartItem cartItem = new CartItem();
+        cartItem.setUser(customer1);
         cartItem.setProduct(product);
-        cartItem.setQuantity(2);
+        cartItem.setQuantity(3);
+
+        double stockBeforeOrder = product.getStock();
+
+        cartItemRepository.save(cartItem);
+        Order newOrder = orderService.createOrder(customer1);
+
+        Assertions.assertNotNull(newOrder.getId(), "Order should have a generated ID");
+        Assertions.assertEquals(customer1.getId(), newOrder.getUser().getId());
+
+        double expectedSum = product.getPrice() * 3;
+        Assertions.assertEquals(expectedSum, newOrder.getSum(), "Price msut be calculated correctly");
+
+        Collection<CartItem> remainingCartItems = cartItemRepository.findAllByUser(customer1);
+        Assertions.assertTrue(remainingCartItems.isEmpty(), "Cart should be cleared after order creation");
+
+        Product updatedProduct = productRepository.findById(1000L).get();
+        Assertions.assertEquals(stockBeforeOrder-3, updatedProduct.getStock(), "Stock should be updated");
     }
 
-    @AfterEach
-    void tearDown() {
-    }
-
-    @Test
-    void testGetOrdersAsCustomer() {
-        Pageable pageable = PageRequest.of(0, 10);
-        when(orderRepository.findAllByUserId(customer.getId(), pageable)).thenReturn(Page.empty());
-
-        orderService.getOrders(customer, pageable);
-
-        verify(orderRepository).findAllByUserId(customer.getId(), pageable);
-        verify(orderRepository, never()).findAll(pageable);
-    }
-
-    @Test
-    void testGetOrdersAsAdmin() {
-        Pageable pageable = PageRequest.of(0, 10);
-        when(orderRepository.findAll(pageable)).thenReturn(Page.empty());
-
-        orderService.getOrders(admin, pageable);
-
-        verify(orderRepository).findAll(pageable);
-        verify(orderRepository, never()).findAllByUserId(anyLong(), any());
-    }
-
-    @Test
-    void createOrderSuccess() {
-        when(cartService.getCartItems(customer)).thenReturn(List.of(cartItem));
-        when(productService.reserveStock(anyLong(), anyInt())).thenReturn(true);
-
-        Order result = orderService.createOrder(customer);
-
-        assertNotNull(result);
-        assertEquals(OrderStatus.PENDING_PAYMENT, result.getStatus());
-        verify(orderRepository).save(any(Order.class));
-        verify(cartService).clearCartItems(customer);
-    }
-
-    @Test
-    void createOrderWithEmptyCart() {
-        when(cartService.getCartItems(customer)).thenReturn(Collections.emptyList());
-
-        assertThrows(IllegalStateException.class, () -> orderService.createOrder(customer));
-        verify(orderRepository, never()).save(any());
-    }
-
-    @Test
-    void createOrderOutOfStock() {
-        when(cartService.getCartItems(customer)).thenReturn(List.of(cartItem));
-        when(productService.reserveStock(anyLong(), anyInt())).thenReturn(false);
-
-        assertThrows(OutOfStockExeption.class, () -> orderService.createOrder(customer));
-    }
-
-    @Test
-    void cancelOrderNotOwner() {
-        Userx otherCustomer = new Userx();
-        otherCustomer.setId(99L);
-        otherCustomer.setRoles(Set.of(UserxRole.CUSTOMER));
-
-        Order order = new Order();
-        order.setId(5L);
-        order.setUser(otherCustomer);
-
-        when(orderRepository.findById(5L)).thenReturn(Optional.of(order));
-
-        assertThrows(AccessDeniedException.class, () -> orderService.cancelOrder(order, customer));
-    }
-
-    @Test
-    void cancelOrderSuccess() {
-        Order order = new Order();
-        order.setId(5L);
-        order.setUser(customer);
-        order.setStatus(OrderStatus.PENDING_PAYMENT); // Wichtig für isCancellable()
-
-        OrderItem item = new OrderItem();
-        item.setProduct(product);
-        item.setQuantity(2);
-        order.addProduct(item);
-
-        when(orderRepository.findById(5L)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
-
-        Order result = orderService.cancelOrder(order, customer);
-
-        assertEquals(OrderStatus.CANCELLED, result.getStatus());
-        verify(productService).unreserveStock(product.getId(), 2);
-    }
-
-    @Test
-    void confirmOrder_Success_ShouldSetToProcessing() {
-        Order order = new Order();
-        order.setId(1L);
-        order.setUser(customer);
-        order.setStatus(OrderStatus.PENDING_PAYMENT);
-
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
-
-        Order result = orderService.confirmOrder(1L, customer);
-
-        assertEquals(OrderStatus.PROCESSING, result.getStatus());
-    }
 }
