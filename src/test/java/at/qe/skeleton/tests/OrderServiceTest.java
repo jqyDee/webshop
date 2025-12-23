@@ -46,12 +46,14 @@ class OrderServiceTest {
     private Userx customer1;
     private Userx customer2;
     private Userx customer3;
+    private Userx admin;
 
     @BeforeEach
     public void setup() {
         this.customer1 = userxRepository.findFirstByUsername("jonny").orElseThrow();
         this.customer2 = userxRepository.findFirstByUsername("user1").orElseThrow();
         this.customer3 = userxRepository.findFirstByUsername("elvis").orElseThrow();
+        this.admin = userxRepository.findFirstByUsername("admin2").orElseThrow();
     }
 
 
@@ -67,7 +69,7 @@ class OrderServiceTest {
         orderRepository.save(order);
 
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(3, orders.getTotalElements());
+        Assertions.assertEquals(2, orders.getTotalElements());
     }
 
 
@@ -138,16 +140,16 @@ class OrderServiceTest {
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testGetOrdersUser() {
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(2, orders.getTotalElements());
+        Assertions.assertEquals(1, orders.getTotalElements());
     }
 
     @Transactional
     @DirtiesContext
     @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    @WithMockUser(username = "admin2", authorities = {"ADMIN"})
     public void testGetOrdersAdmin() {
-        Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(2, orders.getTotalElements());
+        Page<Order> orders = orderService.getOrders(admin, PageRequest.of(0, 10));
+        Assertions.assertEquals(3, orders.getTotalElements());
     }
 
     @Transactional
@@ -174,6 +176,16 @@ class OrderServiceTest {
     @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
     public void testCartEmptyCreateOrder() {
         Assertions.assertThrows(CartEmptyExeption.class, () -> orderService.createOrder(customer3));
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
+    public void testWrongOrderStatus() {
+        Order order = orderRepository.findById(7000L).orElseThrow();
+        Assertions.assertThrows(IllegalStateException.class, () -> orderService.cancelOrder(order, customer3));
+        Assertions.assertThrows(IllegalStateException.class, () -> orderService.paymentReceived(order, customer3));
     }
 
 }
