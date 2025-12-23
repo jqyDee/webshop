@@ -11,6 +11,9 @@ VALUES (3000, TRUE, 'Max', 'Mustermann', 'passwd', 'user2', 1000, '2024-01-01 00
 INSERT INTO USERX (ID, ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, USERNAME, CREATE_USER_ID, CREATE_DATE) 
 VALUES (4000, TRUE, 'Elvis', 'The King', 'passwd', 'elvis', 1000, '2024-01-01 00:00:00');
 
+INSERT INTO userx (id, ENABLED, FIRST_NAME, LAST_NAME,  username, password, CREATE_USER_ID, CREATE_DATE)
+VALUES (5000, TRUE, 'Jonny', 'Denber', 'jonny', '$2a$10$xyz...', 1000, '2024-01-01 00:00:00');
+
 -- Insert roles into USERX_USERX_ROLE table by looking up the corresponding user ID
 INSERT INTO USERX_USERX_ROLE (USERX_ID, ROLES) 
 VALUES ((SELECT ID FROM USERX WHERE USERNAME = 'admin'), 'ADMIN');
@@ -35,7 +38,7 @@ VALUES ((SELECT ID FROM USERX WHERE USERNAME = 'elvis'), 'CUSTOMER');
 
 -- Insert products into the PRODUCT table
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (1000, 'Iphone 15', 580.99, 3, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
+VALUES (1000, 'Iphone 15', 580.99, 1, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
 VALUES (2000, 'Iphone 12', 280.99, 9, 0, 'Apple Iphone 12', 'This is an Apple Iphone 12', 'https://www.google.com/', '2024-01-01 00:00:00', 3.0);
@@ -45,6 +48,14 @@ VALUES (3000, 'Iphone 14', 480.99, 5, 0.3, 'Apple Iphone 14', 'This is an Apple 
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
 VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (5000, 'Iphone 10', 380.99, 4, 0, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+
+
+-- Insert into cartItems
+INSERT INTO cart_item (id, user_id, product_id, quantity)
+VALUES (1000, 5000, 5000, 3);
 
 -- Insert reviews into the REVIEW table
 -- Reviews for Iphone 15 (ID: 1000) - Avg Rating in Product table is 2.0
@@ -68,3 +79,7 @@ VALUES (5000, 4000, 4000, 5, 'Love it', 'Best phone I have ever owned. Elvis app
 -- Review for Iphone 14 (ID: 3000) - Avg Rating in Product table is 2.0
 INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_DATE)
 VALUES (6000, 3000, 3000, 2, 'Meh', 'I should have bought the 13 or waited for the 15.', '2024-01-25 16:20:00');
+
+-- Insert Addresses  into ADDRESS table
+INSERT INTO address (id, number, street, city, country, postal_code)
+VALUES (5000, '1', 'Street', 'City', 'Country', '1234');

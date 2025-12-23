@@ -134,7 +134,7 @@ public class ProductService {
      *
      * @param productId the product Id of the Product which goes back in stock
      * @param quantity the quantity to be released
-     * @return
+     * @return true if quantity was unreserved and false if not
      */
     @Transactional
     public boolean unreserveStock(Long productId, int quantity) {

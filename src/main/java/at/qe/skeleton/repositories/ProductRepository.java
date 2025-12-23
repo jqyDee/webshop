@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface ProductRepository extends JpaRepository<Product, Long>,
                                            JpaSpecificationExecutor<Product> {
-    @Modifying(clearAutomatically = true) // needed in the @transactional test, so data isnt loaded from cache after change in database
+    @Modifying
     @Query("UPDATE Product p SET p.stock = p.stock - :quantity WHERE p.id = :id AND p.stock >= :quantity")
     int reserveStock(@Param("id") Long productId, @Param("quantity") int quantity);
 

@@ -71,9 +71,8 @@ public class OrderService {
         }
 
         //save Order and clear users shopping cart
-        saveOrder(order);
         cartService.clearCartItems(currentUser);
-        return order;
+        return saveOrder(order);
     }
 
     /**
@@ -117,6 +116,8 @@ public class OrderService {
 
     @Transactional
     public Order cancelOrder(Order orderToBeCanceled, Userx user) {
+
+        assert orderToBeCanceled.getId() != null;
         Order order = orderRepository.findById(orderToBeCanceled.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
