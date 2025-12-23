@@ -5,11 +5,9 @@ import at.qe.skeleton.mappers.CartItemMapper;
 import at.qe.skeleton.model.CartItem;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.CartService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -52,7 +50,7 @@ public class CartController {
             @RequestBody Map<Long, Integer> cartItems, // productId, quantity
             @AuthenticationPrincipal Userx user) {
         cartService.saveCartItems(user, cartItems);
-        return  ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -79,11 +77,7 @@ public class CartController {
     public ResponseEntity<Void> addProductToShoppingCart(
             @PathVariable Long productId, @RequestParam int quantity,
             @AuthenticationPrincipal Userx user) {
-        try {
-            cartService.saveCartItem(user, productId, quantity);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        cartService.saveCartItem(user, productId, quantity);
 
         return ResponseEntity.ok().build();
     }
@@ -98,11 +92,7 @@ public class CartController {
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteProductFromShoppingCart(@PathVariable Long productId,
                                                               @AuthenticationPrincipal Userx user) {
-        try {
-            cartService.removeCartItem(user, productId);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        cartService.removeCartItem(user, productId);
 
         return ResponseEntity.ok().build();
     }
@@ -119,11 +109,7 @@ public class CartController {
     public ResponseEntity<CartItemDTO> updateProductInShoppingCart(
             @PathVariable Long productId, @RequestParam int quantity,
             @AuthenticationPrincipal Userx user) {
-        try {
-            cartService.saveCartItem(user, productId, quantity);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        cartService.saveCartItem(user, productId, quantity);
 
         return ResponseEntity.ok().build();
     }
