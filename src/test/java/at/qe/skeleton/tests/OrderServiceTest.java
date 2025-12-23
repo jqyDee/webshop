@@ -69,7 +69,7 @@ class OrderServiceTest {
         orderRepository.save(order);
 
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(2, orders.getTotalElements());
+        Assertions.assertEquals(3, orders.getTotalElements());
     }
 
 
@@ -125,10 +125,10 @@ class OrderServiceTest {
     @Transactional
     @DirtiesContext
     @Test
-    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testPaymentReceived() {
         Order order = orderRepository.findById(8000L).orElseThrow();
-        orderService.paymentReceived(order, customer2);
+        orderService.paymentReceived(order, customer1);
 
         order = orderRepository.findById(8000L).orElseThrow();
         Assertions.assertEquals(OrderStatus.PROCESSING, order.getStatus());
@@ -140,7 +140,7 @@ class OrderServiceTest {
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testGetOrdersUser() {
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(1, orders.getTotalElements());
+        Assertions.assertEquals(2, orders.getTotalElements());
     }
 
     @Transactional

@@ -59,10 +59,10 @@ INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRI
 VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (5000, 'Iphone 10', 380.99, 4, 0, 'Apple Iphone 10', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+VALUES (5000, 'Iphone 16', 380.99, 4, 0, 'Apple Iphone 10', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (6000, 'Iphone 9', 380.99, 4, 0, 'Apple Iphone 9', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+VALUES (6000, 'Iphone 17', 380.99, 4, 0, 'Apple Iphone 9', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
 
 
 -- Insert into cartItems
@@ -77,7 +77,7 @@ INSERT INTO orders (id, user_id, status, sum, created_date)
 VALUES (9000, 5000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
 
 INSERT INTO orders (id, user_id, status, sum, created_date)
-VALUES (8000, 2000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
+VALUES (8000, 5000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
 
 INSERT INTO orders (id, user_id, status, sum, created_date)
 VALUES (7000, 4000, 'CANCELLED', 100.00, CURRENT_TIMESTAMP);
