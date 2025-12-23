@@ -1,5 +1,6 @@
 package at.qe.skeleton.services;
 
+import at.qe.skeleton.exceptions.CartEmptyExeption;
 import at.qe.skeleton.exceptions.OutOfStockExeption;
 import at.qe.skeleton.model.*;
 import org.springframework.security.access.AccessDeniedException;
@@ -57,7 +58,7 @@ public class OrderService {
         // Get all cartItems from user
         Collection<CartItem> cartItems = cartService.getCartItems(currentUser);
         if (cartItems.isEmpty()) {
-            throw new IllegalStateException("No cart items found. Cannot create order.");
+            throw new CartEmptyExeption();
         }
 
         Collection<OrderItem> orderItems = convertAndReserveStock(cartItems);
@@ -137,10 +138,7 @@ public class OrderService {
         }
     }
 
-    public Order confirmOrder(Long orderID, Userx user) {
-        Order order = orderRepository.findById(orderID)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
-
+    public Order paymentReceived(Order order, Userx user) {
         if (!order.getUser().equals(user)) {
             throw new AccessDeniedException("You do not have permission to confirm this order");
         }

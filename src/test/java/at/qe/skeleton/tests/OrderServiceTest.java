@@ -1,6 +1,8 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.exceptions.CartEmptyExeption;
 import at.qe.skeleton.exceptions.OutOfStockExeption;
+import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.CartItemRepository;
 import at.qe.skeleton.repositories.OrderRepository;
@@ -43,11 +45,13 @@ class OrderServiceTest {
 
     private Userx customer1;
     private Userx customer2;
+    private Userx customer3;
 
     @BeforeEach
     public void setup() {
         this.customer1 = userxRepository.findFirstByUsername("jonny").orElseThrow();
         this.customer2 = userxRepository.findFirstByUsername("user1").orElseThrow();
+        this.customer3 = userxRepository.findFirstByUsername("elvis").orElseThrow();
     }
 
 
@@ -63,7 +67,7 @@ class OrderServiceTest {
         orderRepository.save(order);
 
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(2, orders.getTotalElements());
+        Assertions.assertEquals(3, orders.getTotalElements());
     }
 
 
@@ -86,7 +90,7 @@ class OrderServiceTest {
         Collection<CartItem> remainingCartItems = cartItemRepository.findAllByUser(customer1);
         Assertions.assertTrue(remainingCartItems.isEmpty(), "Cart should be cleared after order creation");
 
-        Product updatedProduct = productRepository.findById(1000L).orElseThrow();
+        Product updatedProduct = productRepository.findById(5000L).orElseThrow();
         Assertions.assertEquals(stockBeforeOrder-3, updatedProduct.getStock(), "Stock should be updated");
     }
 
@@ -114,6 +118,62 @@ class OrderServiceTest {
         Assertions.assertEquals(OrderStatus.CANCELLED, orderToCancel.getStatus());
         Product updatedProduct = productRepository.findById(5000L).orElseThrow();
         Assertions.assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testPaymentReceived() {
+        Order order = orderRepository.findById(8000L).orElseThrow();
+        orderService.paymentReceived(order, customer2);
+
+        order = orderRepository.findById(8000L).orElseThrow();
+        Assertions.assertEquals(OrderStatus.PROCESSING, order.getStatus());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
+    public void testGetOrdersUser() {
+        Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
+        Assertions.assertEquals(2, orders.getTotalElements());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testGetOrdersAdmin() {
+        Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
+        Assertions.assertEquals(2, orders.getTotalElements());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testPaymentReceivedUnothorized() {
+        Order order = orderRepository.findById(9000L).orElseThrow();
+        Assertions.assertThrows(AccessDeniedException.class, () -> orderService.paymentReceived(order, customer2));
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testCancelOrderUnothorized() {
+        Order order = orderRepository.findById(9000L).orElseThrow();
+        Assertions.assertThrows(AccessDeniedException.class, () -> orderService.cancelOrder(order, customer2));
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
+    public void testCartEmptyCreateOrder() {
+        Assertions.assertThrows(CartEmptyExeption.class, () -> orderService.createOrder(customer3));
     }
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface ProductRepository extends JpaRepository<Product, Long>,
                                            JpaSpecificationExecutor<Product> {
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Product p SET p.stock = p.stock - :quantity WHERE p.id = :id AND p.stock >= :quantity")
     int reserveStock(@Param("id") Long productId, @Param("quantity") int quantity);
 

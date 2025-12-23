@@ -67,6 +67,9 @@ VALUES (2000, 2000, 6000, 6);
 INSERT INTO orders (id, user_id, status, sum, created_date)
 VALUES (9000, 5000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
 
+INSERT INTO orders (id, user_id, status, sum, created_date)
+VALUES (8000, 2000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
+
 -- Insert into Order_Item
 INSERT INTO order_item (id, order_id, product_id, quantity, name, price)
 VALUES (9000, 9000, 5000, 2, 'Storno-Produkt', 50.0);
