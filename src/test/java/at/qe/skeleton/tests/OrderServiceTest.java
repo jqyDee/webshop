@@ -32,10 +32,6 @@ class OrderServiceTest {
     private OrderService orderService;
 
     @Autowired
-    private UserxService userxService;
-
-    private Userx testCustomer;
-    @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
@@ -49,8 +45,6 @@ class OrderServiceTest {
 
     private Userx customer1;
     private Userx customer2;
-    @Autowired
-    private ProductService productService;
 
     @BeforeEach
     public void setup() {
