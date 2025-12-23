@@ -1,5 +1,6 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.exceptions.OutOfStockExeption;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.CartItemRepository;
 import at.qe.skeleton.repositories.OrderRepository;
@@ -47,12 +48,14 @@ class OrderServiceTest {
     private CartItemRepository cartItemRepository;
 
     private Userx customer1;
+    private Userx customer2;
     @Autowired
     private ProductService productService;
 
     @BeforeEach
     public void setup() {
-        this.customer1 = userxRepository.findFirstByUsername("jonny").get();
+        this.customer1 = userxRepository.findFirstByUsername("jonny").orElseThrow();
+        this.customer2 = userxRepository.findFirstByUsername("user1").orElseThrow();
     }
 
 
@@ -68,7 +71,7 @@ class OrderServiceTest {
         orderRepository.save(order);
 
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(1, orders.getTotalElements());
+        Assertions.assertEquals(2, orders.getTotalElements());
     }
 
 
@@ -77,7 +80,7 @@ class OrderServiceTest {
     @Test
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testCreateOrderFromCartItems() {
-        Product product = productRepository.findById(5000L).get();
+        Product product = productRepository.findById(5000L).orElseThrow();
         double stockBeforeOrder = product.getStock();
 
         Order newOrder = orderService.createOrder(customer1);
@@ -91,10 +94,34 @@ class OrderServiceTest {
         Collection<CartItem> remainingCartItems = cartItemRepository.findAllByUser(customer1);
         Assertions.assertTrue(remainingCartItems.isEmpty(), "Cart should be cleared after order creation");
 
-        Product updatedProduct = productRepository.findById(1000L).get();
+        Product updatedProduct = productRepository.findById(1000L).orElseThrow();
         Assertions.assertEquals(stockBeforeOrder-3, updatedProduct.getStock(), "Stock should be updated");
     }
 
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testNotInStock() {
+        Assertions.assertThrows(OutOfStockExeption.class, () -> orderService.createOrder(customer2));
+    }
 
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
+    public void testCancelOrder() {
+        Order orderToCancel = orderRepository.findById(9000L).orElseThrow();
+        Userx user = userxRepository.findFirstByUsername("jonny").orElseThrow();
+        Product product = productRepository.findById(5000L).orElseThrow();
+
+        int stockBeforeCancel = product.getStock();
+        int quantityToReturn = 2;
+
+        orderService.cancelOrder(orderToCancel, user);
+        Assertions.assertEquals(OrderStatus.CANCELLED, orderToCancel.getStatus());
+        Product updatedProduct = productRepository.findById(5000L).orElseThrow();
+        Assertions.assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
+    }
 
 }

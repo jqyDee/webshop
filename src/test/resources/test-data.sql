@@ -50,12 +50,26 @@ INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRI
 VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (5000, 'Iphone 10', 380.99, 4, 0, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+VALUES (5000, 'Iphone 10', 380.99, 4, 0, 'Apple Iphone 10', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (6000, 'Iphone 9', 380.99, 4, 0, 'Apple Iphone 9', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
 
 
 -- Insert into cartItems
 INSERT INTO cart_item (id, user_id, product_id, quantity)
 VALUES (1000, 5000, 5000, 3);
+
+INSERT INTO cart_item (id, user_id, product_id, quantity)
+VALUES (2000, 2000, 6000, 6);
+
+-- Insert into ORDERS
+INSERT INTO orders (id, user_id, status, sum, created_date)
+VALUES (9000, 5000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
+
+-- Insert into Order_Item
+INSERT INTO order_item (id, order_id, product_id, quantity, name, price)
+VALUES (9000, 9000, 5000, 2, 'Storno-Produkt', 50.0);
 
 -- Insert reviews into the REVIEW table
 -- Reviews for Iphone 15 (ID: 1000) - Avg Rating in Product table is 2.0
@@ -79,7 +93,3 @@ VALUES (5000, 4000, 4000, 5, 'Love it', 'Best phone I have ever owned. Elvis app
 -- Review for Iphone 14 (ID: 3000) - Avg Rating in Product table is 2.0
 INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_DATE)
 VALUES (6000, 3000, 3000, 2, 'Meh', 'I should have bought the 13 or waited for the 15.', '2024-01-25 16:20:00');
-
--- Insert Addresses  into ADDRESS table
-INSERT INTO address (id, number, street, city, country, postal_code)
-VALUES (5000, '1', 'Street', 'City', 'Country', '1234');

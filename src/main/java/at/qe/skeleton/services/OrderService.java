@@ -115,7 +115,7 @@ public class OrderService {
      */
 
     @Transactional
-    public Order cancelOrder(Order orderToBeCanceled, Userx user) {
+    public void cancelOrder(Order orderToBeCanceled, Userx user) {
 
         assert orderToBeCanceled.getId() != null;
         Order order = orderRepository.findById(orderToBeCanceled.getId())
@@ -130,7 +130,7 @@ public class OrderService {
             for (OrderItem orderItem : order.getProducts()) {
                 productService.unreserveStock(orderItem.getProduct().getId(), orderItem.getQuantity());
             }
-            return this.orderRepository.save(order);
+            orderRepository.save(order);
         }
         else {
             throw new IllegalStateException("Can't cancel order. Order status is not <= PENDING_PAYMENT.");
