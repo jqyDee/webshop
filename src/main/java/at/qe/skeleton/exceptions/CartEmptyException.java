@@ -1,7 +1,7 @@
 package at.qe.skeleton.exceptions;
 
-public class CartEmptyExeption extends RuntimeException {
-    public CartEmptyExeption() {
+public class CartEmptyException extends RuntimeException {
+    public CartEmptyException() {
         super("Can not create Order. Your Cart is empty.");
     }
 }

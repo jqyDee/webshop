@@ -7,9 +7,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 /**
  * Repository for managing {@link Product} entities.
  */
@@ -21,10 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>,
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Product p SET p.stock = p.stock + :quantity WHERE p.id = :id")
-    int increaseStock(@Param("id") Long productId, @Param("quantity") int quantity);
+    void releaseStock(@Param("id") Long productId, @Param("quantity") int quantity);
 
     @Query("SELECT COUNT(*) FROM Product p WHERE p.id = :id AND p.stock >= :quantity")
     int checkStock(@Param("id") Long productId, @Param("quantity") int quantity);
-
-    List<Product> getFirstByCreatedDate(LocalDateTime createdDate);
 }

@@ -1,7 +1,7 @@
 package at.qe.skeleton.services;
 
-import at.qe.skeleton.exceptions.CartEmptyExeption;
-import at.qe.skeleton.exceptions.OutOfStockExeption;
+import at.qe.skeleton.exceptions.CartEmptyException;
+import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.model.*;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.repositories.OrderRepository;
@@ -31,12 +31,13 @@ public class OrderService {
     }
 
     /**
+     * Get page of all orders or customers orders
+     *
      * @param currentUser is the user calling the method
-     *if CUSTOMER calls:
-     * return all Orders of the speciic Customer
-     * if ADMIN or MANAGER calls:
-     * return all orders existing at the moment
+     * @return page of orders. If Customer calls, then Customers orders. If Admin/Manager calls
+     *         then all orders.
      */
+    @PreAuthorize("isAuthenticated()")
     public Page<Order> getOrders(Userx currentUser, Pageable pageable) {
         if (currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
@@ -45,20 +46,22 @@ public class OrderService {
     }
 
     /**
-     * Create an order with all products
-     * also delete all cartItems after Order was created successfully
+     * Create an order with all products. Also delete all cartItems after Order was created
+     * successfully
+     *
      * @param currentUser is the user creating the order
      * @return the order created
      * @throws IllegalStateException if Users cart is empty
+     * @throws OutOfStockException if cart item is out of stock
+     * @throws CartEmptyException if cart is empty
      */
-
-    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     @Transactional
-    public Order createOrder(Userx currentUser) {
+    public Order createOrder(Userx currentUser) throws IllegalStateException, OutOfStockException, CartEmptyException {
         // Get all cartItems from user
         Collection<CartItem> cartItems = cartService.getCartItems(currentUser);
         if (cartItems.isEmpty()) {
-            throw new CartEmptyExeption();
+            throw new CartEmptyException();
         }
 
         Collection<OrderItem> orderItems = convertAndReserveStock(cartItems);
@@ -78,18 +81,18 @@ public class OrderService {
 
     /**
      * Convert CartItems to OrderItems and reserve Stock and
+     *
      * @param cartItems The cartItems of the currentUser
      * @return Collection of OrderItems to add to the Order
-     * @throws OutOfStockExeption if Item is out of Stock
-      */
-
-    private Collection<OrderItem> convertAndReserveStock(Collection<CartItem> cartItems) {
-
+     * @throws OutOfStockException if cart item is out of Stock
+     */
+    private Collection<OrderItem> convertAndReserveStock(Collection<CartItem> cartItems)
+            throws OutOfStockException {
         Collection<OrderItem> orderItems = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
             boolean allInStock = productService.reserveStock(cartItem.getProduct().getId(), cartItem.getQuantity());
             if (!allInStock) {
-                throw new OutOfStockExeption(cartItem.getProduct().getName());
+                throw new OutOfStockException(cartItem.getProduct().getName());
             }
             OrderItem orderItem = new OrderItem();
             orderItem.setQuantity(cartItem.getQuantity());
@@ -102,22 +105,26 @@ public class OrderService {
     }
 
 
+    /**
+     * Save order to database
+     *
+     * @param order order to be saved
+     * @return the saved order
+     */
     private Order saveOrder(Order order) {
         return this.orderRepository.save(order);
     }
 
 
-    /*<
-     *Cancel order before payment and release Stock
-     * @param order which should be canceld
-     * @return the updated order entity
-     * @throws AccessDeniedExeption if User is not allowed to cancel (not his own nor ADMIN nor MANAGER)
-     * @throws IllegalStateExeption if the order Status is not <= PendingPayment
+    /**
+     * Cancel order before payment and release stock
+     *
+     * @param orderToBeCanceled order which should be cancelled
+     * @throws AccessDeniedException if user is not allowed to cancel (not his own nor ADMIN nor MANAGER)
+     * @throws IllegalStateException if order is not cancellable anymore
      */
-
     @Transactional
     public void cancelOrder(Order orderToBeCanceled, Userx user) {
-
         assert orderToBeCanceled.getId() != null;
         Order order = orderRepository.findById(orderToBeCanceled.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
@@ -129,7 +136,7 @@ public class OrderService {
         if (order.getStatus().isCancellable()) {
             order.setStatus(OrderStatus.CANCELLED);
             for (OrderItem orderItem : order.getProducts()) {
-                productService.unreserveStock(orderItem.getProduct().getId(), orderItem.getQuantity());
+                productService.releaseStock(orderItem);
             }
             orderRepository.save(order);
         }
@@ -138,6 +145,13 @@ public class OrderService {
         }
     }
 
+    /**
+     * Set order status after payment received
+     *
+     * @param order order to be set to payment received
+     * @param user currently authenticated user
+     * @return the updated order
+     */
     public Order paymentReceived(Order order, Userx user) {
         if (!order.getUser().equals(user)) {
             throw new AccessDeniedException("You do not have permission to confirm this order");

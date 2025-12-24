@@ -14,7 +14,7 @@ VALUES (3000, TRUE, 'Max', 'Mustermann', 'passwd', 'user2', 1000, '2024-01-01 00
 INSERT INTO USERX (ID, ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, USERNAME, CREATE_USER_ID, CREATE_DATE) 
 VALUES (4000, TRUE, 'Elvis', 'The King', 'passwd', 'elvis', 1000, '2024-01-01 00:00:00');
 
-INSERT INTO userx (id, ENABLED, FIRST_NAME, LAST_NAME,  username, password, CREATE_USER_ID, CREATE_DATE)
+INSERT INTO USERX (ID, ENABLED, FIRST_NAME, LAST_NAME, USERNAME, PASSWORD, CREATE_USER_ID, CREATE_DATE)
 VALUES (5000, TRUE, 'Jonny', 'Denber', 'jonny', '$2a$10$xyz...', 1000, '2024-01-01 00:00:00');
 
 -- Insert roles into USERX_USERX_ROLE table by looking up the corresponding user ID
@@ -64,26 +64,25 @@ VALUES (5000, 'Iphone 16', 380.99, 4, 0, 'Apple Iphone 10', 'This is an Apple Ip
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
 VALUES (6000, 'Iphone 17', 380.99, 4, 0, 'Apple Iphone 9', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
 
-
 -- Insert into cartItems
-INSERT INTO cart_item (id, user_id, product_id, quantity)
+INSERT INTO CART_ITEM (ID, USER_ID, PRODUCT_ID, QUANTITY)
 VALUES (1000, 5000, 5000, 3);
 
-INSERT INTO cart_item (id, user_id, product_id, quantity)
+INSERT INTO CART_ITEM (ID, USER_ID, PRODUCT_ID, QUANTITY)
 VALUES (2000, 2000, 6000, 6);
 
 -- Insert into ORDERS
-INSERT INTO orders (id, user_id, status, sum, created_date)
+INSERT INTO ORDERS (ID, USER_ID, STATUS, SUM, CREATED_DATE)
 VALUES (9000, 5000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
 
-INSERT INTO orders (id, user_id, status, sum, created_date)
+INSERT INTO ORDERS (ID, USER_ID, STATUS, SUM, CREATED_DATE)
 VALUES (8000, 5000, 'PENDING_PAYMENT', 100.00, CURRENT_TIMESTAMP);
 
-INSERT INTO orders (id, user_id, status, sum, created_date)
+INSERT INTO ORDERS (ID, USER_ID, STATUS, SUM, CREATED_DATE)
 VALUES (7000, 4000, 'CANCELLED', 100.00, CURRENT_TIMESTAMP);
 
 -- Insert into Order_Item
-INSERT INTO order_item (id, order_id, product_id, quantity, name, price)
+INSERT INTO ORDER_ITEM (ID, ORDER_ID, PRODUCT_ID, QUANTITY, NAME, PRICE)
 VALUES (9000, 9000, 5000, 2, 'Storno-Produkt', 50.0);
 
 -- Insert reviews into the REVIEW table

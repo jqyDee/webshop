@@ -1,10 +1,7 @@
 package at.qe.skeleton.services;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Review;
-import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductRepository;
 import at.qe.skeleton.specifications.ProductSpecification;
 import at.qe.skeleton.repositories.ReviewRepository;
@@ -130,17 +127,13 @@ public class ProductService {
         return rowsUpdated > 0;
     }
 
-    /** When an order is cancelled we need to unreserve the relating Stocks again
+    /** Release stock of order item
      *
-     * @param productId the product Id of the Product which goes back in stock
-     * @param quantity the quantity to be released
-     * @return true if quantity was unreserved and false if not
+     * @param orderItem the order item which stocks should be released
      */
     @Transactional
-    public boolean unreserveStock(Long productId, int quantity) {
-        int rowsUpdated = this.productRepository.increaseStock(productId, quantity);
-
-        return rowsUpdated > 0;
+    public void releaseStock(OrderItem orderItem) {
+        this.productRepository.releaseStock(orderItem.getProduct().getId(), orderItem.getQuantity());
     }
 
     /**

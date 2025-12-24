@@ -10,7 +10,7 @@ import at.qe.skeleton.model.UserxRole;
 import java.util.Optional;
 
 /**
- * Repository for managing {@link Userx} entities.*
+ * Repository for managing {@link Userx} entities.
  * This class is part of the skeleton project provided for students of the
  * course "Software Architecture" offered by Innsbruck University.
  */
@@ -27,5 +27,4 @@ public interface UserxRepository extends AbstractRepository<Userx, Long> {
     List<Userx> findByRole(@Param("role") UserxRole role);
 
     boolean existsByUsername(String username);
-
 }

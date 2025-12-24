@@ -1,7 +1,7 @@
 package at.qe.skeleton.tests;
 
-import at.qe.skeleton.exceptions.CartEmptyExeption;
-import at.qe.skeleton.exceptions.OutOfStockExeption;
+import at.qe.skeleton.exceptions.CartEmptyException;
+import at.qe.skeleton.exceptions.OutOfStockException;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.CartItemRepository;
@@ -79,7 +79,7 @@ class OrderServiceTest {
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testCreateOrderFromCartItems() {
         Product product = productRepository.findById(5000L).orElseThrow();
-        double stockBeforeOrder = product.getStock();
+        int stockBeforeOrder = product.getStock();
 
         Order newOrder = orderService.createOrder(customer1);
 
@@ -101,7 +101,7 @@ class OrderServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testNotInStock() {
-        Assertions.assertThrows(OutOfStockExeption.class, () -> orderService.createOrder(customer2));
+        Assertions.assertThrows(OutOfStockException.class, () -> orderService.createOrder(customer2));
     }
 
     @Transactional
@@ -128,10 +128,9 @@ class OrderServiceTest {
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testPaymentReceived() {
         Order order = orderRepository.findById(8000L).orElseThrow();
-        orderService.paymentReceived(order, customer1);
+        Order updatedOrder = orderService.paymentReceived(order, customer1);
 
-        order = orderRepository.findById(8000L).orElseThrow();
-        Assertions.assertEquals(OrderStatus.PROCESSING, order.getStatus());
+        Assertions.assertEquals(OrderStatus.PROCESSING, updatedOrder.getStatus());
     }
 
     @Transactional
@@ -175,7 +174,7 @@ class OrderServiceTest {
     @Test
     @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
     public void testCartEmptyCreateOrder() {
-        Assertions.assertThrows(CartEmptyExeption.class, () -> orderService.createOrder(customer3));
+        Assertions.assertThrows(CartEmptyException.class, () -> orderService.createOrder(customer3));
     }
 
     @Transactional
@@ -187,5 +186,4 @@ class OrderServiceTest {
         Assertions.assertThrows(IllegalStateException.class, () -> orderService.cancelOrder(order, customer3));
         Assertions.assertThrows(IllegalStateException.class, () -> orderService.paymentReceived(order, customer3));
     }
-
 }
