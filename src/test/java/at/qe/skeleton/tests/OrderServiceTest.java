@@ -155,7 +155,7 @@ class OrderServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
-    public void testPaymentReceivedUnothorized() {
+    public void testPaymentReceivedUnauthorized() {
         Order order = orderRepository.findById(9000L).orElseThrow();
         Assertions.assertThrows(AccessDeniedException.class, () -> orderService.paymentReceived(order, customer2));
     }
@@ -164,7 +164,7 @@ class OrderServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
-    public void testCancelOrderUnothorized() {
+    public void testCancelOrderUnauthorized() {
         Order order = orderRepository.findById(9000L).orElseThrow();
         Assertions.assertThrows(AccessDeniedException.class, () -> orderService.cancelOrder(order, customer2));
     }
