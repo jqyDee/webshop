@@ -47,6 +47,8 @@ class OrderServiceTest {
     private Userx customer2;
     private Userx customer3;
     private Userx admin;
+    @Autowired
+    private AddressRepository addressRepository;
 
     @BeforeEach
     public void setup() {
@@ -121,6 +123,26 @@ class OrderServiceTest {
         Product updatedProduct = productRepository.findById(5000L).orElseThrow();
         Assertions.assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
         Assertions.assertFalse(orderItemRepository.findById(9000L).isPresent());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
+    public void testConfirmOrder() {
+        Order orderToConfirm = orderRepository.findById(9000L).orElseThrow();
+        Userx user = userxRepository.findFirstByUsername("jonny").orElseThrow();
+        Address deliveryAddress = user.getDeliveryAddress();
+        Address paymentAddress = user.getPaymentAddress();
+        Collection<Address> addressesByUser = addressRepository.findAddressByUser(user);
+
+        orderService.confirmOrder(orderToConfirm, user, deliveryAddress, paymentAddress);
+        Order updatedOrder = orderRepository.findById(9000L).orElseThrow();
+        Assertions.assertEquals(OrderStatus.PROCESSING, updatedOrder.getStatus());
+        Assertions.assertEquals(deliveryAddress.getId(), updatedOrder.getShippingAddress().getId(),
+                "Delivery address should be correct");
+        Assertions.assertEquals(paymentAddress.getId(), updatedOrder.getPaymentAddress().getId(),
+                "Payment address should be correct");
     }
 
     @Transactional

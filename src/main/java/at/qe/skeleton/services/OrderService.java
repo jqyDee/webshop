@@ -153,12 +153,55 @@ public class OrderService {
     }
 
     /**
+     * change Order Status and set address when customer confirms order
+     * @param order, the order the user just created
+     * @param user the user who is placing an order
+     * @param shippingAddress address user has saved or just enter
+     * @param paymentAddress address user has saved or just enter
+     */
+
+    @Transactional
+    public void confirmOrder(Order order, Userx user, Address shippingAddress, Address paymentAddress) {
+        if (order == null|| user == null || shippingAddress == null || paymentAddress == null) {return;}
+
+        order.setShippingAddress(shippingAddress);
+        order.setPaymentAddress(paymentAddress);
+
+        if (order.getUser() != user) {
+            throw new AccessDeniedException("You do not have permission to confirm this order");
+        }
+
+        if (!order.getStatus().equals(OrderStatus.PENDING)) {
+            throw new IllegalStateException("Can't confirm order. Order status is not PENDING.");
+        }
+
+        boolean paymentSuccessful = performStubbedPayment(order);
+
+        if (paymentSuccessful) {
+            order.setStatus(OrderStatus.PENDING_PAYMENT);
+            paymentReceived(order, user);
+        }
+    }
+
+    /**
+     * method to perform the payment, only stub in our case
+     * @param order the order the user just confirmed and wants to pay
+     * @return boolean whether the payment went through or not, in our case always true as payment only stubbed
+     */
+    private boolean performStubbedPayment(Order order) {
+        System.out.println("Simulate Order payment for Order:  " + order.getId() + " with total amount: " + order.getSum());
+        return true;
+    }
+
+
+    /**
      * Set order status after payment received
      *
      * @param order order to be set to payment received
      * @param user currently authenticated user
      * @return the updated order
      */
+    @Transactional
     public Order paymentReceived(Order order, Userx user) {
         if (user == null || order == null) {
             throw new IllegalArgumentException("User and Order cannot be null");

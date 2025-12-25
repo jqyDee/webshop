@@ -28,6 +28,12 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Address deliveryAddress;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Address PaymentAddress;
   
   @ManyToOne(fetch = FetchType.LAZY)
   private Userx createUser;
@@ -54,6 +60,14 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
   private Set<UserxRole> roles;
 
   boolean enabled;
+
+  public Address getDeliveryAddress() {
+    return deliveryAddress;
+  }
+  public void setDeliveryAddress(Address deliveryAddress) {this.deliveryAddress = deliveryAddress;}
+
+  public Address getPaymentAddress() {return PaymentAddress;}
+  public void setPaymentAddress(Address PaymentAddress) {this.PaymentAddress = PaymentAddress;}
 
   @Override
   public boolean isAccountNonExpired() {
