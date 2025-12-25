@@ -136,9 +136,9 @@ class OrderServiceTest {
         orderService.confirmOrder(orderToConfirm, user, deliveryAddress, paymentAddress);
         Order updatedOrder = orderRepository.findById(9000L).orElseThrow();
         Assertions.assertEquals(OrderStatus.PROCESSING, updatedOrder.getStatus());
-        Assertions.assertEquals(deliveryAddress.getId(), updatedOrder.getShippingAddress().getId(),
+        Assertions.assertEquals(deliveryAddress.getStreet(), updatedOrder.getShippingAddress().getStreet(),
                 "Delivery address should be correct");
-        Assertions.assertEquals(paymentAddress.getId(), updatedOrder.getPaymentAddress().getId(),
+        Assertions.assertEquals(paymentAddress.getStreet(), updatedOrder.getPaymentAddress().getStreet(),
                 "Payment address should be correct");
     }
 

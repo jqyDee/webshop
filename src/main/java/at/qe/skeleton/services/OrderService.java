@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 @Service
 public class OrderService {
@@ -172,20 +173,21 @@ public class OrderService {
             return;
         }
 
-        if (order.getUser() != user) {
+        if (!Objects.equals(order.getUser().getId(), user.getId())) {
             throw new AccessDeniedException("You do not have permission to confirm this order");
-        }
-
-        if (shippingAddress.getUser() != user || paymentAddress.getUser() != user) {
-            throw new AccessDeniedException("The used addresses do not belong to the orders user");
         }
 
         if (!order.getStatus().equals(OrderStatus.PENDING)) {
             throw new IllegalStateException("Can't confirm order. Order status is not PENDING.");
         }
 
-        order.setShippingAddress(shippingAddress);
-        order.setPaymentAddress(paymentAddress);
+        if (!Objects.equals(shippingAddress.getUser().getId(), user.getId()) ||
+                !Objects.equals(paymentAddress.getUser().getId(), user.getId())) {
+            throw new AccessDeniedException("The addresses do not belong to this user");
+        }
+
+        order.setShippingAddress(orderAddressCreation(shippingAddress));
+        order.setPaymentAddress(orderAddressCreation(paymentAddress));
 
         order.setStatus(OrderStatus.PENDING_PAYMENT);
 
@@ -194,6 +196,17 @@ public class OrderService {
         if (paymentSuccessful) {
             paymentReceived(order, user);
         }
+    }
+
+    private Address orderAddressCreation(Address address) {
+        Address thisAddress = new Address();
+        thisAddress.setStreet(address.getStreet());
+        thisAddress.setNumber(address.getNumber());
+        thisAddress.setPostalCode(address.getPostalCode());
+        thisAddress.setCity(address.getCity());
+        thisAddress.setCountry(address.getCountry());
+        thisAddress.setUser(null);
+        return thisAddress;
     }
 
     // TODO: put this in own payment service

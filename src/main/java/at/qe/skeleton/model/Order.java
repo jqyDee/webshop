@@ -29,10 +29,10 @@ public class Order implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_address_id", nullable = true) // should be null until customer chooses Address?
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id", nullable = true)
     private Address shippingAddress;
-    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_address_id", nullable = true)
     private Address paymentAddress;
 
