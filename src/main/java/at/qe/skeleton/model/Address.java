@@ -40,7 +40,11 @@ public class Address implements Serializable, Persistable<Long> {
     @Column(nullable = false)
     private String country;
 
+    public Userx getUser() {return user;}
+    public void setUser(Userx user) {this.user = user;}
+
     public String getStreet() {return street;}
+
     public void setStreet(String street) {this.street = street;}
 
     public String getNumber() {return number;}

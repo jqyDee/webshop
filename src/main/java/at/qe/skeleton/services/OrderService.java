@@ -39,11 +39,15 @@ public class OrderService {
      */
     @PreAuthorize("isAuthenticated()")
     public Page<Order> getOrders(Userx currentUser, Pageable pageable) {
-        if (currentUser == null) {return Page.empty();}
+        if (currentUser == null) {
+            return Page.empty();
+        }
+
         if (currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
         }
-        else return orderRepository.findAll(pageable);
+
+        return orderRepository.findAll(pageable);
     }
 
     /**
@@ -71,15 +75,15 @@ public class OrderService {
 
         Collection<OrderItem> orderItems = convertAndReserveStock(cartItems);
 
-        //create Order and add all products
+        // create Order and add all products
         Order order = new Order();
         order.setUser(currentUser);
-        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        order.setStatus(OrderStatus.PENDING);
         for (OrderItem orderItem : orderItems) {
             order.addProduct(orderItem);
         }
 
-        //save Order and clear users shopping cart
+        // save Order and clear users shopping cart
         cartService.clearCartItems(currentUser);
         return saveOrder(order);
     }
@@ -130,8 +134,10 @@ public class OrderService {
      */
     @Transactional
     public void cancelOrder(Order orderToBeCanceled, Userx user) {
-        if (orderToBeCanceled == null|| user == null) {return;}
-        assert orderToBeCanceled.getId() != null;
+        if (orderToBeCanceled == null || orderToBeCanceled.getId() == null || user == null) {
+            return;
+        }
+
         Order order = orderRepository.findById(orderToBeCanceled.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
@@ -139,52 +145,61 @@ public class OrderService {
             throw new AccessDeniedException("You do not have permission to cancel this order");
         }
 
-        if (order.getStatus().isCancellable()) {
-            order.setStatus(OrderStatus.CANCELLED);
-            for (OrderItem orderItem : order.getProducts()) {
-                productService.releaseStock(orderItem);
-            }
-            order.getProducts().clear();
-            orderRepository.saveAndFlush(order);
+        if (!order.getStatus().isCancellable()) {
+            throw new IllegalStateException(
+                    "Can't cancel order. Order status is not <= PENDING_PAYMENT.");
         }
-        else {
-            throw new IllegalStateException("Can't cancel order. Order status is not <= PENDING_PAYMENT.");
+
+        order.setStatus(OrderStatus.CANCELLED);
+        for (OrderItem orderItem : order.getProducts()) {
+            productService.releaseStock(orderItem);
         }
+        order.getProducts().clear();
+        orderRepository.save(order);
     }
 
     /**
-     * change Order Status and set address when customer confirms order
+     * Change order status and set address when customer confirms order
+     *
      * @param order, the order the user just created
      * @param user the user who is placing an order
      * @param shippingAddress address user has saved or just enter
      * @param paymentAddress address user has saved or just enter
      */
-
     @Transactional
     public void confirmOrder(Order order, Userx user, Address shippingAddress, Address paymentAddress) {
-        if (order == null|| user == null || shippingAddress == null || paymentAddress == null) {return;}
-
-        order.setShippingAddress(shippingAddress);
-        order.setPaymentAddress(paymentAddress);
+        if (order == null || user == null || shippingAddress == null || paymentAddress == null) {
+            return;
+        }
 
         if (order.getUser() != user) {
             throw new AccessDeniedException("You do not have permission to confirm this order");
+        }
+
+        if (shippingAddress.getUser() != user || paymentAddress.getUser() != user) {
+            throw new AccessDeniedException("The used addresses do not belong to the orders user");
         }
 
         if (!order.getStatus().equals(OrderStatus.PENDING)) {
             throw new IllegalStateException("Can't confirm order. Order status is not PENDING.");
         }
 
+        order.setShippingAddress(shippingAddress);
+        order.setPaymentAddress(paymentAddress);
+
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
+
         boolean paymentSuccessful = performStubbedPayment(order);
 
         if (paymentSuccessful) {
-            order.setStatus(OrderStatus.PENDING_PAYMENT);
             paymentReceived(order, user);
         }
     }
 
+    // TODO: put this in own payment service
     /**
-     * method to perform the payment, only stub in our case
+     * Perform the payment (STUBBED)
+     *
      * @param order the order the user just confirmed and wants to pay
      * @return boolean whether the payment went through or not, in our case always true as payment only stubbed
      */

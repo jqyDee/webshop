@@ -23,8 +23,6 @@ import java.util.*;
 
 @SpringBootTest
 class OrderServiceTest {
-
-
     @Autowired
     private OrderService orderService;
 
@@ -58,7 +56,6 @@ class OrderServiceTest {
         this.admin = userxRepository.findFirstByUsername("admin2").orElseThrow();
     }
 
-
     @Test
     @Transactional
     @DirtiesContext
@@ -73,7 +70,6 @@ class OrderServiceTest {
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
         Assertions.assertEquals(3, orders.getTotalElements());
     }
-
 
     @Transactional
     @DirtiesContext
@@ -122,6 +118,8 @@ class OrderServiceTest {
         Assertions.assertEquals(OrderStatus.CANCELLED, orderToCancel.getStatus());
         Product updatedProduct = productRepository.findById(5000L).orElseThrow();
         Assertions.assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
+
+        orderItemRepository.flush();
         Assertions.assertFalse(orderItemRepository.findById(9000L).isPresent());
     }
 
@@ -132,7 +130,7 @@ class OrderServiceTest {
     public void testConfirmOrder() {
         Order orderToConfirm = orderRepository.findById(9000L).orElseThrow();
         Userx user = userxRepository.findFirstByUsername("jonny").orElseThrow();
-        Address deliveryAddress = user.getDeliveryAddress();
+        Address deliveryAddress = user.getShippingAddress();
         Address paymentAddress = user.getPaymentAddress();
 
         orderService.confirmOrder(orderToConfirm, user, deliveryAddress, paymentAddress);

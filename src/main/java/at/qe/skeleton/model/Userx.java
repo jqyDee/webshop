@@ -30,10 +30,10 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Address deliveryAddress;
+  private Address shippingAddress;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Address PaymentAddress;
+  private Address paymentAddress;
   
   @ManyToOne(fetch = FetchType.LAZY)
   private Userx createUser;
@@ -61,13 +61,13 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
 
   boolean enabled;
 
-  public Address getDeliveryAddress() {
-    return deliveryAddress;
+  public Address getShippingAddress() {
+    return shippingAddress;
   }
-  public void setDeliveryAddress(Address deliveryAddress) {this.deliveryAddress = deliveryAddress;}
+  public void setShippingAddress(Address deliveryAddress) {this.shippingAddress = deliveryAddress;}
 
-  public Address getPaymentAddress() {return PaymentAddress;}
-  public void setPaymentAddress(Address PaymentAddress) {this.PaymentAddress = PaymentAddress;}
+  public Address getPaymentAddress() {return paymentAddress;}
+  public void setPaymentAddress(Address PaymentAddress) {this.paymentAddress = PaymentAddress;}
 
   @Override
   public boolean isAccountNonExpired() {
