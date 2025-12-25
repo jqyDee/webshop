@@ -39,6 +39,7 @@ public class OrderService {
      */
     @PreAuthorize("isAuthenticated()")
     public Page<Order> getOrders(Userx currentUser, Pageable pageable) {
+        if (currentUser == null) {return null;}
         if (currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
         }
@@ -58,6 +59,7 @@ public class OrderService {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     @Transactional
     public Order createOrder(Userx currentUser) throws IllegalStateException, OutOfStockException, CartEmptyException {
+        if (currentUser == null) {return null;}
         // Get all cartItems from user
         Collection<CartItem> cartItems = cartService.getCartItems(currentUser);
         if (cartItems.isEmpty()) {
@@ -125,6 +127,7 @@ public class OrderService {
      */
     @Transactional
     public void cancelOrder(Order orderToBeCanceled, Userx user) {
+        if (orderToBeCanceled == null|| user == null) {return;}
         assert orderToBeCanceled.getId() != null;
         Order order = orderRepository.findById(orderToBeCanceled.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
@@ -153,6 +156,7 @@ public class OrderService {
      * @return the updated order
      */
     public Order paymentReceived(Order order, Userx user) {
+        if (order == null || user == null) {return null;}
         if (!order.getUser().equals(user)) {
             throw new AccessDeniedException("You do not have permission to confirm this order");
         }
