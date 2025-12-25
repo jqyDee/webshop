@@ -30,10 +30,10 @@ public class Order implements Persistable<Long>, Serializable {
     private OrderStatus status;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_address_id", nullable = true)
+    @JoinColumn(name = "shipping_address_id")
     private Address shippingAddress;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_address_id", nullable = true)
+    @JoinColumn(name = "payment_address_id")
     private Address paymentAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)

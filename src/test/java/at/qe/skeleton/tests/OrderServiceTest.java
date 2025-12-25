@@ -45,8 +45,6 @@ class OrderServiceTest {
     private Userx customer2;
     private Userx customer3;
     private Userx admin;
-    @Autowired
-    private AddressRepository addressRepository;
 
     @BeforeEach
     public void setup() {
