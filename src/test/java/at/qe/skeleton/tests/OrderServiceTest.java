@@ -134,7 +134,6 @@ class OrderServiceTest {
         Userx user = userxRepository.findFirstByUsername("jonny").orElseThrow();
         Address deliveryAddress = user.getDeliveryAddress();
         Address paymentAddress = user.getPaymentAddress();
-        Collection<Address> addressesByUser = addressRepository.findAddressByUser(user);
 
         orderService.confirmOrder(orderToConfirm, user, deliveryAddress, paymentAddress);
         Order updatedOrder = orderRepository.findById(9000L).orElseThrow();
