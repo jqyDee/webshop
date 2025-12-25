@@ -39,7 +39,7 @@ public class OrderService {
      */
     @PreAuthorize("isAuthenticated()")
     public Page<Order> getOrders(Userx currentUser, Pageable pageable) {
-        if (currentUser == null) {return null;}
+        if (currentUser == null) {return Page.empty();}
         if (currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
         }
@@ -59,7 +59,10 @@ public class OrderService {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     @Transactional
     public Order createOrder(Userx currentUser) throws IllegalStateException, OutOfStockException, CartEmptyException {
-        if (currentUser == null) {return null;}
+        if (currentUser == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
         // Get all cartItems from user
         Collection<CartItem> cartItems = cartService.getCartItems(currentUser);
         if (cartItems.isEmpty()) {
@@ -141,7 +144,8 @@ public class OrderService {
             for (OrderItem orderItem : order.getProducts()) {
                 productService.releaseStock(orderItem);
             }
-            orderRepository.save(order);
+            order.getProducts().clear();
+            orderRepository.saveAndFlush(order);
         }
         else {
             throw new IllegalStateException("Can't cancel order. Order status is not <= PENDING_PAYMENT.");
@@ -156,7 +160,9 @@ public class OrderService {
      * @return the updated order
      */
     public Order paymentReceived(Order order, Userx user) {
-        if (order == null || user == null) {return null;}
+        if (user == null || order == null) {
+            throw new IllegalArgumentException("User and Order cannot be null");
+        }
         if (!order.getUser().equals(user)) {
             throw new AccessDeniedException("You do not have permission to confirm this order");
         }

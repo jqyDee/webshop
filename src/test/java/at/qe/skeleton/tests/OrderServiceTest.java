@@ -2,12 +2,9 @@ package at.qe.skeleton.tests;
 
 import at.qe.skeleton.exceptions.CartEmptyException;
 import at.qe.skeleton.exceptions.OutOfStockException;
+import at.qe.skeleton.repositories.*;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.model.*;
-import at.qe.skeleton.repositories.CartItemRepository;
-import at.qe.skeleton.repositories.OrderRepository;
-import at.qe.skeleton.repositories.ProductRepository;
-import at.qe.skeleton.repositories.UserxRepository;
 import at.qe.skeleton.services.OrderService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -33,6 +30,9 @@ class OrderServiceTest {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
     private UserxRepository userxRepository;
@@ -120,6 +120,7 @@ class OrderServiceTest {
         Assertions.assertEquals(OrderStatus.CANCELLED, orderToCancel.getStatus());
         Product updatedProduct = productRepository.findById(5000L).orElseThrow();
         Assertions.assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
+        Assertions.assertFalse(orderItemRepository.findById(9000L).isPresent());
     }
 
     @Transactional
@@ -186,4 +187,5 @@ class OrderServiceTest {
         Assertions.assertThrows(IllegalStateException.class, () -> orderService.cancelOrder(order, customer3));
         Assertions.assertThrows(IllegalStateException.class, () -> orderService.paymentReceived(order, customer3));
     }
+
 }
