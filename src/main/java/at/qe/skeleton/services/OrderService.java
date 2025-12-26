@@ -56,7 +56,7 @@ public class OrderService {
      *
      * @param currentUser is the user creating the order
      * @return the order created
-     * @throws IllegalStateException if Users cart is empty
+     * @throws IllegalStateException if User is null
      * @throws OutOfStockException if cart item is out of stock
      * @throws CartEmptyException if cart is empty
      */
@@ -135,7 +135,7 @@ public class OrderService {
     @Transactional
     public void cancelOrder(Order orderToBeCanceled, Userx user) {
         if (orderToBeCanceled == null || orderToBeCanceled.getId() == null || user == null) {
-            return;
+            throw new IllegalArgumentException("Order and user cannot be null");
         }
 
         Order order = orderRepository.findById(orderToBeCanceled.getId())
@@ -167,9 +167,9 @@ public class OrderService {
      * @param paymentAddress address user has saved or just enter
      */
     @Transactional
-    public void confirmOrder(Order order, Userx user, Address shippingAddress, Address paymentAddress) {
+    public Order confirmOrder(Order order, Userx user, Address shippingAddress, Address paymentAddress) {
         if (order == null || user == null || shippingAddress == null || paymentAddress == null) {
-            return;
+            throw new IllegalArgumentException("Order or Userx or addresses cannot be null");
         }
 
         if (!order.getUser().equals(user)) {
@@ -193,8 +193,9 @@ public class OrderService {
         boolean paymentSuccessful = performStubbedPayment(order);
 
         if (paymentSuccessful) {
-            paymentReceived(order, user);
+            return paymentReceived(order, user);
         }
+        return orderRepository.save(order);
     }
 
     /**

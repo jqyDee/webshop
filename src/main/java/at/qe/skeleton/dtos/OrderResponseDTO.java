@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.Map;
 
 public record OrderResponseDTO(
-        @NotBlank boolean failed,
+        @NotBlank boolean success,
         Long orderId,
-        OrderDTO order,
-        Map<Long, Integer> productsInStock // Long = productId, Integer = available stock
+        OrderDTO orderDTO
 ) {}
