@@ -173,7 +173,7 @@ public class OrderService {
             return;
         }
 
-        if (!Objects.equals(order.getUser().getId(), user.getId())) {
+        if (!order.getUser().equals(user)) {
             throw new AccessDeniedException("You do not have permission to confirm this order");
         }
 
@@ -181,8 +181,8 @@ public class OrderService {
             throw new IllegalStateException("Can't confirm order. Order status is not PENDING.");
         }
 
-        if (!Objects.equals(shippingAddress.getUser().getId(), user.getId()) ||
-                !Objects.equals(paymentAddress.getUser().getId(), user.getId())) {
+        if (!shippingAddress.getUser().equals(user) ||
+                !paymentAddress.getUser().equals(user)) {
             throw new AccessDeniedException("The addresses do not belong to this user");
         }
 
