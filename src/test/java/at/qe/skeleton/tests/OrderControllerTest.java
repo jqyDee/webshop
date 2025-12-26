@@ -8,6 +8,8 @@ import at.qe.skeleton.dtos.OrderConfirmRequestDTO;
 import at.qe.skeleton.dtos.OrderDTO;
 import at.qe.skeleton.dtos.OrderItemDTO;
 import at.qe.skeleton.dtos.UserxDTO;
+import at.qe.skeleton.exceptions.CartEmptyException;
+import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.model.*;
@@ -16,6 +18,7 @@ import at.qe.skeleton.repositories.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,7 +34,6 @@ import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -102,14 +104,6 @@ public class OrderControllerTest {
     @Test
     @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
     public void testGetOrders() throws Exception {
-        Userx mockUser = new Userx();
-        mockUser.setId(1L);
-        mockUser.setUsername("customer");
-        mockUser.setRoles(Set.of(UserxRole.CUSTOMER));
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(mockUser, null, mockUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         Order order2 = new Order();
         order2.setId(2L);
@@ -126,7 +120,7 @@ public class OrderControllerTest {
         Page<Order> page = new PageImpl<>(orders, pageable, total_count);
 
         Mockito.when(orderService.getOrders(
-                ArgumentMatchers.eq(mockUser),
+                ArgumentMatchers.any(),
                 ArgumentMatchers.any(Pageable.class)
         )).thenReturn(page);
 
@@ -202,10 +196,130 @@ public class OrderControllerTest {
 
     @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
+    public void testCreateOrderEmptyCart() throws Exception {
+        Order mockOrder = new Order();
+        mockOrder.setId(100L);
+        Userx mockUser = new Userx();
+        mockUser.setId(1L);
+        mockUser.setUsername("userA");
+        mockUser.setRoles(Set.of(UserxRole.CUSTOMER));
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(mockUser, null, mockUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserxDTO userxDTO = userxMapper.mapTo(mockUser);
+        Set<OrderItemDTO> set = new HashSet<>();
+
+        OrderDTO mockOrderDTO = new OrderDTO(
+                100L,
+                userxDTO,
+                OrderStatus.PENDING,
+                null,
+                null,
+                10,
+                set,
+                null
+        );
+
+        Mockito.doThrow(new CartEmptyException()).when(orderService).createOrder(ArgumentMatchers.any());
+
+        Mockito.when(orderMapper.mapTo(ArgumentMatchers.any(Order.class)))
+                .thenReturn(mockOrderDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/createOrder")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity());
+    }
+
+    @Test
+    @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
+    public void testCreateOrderNotInStock() throws Exception {
+        Order mockOrder = new Order();
+        mockOrder.setId(100L);
+        Userx mockUser = new Userx();
+        mockUser.setId(1L);
+        mockUser.setUsername("userA");
+        mockUser.setRoles(Set.of(UserxRole.CUSTOMER));
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(mockUser, null, mockUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserxDTO userxDTO = userxMapper.mapTo(mockUser);
+        Set<OrderItemDTO> set = new HashSet<>();
+
+        OrderDTO mockOrderDTO = new OrderDTO(
+                100L,
+                userxDTO,
+                OrderStatus.PENDING,
+                null,
+                null,
+                10,
+                set,
+                null
+        );
+
+        Mockito.doThrow(new OutOfStockException("Iphone")).when(orderService).createOrder(ArgumentMatchers.any());
+
+        Mockito.when(orderMapper.mapTo(ArgumentMatchers.any(Order.class)))
+                .thenReturn(mockOrderDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/createOrder")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isConflict());
+    }
+
+    @Test
+    @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
+    public void testCreateOrderWrongArgument() throws Exception {
+        Order mockOrder = new Order();
+        mockOrder.setId(100L);
+        Userx mockUser = new Userx();
+        mockUser.setId(1L);
+        mockUser.setUsername("userA");
+        mockUser.setRoles(Set.of(UserxRole.CUSTOMER));
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(mockUser, null, mockUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserxDTO userxDTO = userxMapper.mapTo(mockUser);
+        Set<OrderItemDTO> set = new HashSet<>();
+
+        OrderDTO mockOrderDTO = new OrderDTO(
+                100L,
+                userxDTO,
+                OrderStatus.PENDING,
+                null,
+                null,
+                10,
+                set,
+                null
+        );
+
+        Mockito.doThrow(new IllegalArgumentException()).when(orderService).createOrder(ArgumentMatchers.any());
+
+        Mockito.when(orderMapper.mapTo(ArgumentMatchers.any(Order.class)))
+                .thenReturn(mockOrderDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/createOrder")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testConfirmOrderSuccess() throws Exception {
         OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(1L, new Address(), new Address());
         Userx mockUser = new Userx();
-        mockUser.setId(1L);
+        mockUser.setId(100L);
         mockUser.setUsername("customer");
         mockUser.setRoles(Set.of(UserxRole.CUSTOMER));
 
@@ -236,7 +350,7 @@ public class OrderControllerTest {
         );
 
         //mock order exists
-        Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(existingOrder));
+        Mockito.when(orderRepository.findById(100L)).thenReturn(Optional.of(existingOrder));
 
         Mockito.when(orderService.confirmOrder(existingOrder, mockUser, new Address(), new Address()))
                 .thenReturn(confirmedOrder);
@@ -244,18 +358,61 @@ public class OrderControllerTest {
         Mockito.when(orderMapper.mapTo(ArgumentMatchers.any(Order.class)))
                 .thenReturn(mockOrderDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/confirmOrder")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/100/confirm")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("PROCESSING"));;
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("PROCESSING"));
     }
 
     @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testConfirmOrderAccessDenied() throws Exception {
         OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(1L, new Address(), new Address());
+
+        //mock order exists
+        Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(new Order()));
+
+        // order doesnt belong to userA
+        Mockito.doThrow(new AccessDeniedException("Forbidden"))
+                .when(orderService)
+                .confirmOrder(ArgumentMatchers.any(),
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.any());
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/1/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
+    public void testConfirmOrderIllegalArgument() throws Exception {
+        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(1L, new Address(), new Address());
+        //mock order exists
+        Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(new Order()));
+
+        // order doesnt belong to userA
+        Mockito.doThrow(new IllegalArgumentException())
+                .when(orderService)
+                .confirmOrder(ArgumentMatchers.any(),
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.any());
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/1/confirm")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
+    public void testCancelOrderSuccess() throws Exception {
+
         Userx mockUser = new Userx();
         mockUser.setId(1L);
         mockUser.setUsername("customer");
@@ -265,17 +422,48 @@ public class OrderControllerTest {
                 new UsernamePasswordAuthenticationToken(mockUser, null, mockUser.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        Order cancelledOrder = new Order();
+        cancelledOrder.setId(100L);
+        cancelledOrder.setStatus(OrderStatus.CANCELLED);
+
+        Order existingOrder = new Order();
+        existingOrder.setId(100L);
+        existingOrder.setStatus(OrderStatus.PROCESSING);
+        existingOrder.setUser(mockUser);
+
+        UserxDTO userxDTO = userxMapper.mapTo(mockUser);
+        Set<OrderItemDTO> set = new HashSet<>();
+
+        OrderDTO mockOrderDTO = new OrderDTO(
+                100L,
+                userxDTO,
+                OrderStatus.CANCELLED,
+                null,
+                null,
+                10,
+                set,
+                null
+        );
+
         //mock order exists
-        Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(new Order()));
+        Mockito.when(orderRepository.findById(100L)).thenReturn(Optional.of(existingOrder));
 
-        // order doesnt belong to userA
-        Mockito.doThrow(new AccessDeniedException("Forbidden"))
-                .when(orderService)
-                .confirmOrder(new Order(), mockUser, new Address(), new Address());
+        Mockito.doNothing().when(orderService).cancelOrder(
+                ArgumentMatchers.any(Order.class),
+                ArgumentMatchers.any(Userx.class)
+        );
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/confirmOrder")
+        Mockito.when(orderMapper.mapTo(ArgumentMatchers.any(Order.class)))
+                .thenReturn(mockOrderDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/100/cancel")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isForbidden());
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("CANCELLED"));
     }
+
+
 }

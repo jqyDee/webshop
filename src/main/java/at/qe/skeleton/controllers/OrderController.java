@@ -78,12 +78,12 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/confirmOrder")
-    public ResponseEntity<OrderDTO> confirmOrder(@RequestBody OrderConfirmRequestDTO requestDTO, @AuthenticationPrincipal Userx user) {
+    @PostMapping("{orderId}/confirm")
+    public ResponseEntity<OrderDTO> confirmOrder(@PathVariable Long orderId, @AuthenticationPrincipal Userx user) {
         try {
-            Order order = orderRepository.findById(requestDTO.orderId())
+            Order order = orderRepository.findById(orderId)
                     .orElseThrow(EntityNotFoundException::new);
-            orderService.confirmOrder(order, user, requestDTO.shippingAddress(), requestDTO.paymentAddress());
+            orderService.confirmOrder(order, user, order.getShippingAddress(), order.getPaymentAddress());
             return ResponseEntity.ok(orderMapper.mapTo(order));
         }
         catch (AccessDeniedException e) {
@@ -97,10 +97,10 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/cancelOrder")
-    public ResponseEntity<OrderDTO> cancelOrder(@RequestBody OrderDTO orderDTO, @AuthenticationPrincipal Userx user) {
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long orderId, @AuthenticationPrincipal Userx user) {
         try {
-            Order order = orderRepository.findById(orderDTO.id())
+            Order order = orderRepository.findById(orderId)
                     .orElseThrow(EntityNotFoundException::new);
             orderService.cancelOrder(order, user);
             return ResponseEntity.ok(orderMapper.mapTo(order));
