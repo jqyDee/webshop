@@ -19,8 +19,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    // fix: this needs to be nullable, as we set it to null on product delete
-    @JoinColumn(name = "product_id", nullable = true)
+    @JoinColumn(name = "product_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Product product;
 
@@ -32,7 +31,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
-    private double price; //price of the product at time of purchase not total price
+    private double total; //price including discount of the product at time of purchase
     @Column(nullable = false)
     private int quantity;
 
@@ -45,16 +44,15 @@ public class OrderItem implements Persistable<Long>, Serializable {
     public String getName() {return name;}
     public void setName(String name) {this.name = name;}
 
-    public double getPrice() {return price;}
-    public void setPrice(double price) {this.price = price;}
+    public double getTotal() {return total;}
+    public void setTotal(double price, double discount) {this.total = price*(1-discount);}
 
     public int getQuantity() {return quantity;}
     public void setQuantity(int quantity) {this.quantity = quantity;}
 
     // discount needs to be subtracted
     public double getTotalPrice() {
-        double discountPrice = price*product.getDiscount();
-        return discountPrice*quantity;}
+        return total *quantity;}
 
     @Override
     public int hashCode() {

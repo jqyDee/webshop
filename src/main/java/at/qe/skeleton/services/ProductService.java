@@ -1,10 +1,7 @@
 package at.qe.skeleton.services;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Review;
-import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductRepository;
 import at.qe.skeleton.specifications.ProductSpecification;
 import at.qe.skeleton.repositories.ReviewRepository;
@@ -128,6 +125,15 @@ public class ProductService {
         int rowsUpdated = this.productRepository.reserveStock(productId, quantity);
 
         return rowsUpdated > 0;
+    }
+
+    /** Release stock of order item
+     *
+     * @param orderItem the order item which stocks should be released
+     */
+    @Transactional
+    public void releaseStock(OrderItem orderItem) {
+        this.productRepository.releaseStock(orderItem.getProduct().getId(), orderItem.getQuantity());
     }
 
     /**

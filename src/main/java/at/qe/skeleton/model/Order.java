@@ -9,7 +9,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
+
 @Entity
+@Table(name = "orders") // if column is called "order" sql gets confused due to the ORDER BY command
 public class Order implements Persistable<Long>, Serializable {
 
     @Serial
@@ -27,11 +29,11 @@ public class Order implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_address_id", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id")
     private Address shippingAddress;
-    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_address_id", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_address_id")
     private Address paymentAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
@@ -55,7 +57,7 @@ public class Order implements Persistable<Long>, Serializable {
     public Set<OrderItem> getProducts() {return products;}
     public void addProduct(OrderItem orderItem) {
         products.add(orderItem); // The sum will always be updated whenever a product is added
-        sum += orderItem.getTotalPrice()*orderItem.getQuantity();
+        sum += orderItem.getTotalPrice();
         orderItem.setOrder(this);
     }
 

@@ -20,12 +20,6 @@ public class OrderController {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @PatchMapping("")
-    public ResponseEntity<OrderDTO> updateOrder(@AuthenticationPrincipal Userx user,
-                                                OrderDTO orderDTO) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     @PostMapping("/createOrder")
     public ResponseEntity<OrderResponseDTO> createOrder(@AuthenticationPrincipal Userx user) {
         throw new UnsupportedOperationException("Not supported yet.");

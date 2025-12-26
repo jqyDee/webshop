@@ -2,6 +2,8 @@ package at.qe.skeleton.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serial;
@@ -17,12 +19,17 @@ public class Address implements Serializable, Persistable<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Userx user;
+
     @NotBlank
     @Column(nullable = false)
     private String street;
     @NotBlank
     @Column(nullable = false)
-    private int number;
+    private String number;
     @NotBlank
     @Column(nullable = false)
     private String postalCode;
@@ -33,14 +40,14 @@ public class Address implements Serializable, Persistable<Long> {
     @Column(nullable = false)
     private String country;
 
-    public Long getId() {return id;}
-    public void setId(Long id) {this.id = id;}
+    public Userx getUser() {return user;}
+    public void setUser(Userx user) {this.user = user;}
 
     public String getStreet() {return street;}
     public void setStreet(String street) {this.street = street;}
 
-    public int getNumber() {return number;}
-    public void setNumber(int number) {this.number = number;}
+    public String getNumber() {return number;}
+    public void setNumber(String number) {this.number = number;}
 
     public String getPostalCode() {return postalCode;}
     public void setPostalCode(String postalCode) {this.postalCode = postalCode;}
@@ -50,6 +57,9 @@ public class Address implements Serializable, Persistable<Long> {
 
     public String getCountry() {return country;}
     public void setCountry(String country) {this.country = country;}
+
+    public Long getId() {return id;}
+    public void setId(Long id) {this.id = id;}
 
     @Override
     public boolean isNew() {return (null == this.id);}

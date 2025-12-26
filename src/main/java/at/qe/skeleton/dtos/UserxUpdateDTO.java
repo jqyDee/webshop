@@ -22,6 +22,8 @@ public record UserxUpdateDTO(
     String email,
     String phone,
     boolean enabled,
+    AddressDTO shippingAddress,
+    AddressDTO paymentAddress,
 
     // IMPORTANT: This has to be not empty as it is a set and otherwise the Tests fail
     @NotEmpty Set<UserxRole> roles

@@ -31,22 +31,17 @@ public class CartServiceTest {
     public void testDataInitialization() {
         Userx u1 = userxService.getUserByUsername("user1");
         Userx u2 = userxService.getUserByUsername("user2");
-        Userx u3 = userxService.getUserByUsername("elvis");
 
         List<CartItem> itemsU1 = cartService.getCartItems(u1).stream().toList();
         List<CartItem> itemsU2 = cartService.getCartItems(u2).stream().toList();
-        List<CartItem> itemsU3 = cartService.getCartItems(u3).stream().toList();
 
-        Assertions.assertEquals(2, itemsU1.size());
+        Assertions.assertEquals(3, itemsU1.size());
         Assertions.assertEquals(1, itemsU2.size());
-        Assertions.assertEquals(1, itemsU3.size());
 
         Assertions.assertEquals(1, itemsU1.getFirst().getQuantity());
         Assertions.assertEquals(1, itemsU1.get(1).getQuantity());
 
         Assertions.assertEquals(1, itemsU2.getFirst().getQuantity());
-
-        Assertions.assertEquals(5, itemsU3.getFirst().getQuantity());
     }
 
     @Test
@@ -89,7 +84,7 @@ public class CartServiceTest {
         CartItem addedCartItem = addedCartItemOpt.get();
 
 
-        Assertions.assertEquals(3, cartService.getCartItems(u1).size());
+        Assertions.assertEquals(4, cartService.getCartItems(u1).size());
         Assertions.assertNotNull(addedCartItem.getProduct());
         Assertions.assertNotNull(addedCartItem.getUser());
         Assertions.assertEquals("user1",  addedCartItem.getUser().getUsername());
@@ -129,7 +124,7 @@ public class CartServiceTest {
 
         cartService.saveCartItem(u1, productId, quantity);
 
-        Assertions.assertEquals(2, cartService.getCartItems(u1).size());
+        Assertions.assertEquals(3, cartService.getCartItems(u1).size());
         Optional<CartItem> cartItemUpdated =  cartService.getCartItems(u1).stream().findFirst();
         Assertions.assertTrue(cartItemUpdated.isPresent());
         Assertions.assertEquals(quantity, cartItemUpdated.get().getQuantity());
@@ -149,7 +144,7 @@ public class CartServiceTest {
         CartItem cartItem = cOpt.get();
 
         cartService.saveCartItem(u1, productId, quantity);
-        Assertions.assertEquals(1, cartService.getCartItems(u1).size());
+        Assertions.assertEquals(2, cartService.getCartItems(u1).size());
 
         Assertions.assertFalse(cartService.getCartItems(u1).contains(cartItem));
     }
@@ -187,7 +182,7 @@ public class CartServiceTest {
         cartService.removeCartItem(u, productId);
 
         Collection<CartItem> cartItems = cartService.getCartItems(u);
-        Assertions.assertEquals(1, cartItems.size());
+        Assertions.assertEquals(2, cartItems.size());
     }
 
     @DirtiesContext
@@ -238,7 +233,7 @@ public class CartServiceTest {
         cartService.saveCartItems(u, productId_Quantity);
 
         Collection<CartItem> cartItems = cartService.getCartItems(u);
-        Assertions.assertEquals(4, cartItems.size());
+        Assertions.assertEquals(5, cartItems.size());
         Optional<CartItem> c2Opt = cartItemRepository.findFirstByUserAndProduct_Id(u, 2000L);
         Optional<CartItem> c3Opt = cartItemRepository.findFirstByUserAndProduct_Id(u, 3000L);
         Assertions.assertTrue(c2Opt.isPresent());
