@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 @Service
 public class OrderService {
@@ -107,7 +106,7 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setName(cartItem.getProduct().getName());
-            orderItem.setPrice(cartItem.getProduct().getPrice(), cartItem.getProduct().getDiscount());
+            orderItem.setTotal(cartItem.getProduct().getPrice(), cartItem.getProduct().getDiscount());
             orderItem.setProduct(cartItem.getProduct());
             orderItems.add(orderItem);
         }
@@ -198,6 +197,12 @@ public class OrderService {
         }
     }
 
+    /**
+     * Create a copy of an address to make sure it is not changed once an order is confirmed
+     *
+     * @param address address to copy
+     * @return copied address
+     */
     private Address orderAddressCreation(Address address) {
         Address thisAddress = new Address();
         thisAddress.setStreet(address.getStreet());

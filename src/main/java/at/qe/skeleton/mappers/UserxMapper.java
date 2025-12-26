@@ -23,5 +23,7 @@ public abstract class UserxMapper extends DTOMapper<Userx, UserxDTO>{
     @Mapping(target = "updateDate", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "shippingAddress", ignore = true)
+    @Mapping(target = "paymentAddress", ignore = true)
     public abstract Userx mapFrom(UserxDTO dto);
 }

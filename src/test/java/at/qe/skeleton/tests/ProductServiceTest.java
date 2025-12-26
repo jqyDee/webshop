@@ -1,9 +1,11 @@
 package at.qe.skeleton.tests;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
+import at.qe.skeleton.model.OrderItem;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.repositories.OrderItemRepository;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.UserxService;
 import jakarta.transaction.Transactional;
@@ -28,6 +30,8 @@ public class ProductServiceTest {
     ProductService productService;
     @Autowired
     private UserxService userxService;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Test
     public void testProductDataInitialization() {
@@ -384,6 +388,24 @@ public class ProductServiceTest {
         Assertions.assertFalse(productAfterOpt.isEmpty());
         productAfter = productAfterOpt.get();
         Assertions.assertEquals(0, productAfter.getStock());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    public void testReleaseStock() {
+        Long orderItemId = 9000L;
+        Long productId = 5000L;
+        Product product = productService.loadProduct(productId).orElseThrow();
+        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow();
+        int productStock = product.getStock();
+        int orderItemQuantity = orderItem.getQuantity();
+
+        productService.releaseStock(orderItem);
+
+        product =  productService.loadProduct(productId).orElseThrow();
+
+        Assertions.assertEquals(productStock + orderItemQuantity, product.getStock());
     }
 
     @Test

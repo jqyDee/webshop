@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {AddressMapper.class})
 public abstract class UserxUpdateMapper extends DTOMapper<Userx, UserxUpdateDTO> {
 
     @Autowired

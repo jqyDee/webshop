@@ -26,6 +26,8 @@ public record UserxDTO (
     // obviously you do not have to update the email and phone every time
     String email,
     String phone,
+    AddressDTO shippingAddress,
+    AddressDTO paymentAddress,
     @NotNull boolean enabled,
     @NotEmpty Set<UserxRole> roles
 ) {}
