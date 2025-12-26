@@ -18,7 +18,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.Optional;
 
 /**
- * Some very basic tests for {@link UserxService}.*
+ * Some very basic tests for {@link UserxService}.
+ *
  * This class is part of the skeleton project provided for students of the courses "Software
  * Architecture" and "Software Engineering" offered by the University of Innsbruck.
  */
@@ -35,7 +36,7 @@ public class UserxServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testDatainitialization() {
-        Assertions.assertEquals(6, userService.getAllUsers().size(),
+        Assertions.assertEquals(7, userService.getAllUsers().size(),
                 "Insufficient amount of users initialized for test data source");
         for (Userx user : userService.getAllUsers()) {
             switch (user.getUsername()) {
@@ -51,7 +52,7 @@ public class UserxServiceTest {
                     Assertions.assertNull(user.getUpdateDate(),
                                           "User \"" + user + "\" has a updateDate defined");
                 }
-                case "user1" -> {
+                case "user1", "manager" -> {
                     Assertions.assertTrue(user.getRoles().contains(UserxRole.MANAGER),
                                           "User \"" + user + "\" does not have role MANAGER");
                     Assertions.assertNotNull(user.getCreateUser(),
@@ -96,7 +97,7 @@ public class UserxServiceTest {
 
         userService.deleteUser(toBeDeletedUser);
 
-        Assertions.assertEquals(5, userService.getAllUsers().size(),
+        Assertions.assertEquals(6, userService.getAllUsers().size(),
                 "No user has been deleted after calling UserService.deleteUser");
         Optional<Userx> deletedUserOpt = userService.loadUser(deleteUserId);
         Assertions.assertTrue(deletedUserOpt.isEmpty(),
