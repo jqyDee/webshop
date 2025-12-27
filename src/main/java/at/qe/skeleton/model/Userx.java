@@ -39,11 +39,11 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
   private Userx createUser;
   @Column(nullable = false)
   @CreationTimestamp
-  private LocalDateTime createDate;
-  @ManyToOne(optional = true)
+  private LocalDateTime createdDate;
+  @ManyToOne
   private Userx updateUser;
   @UpdateTimestamp
-  private LocalDateTime updateDate;
+  private LocalDateTime updatedDate;
   
   @Column(unique = true, nullable = false, length = 100)
   private String username;
@@ -161,12 +161,12 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
     this.createUser = createUser;
   }
 
-  public LocalDateTime getCreateDate() {
-    return createDate;
+  public LocalDateTime getCreatedDate() {
+    return createdDate;
   }
 
-  public void setCreateDate(LocalDateTime createDate) {
-    this.createDate = createDate;
+  public void setCreatedDate(LocalDateTime createDate) {
+    this.createdDate = createDate;
   }
 
   public Userx getUpdateUser() {
@@ -177,12 +177,12 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
     this.updateUser = updateUser;
   }
 
-  public LocalDateTime getUpdateDate() {
-    return updateDate;
+  public LocalDateTime getUpdatedDate() {
+    return updatedDate;
   }
 
-  public void setUpdateDate(LocalDateTime updateDate) {
-    this.updateDate = updateDate;
+  public void setUpdatedDate(LocalDateTime updateDate) {
+    this.updatedDate = updateDate;
   }
 
   @Override
