@@ -4,10 +4,7 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
-import at.qe.skeleton.dtos.OrderConfirmRequestDTO;
-import at.qe.skeleton.dtos.OrderDTO;
-import at.qe.skeleton.dtos.OrderItemDTO;
-import at.qe.skeleton.dtos.UserxDTO;
+import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.exceptions.CartEmptyException;
 import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.mappers.OrderMapper;
@@ -193,10 +190,8 @@ public class OrderControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.orderId").value(100))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.orderDTO.id").value(100))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.orderDTO.status").value("PENDING"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("PENDING"));
 
         // verify service call
         Mockito.verify(orderService, Mockito.times(1)).createOrder(ArgumentMatchers.any());
@@ -345,7 +340,9 @@ public class OrderControllerTest {
     @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testConfirmOrderSuccess() throws Exception {
-        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(1L, new Address(), new Address());
+        AddressDTO a1 = new AddressDTO(1L, "as", "as", "as", "as", "as");
+        AddressDTO a2 = new AddressDTO(2L, "as", "as", "as", "as", "as");
+        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(a1, a2);
 
         Userx mockUser = createMockUser(100L);
         authenticateUser(mockUser);
@@ -392,7 +389,9 @@ public class OrderControllerTest {
     @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testConfirmOrderAccessDenied() throws Exception {
-        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(1L, new Address(), new Address());
+        AddressDTO a1 = new AddressDTO(1L, "as", "as", "as", "as", "as");
+        AddressDTO a2 = new AddressDTO(2L, "as", "as", "as", "as", "as");
+        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(a1, a2);
 
         //mock order exists
         Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(new Order()));
@@ -414,7 +413,9 @@ public class OrderControllerTest {
     @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testConfirmIllegalState() throws Exception {
-        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(1L, new Address(), new Address());
+        AddressDTO a1 = new AddressDTO(1L, "as", "as", "as", "as", "as");
+        AddressDTO a2 = new AddressDTO(2L, "as", "as", "as", "as", "as");
+        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(a1, a2);
 
         //mock order exists
         Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(new Order()));
@@ -436,7 +437,10 @@ public class OrderControllerTest {
     @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testConfirmOrderIllegalArgument() throws Exception {
-        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(1L, new Address(), new Address());
+        AddressDTO a1 = new AddressDTO(1L, "as", "as", "as", "as", "as");
+        AddressDTO a2 = new AddressDTO(2L, "as", "as", "as", "as", "as");
+        OrderConfirmRequestDTO request = new OrderConfirmRequestDTO(a1, a2);
+
         //mock order exists
         Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(new Order()));
 

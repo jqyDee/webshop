@@ -9,11 +9,11 @@ import java.util.Set;
 
 public record OrderDTO(
         Long id,
-        @NotNull UserxDTO userId,
+        @NotNull UserxDTO user,
         @NotNull OrderStatus status,
         AddressDTO shippingAddress,
         AddressDTO paymentAddress,
-        @NotNull double sum,
+        double sum,
         @NotEmpty Set<OrderItemDTO> products,
         LocalDateTime createdDate
 ) {}

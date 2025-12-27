@@ -7,6 +7,6 @@ public record OrderItemDTO (
     @NotNull ProductDTO product,
     @NotNull OrderDTO order,
     String name,
-    Integer total,
+    Double total,
     Integer quantity
 ) {}
