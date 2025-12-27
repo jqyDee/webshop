@@ -1,17 +1,19 @@
 package at.qe.skeleton.dtos;
 
 import at.qe.skeleton.model.OrderStatus;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.Set;
 
 public record OrderDTO(
         Long id,
-        Long userId,
-        OrderStatus status,
+        @NotNull UserxDTO user,
+        @NotNull OrderStatus status,
         AddressDTO shippingAddress,
         AddressDTO paymentAddress,
         double sum,
-        Map<ProductDTO, Integer> products, //should be changed to a set of orderItemDTO --> We need OrderItemDTO
+        @NotEmpty Set<OrderItemDTO> products,
         LocalDateTime createdDate
 ) {}

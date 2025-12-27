@@ -16,7 +16,6 @@ import java.util.Optional;
 
 /**
  * Service for accessing and manipulating user data.
- *
  * This class is part of the skeleton project provided for students of the
  * course "Software Architecture" offered by Innsbruck University.
  */
@@ -56,10 +55,10 @@ public class UserxService implements UserDetailsService {
     }
     
     /**
-     * Saves the user. This method will also set {@link Userx#createDate} for new
-     * entities or {@link Userx#updateDate} for updated entities. The user
-     * requesting this operation will also be stored as {@link Userx#createDate}
-     * or {@link Userx#updateUser} respectively.
+     * Saves the user. This method will also set createdDate for new
+     * entities or updatedDate for updated entities. The user
+     * requesting this operation will also be stored as createdDate
+     * or updateUser respectively.
      *
      * @param user the user to save
      * @return the updated user
@@ -99,7 +98,7 @@ public class UserxService implements UserDetailsService {
      *
      * @param username the username identifying the user whose data is required.
      * @return the user with the given username and their details.
-     * @throws UsernameNotFoundException
+     * @throws UsernameNotFoundException if username not found
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

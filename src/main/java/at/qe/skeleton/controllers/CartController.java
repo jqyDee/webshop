@@ -106,7 +106,7 @@ public class CartController {
      * @return VOID
      */
     @PatchMapping("/{productId}")
-    public ResponseEntity<CartItemDTO> updateProductInShoppingCart(
+    public ResponseEntity<Void> updateProductInShoppingCart(
             @PathVariable Long productId, @RequestParam int quantity,
             @AuthenticationPrincipal Userx user) {
         cartService.saveCartItem(user, productId, quantity);
