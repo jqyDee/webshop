@@ -15,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -134,11 +132,7 @@ public class ProductController {
                                                   @AuthenticationPrincipal Userx user) {
         Optional<Product> product;
 
-        try {
-            product = productService.addReview(id, reviewMapper.mapFrom(reviewDto), user);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        product = productService.addReview(id, reviewMapper.mapFrom(reviewDto), user);
 
         return product.map(value -> ResponseEntity.ok(productMapper.mapTo(value)))
                       .orElseGet(() -> ResponseEntity.notFound().build());
@@ -157,11 +151,7 @@ public class ProductController {
     public ResponseEntity<Void> deleteReview(@PathVariable Long productId,
                                              @PathVariable Long reviewId,
                                              @AuthenticationPrincipal Userx user) {
-        try {
-            productService.removeReview(productId, reviewId, user);
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        productService.removeReview(productId, reviewId, user);
 
         return ResponseEntity.ok().build();
     }

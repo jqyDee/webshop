@@ -1,8 +1,6 @@
 package at.qe.skeleton.controllers;
 
 import at.qe.skeleton.dtos.*;
-import at.qe.skeleton.exceptions.CartEmptyException;
-import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.mappers.AddressMapper;
 import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.model.Address;
@@ -17,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -82,20 +79,8 @@ public class OrderController {
      */
     @PostMapping("/createOrder")
     public ResponseEntity<OrderDTO> createOrder(@AuthenticationPrincipal Userx user) {
-        try {
-            Order order = orderService.createOrder(user);
-
-            return ResponseEntity.ok(orderMapper.mapTo(order));
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        catch (CartEmptyException e) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
-        }
-        catch (OutOfStockException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        Order order = orderService.createOrder(user);
+        return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 
     /**
@@ -116,21 +101,9 @@ public class OrderController {
         Address shippingAddress = addressMapper.mapFrom(dto.shippingAddress());
         Address paymentAddress = addressMapper.mapFrom(dto.paymentAddress());
 
-        try {
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(EntityNotFoundException::new);
-            orderService.confirmOrder(order, user, shippingAddress, paymentAddress);
-            return ResponseEntity.ok(orderMapper.mapTo(order));
-        }
-        catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        orderService.confirmOrder(order, user, shippingAddress, paymentAddress);
+        return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 
     /**
@@ -146,20 +119,9 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long orderId,
                                                 @AuthenticationPrincipal Userx user) {
-        try {
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(EntityNotFoundException::new);
-            orderService.cancelOrder(order, user);
-            return ResponseEntity.ok(orderMapper.mapTo(order));
-        }
-        catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        Order order = orderRepository.findById(orderId)
+                                     .orElseThrow(EntityNotFoundException::new);
+        orderService.cancelOrder(order, user);
+        return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 }
