@@ -35,24 +35,50 @@ public class OrderItem implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private int quantity;
 
-    public Product getProduct() {return product;}
-    public void setProduct(Product product) {this.product = product;}
+    public Product getProduct() {
+        return product;
+    }
 
-    public Order getOrder() {return order;}
-    public void setOrder(Order order) {this.order = order;}
+    public void setProduct(Product product) {
+        this.product = product;
+    }
 
-    public String getName() {return name;}
-    public void setName(String name) {this.name = name;}
+    public Order getOrder() {
+        return order;
+    }
 
-    public double getTotal() {return total;}
-    public void setTotal(double price, double discount) {this.total = price*(1-discount);}
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 
-    public int getQuantity() {return quantity;}
-    public void setQuantity(int quantity) {this.quantity = quantity;}
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double price, double discount) {
+        this.total = price*(1-discount);
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 
     // discount needs to be subtracted
     public double getTotalPrice() {
-        return total *quantity;}
+        return total *quantity;
+    }
 
     @Override
     public int hashCode() {
@@ -73,10 +99,16 @@ public class OrderItem implements Persistable<Long>, Serializable {
     }
 
     @Override
-    public Long getId() {return id;}
+    public Long getId() {
+        return id;
+    }
 
-    public void setId(Long id) {this.id = id;}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @Override
-    public boolean isNew() {return (null == this.id);}
+    public boolean isNew() {
+        return (null == this.id);
+    }
 }
