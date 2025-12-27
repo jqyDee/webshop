@@ -22,8 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.security.access.AccessDeniedException;
-
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -126,9 +124,6 @@ public class OrderController {
         }
         catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
