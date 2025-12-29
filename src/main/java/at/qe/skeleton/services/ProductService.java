@@ -204,7 +204,7 @@ public class ProductService {
                .findFirst()
                .ifPresent(review -> {
                    boolean isAuthor = review.getAuthor() != null && review.getAuthor().equals(currentUser);
-                   boolean isAdmin = currentUser.getRoles().contains(UserxRole.ADMIN);
+                   boolean isAdmin = currentUser.getRole().equals(UserxRole.ADMIN);
 
                    if (!isAdmin && !isAuthor) {
                        throw new AccessDeniedException(

@@ -3,6 +3,7 @@ package at.qe.skeleton.dtos;
 import at.qe.skeleton.model.UserxRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 
@@ -24,7 +25,5 @@ public record UserxUpdateDTO(
     boolean enabled,
     AddressDTO shippingAddress,
     AddressDTO paymentAddress,
-
-    // IMPORTANT: This has to be not empty as it is a set and otherwise the Tests fail
-    @NotEmpty Set<UserxRole> roles
+    @NotNull UserxRole role
 ) {}

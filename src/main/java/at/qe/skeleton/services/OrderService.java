@@ -43,7 +43,7 @@ public class OrderService {
             return Page.empty();
         }
 
-        if (currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
+        if (currentUser.getRole().equals(UserxRole.CUSTOMER)) {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
         }
 
@@ -141,7 +141,7 @@ public class OrderService {
         Order order = orderRepository.findById(orderToBeCanceled.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
-        if (!order.getUser().equals(user) && user.getRoles().contains(UserxRole.CUSTOMER)) {
+        if (!order.getUser().equals(user) && user.getRole().equals(UserxRole.CUSTOMER)) {
             throw new AccessDeniedException("You do not have permission to cancel this order");
         }
 
