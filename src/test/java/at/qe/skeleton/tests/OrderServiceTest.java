@@ -184,7 +184,8 @@ class OrderServiceTest {
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testCancelOrderUnauthorized() {
         Order order = orderRepository.findById(9000L).orElseThrow();
-        Assertions.assertThrows(AccessDeniedException.class, () -> orderService.cancelOrder(order, customer2));
+        Userx user = userxRepository.findFirstByUsername("user2").orElseThrow();
+        Assertions.assertThrows(AccessDeniedException.class, () -> orderService.cancelOrder(order, user));
     }
 
     @Transactional
