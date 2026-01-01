@@ -10,6 +10,7 @@ import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.ProductService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -80,12 +81,9 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
-        Optional<Product> productOpt = productService.loadProduct(id);
-        if (productOpt.isPresent()) {
-            Product product = productOpt.get();
-            return ResponseEntity.ok(productMapper.mapTo(product));
-        }
-        return ResponseEntity.notFound().build();
+        Product product = productService.loadProduct(id).orElseThrow(EntityNotFoundException::new);
+
+        return ResponseEntity.ok(productMapper.mapTo(product));
     }
 
     /**

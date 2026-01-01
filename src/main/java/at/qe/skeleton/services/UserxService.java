@@ -3,6 +3,8 @@ package at.qe.skeleton.services;
 import at.qe.skeleton.exceptions.UsernameDuplicateException;
 import at.qe.skeleton.model.Userx;
 import java.util.Collection;
+
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,6 +53,10 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Optional<Userx> loadUser(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         return userRepository.findById(id);
     }
     
@@ -65,9 +71,14 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Userx saveUser(Userx user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User is null");
+        }
+
         if (user.isNew()) {
             if (userRepository.existsByUsername(user.getUsername())) {
-                throw new UsernameDuplicateException("Username " + user.getUsername() + " not available");
+                throw new UsernameDuplicateException(
+                        "Username " + user.getUsername() + " not available");
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setCreateUser(authenticatedUserService.getAuthenticatedUser());
@@ -84,12 +95,28 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteUser(Userx user) {
-        Optional<Userx> userOpt = userRepository.findById(user.getId());
-        userOpt.ifPresent(userRepository::delete);
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User or User.id is null");
+        }
+
+        Userx userFound = userRepository.findById(user.getId())
+                                        .orElseThrow(EntityNotFoundException::new);
+        userRepository.delete(userFound);
     }
 
+    /**
+     * Get user by username
+     *
+     * @param username username of user
+     * @return user
+     */
     public Userx getUserByUsername(String username) {
-        return userRepository.findFirstByUsername(username).orElse(null);
+        if (username == null) {
+            throw new IllegalArgumentException("Username is null");
+        }
+
+        return userRepository.findFirstByUsername(username)
+                             .orElseThrow(EntityNotFoundException::new);
     }
 
 

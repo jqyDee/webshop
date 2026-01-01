@@ -4,13 +4,13 @@ import at.qe.skeleton.model.CartItem;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.repositories.CartItemRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,7 +35,7 @@ public class CartService {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public Collection<CartItem> getCartItems(Userx currentUser) {
         if (currentUser == null) {
-            return Collections.emptyList();
+            throw new IllegalStateException("Current user is null");
         }
 
         return cartItemRepository.findAllByUser(currentUser);
@@ -51,7 +51,7 @@ public class CartService {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public void saveCartItem(Userx currentUser, Long productId, int quantity) {
         if (currentUser == null || productId == null) {
-            return;
+            throw new IllegalArgumentException("Current user or product id is null");
         }
 
         Optional<CartItem> existingItem = cartItemRepository.findFirstByUserAndProduct_Id(currentUser, productId);
@@ -70,7 +70,7 @@ public class CartService {
 
         Optional<Product> product = productService.loadProduct(productId);
         if (product.isEmpty()) {
-            return;
+            throw new EntityNotFoundException("Product not found");
         }
 
         CartItem newCartItem = new CartItem();
@@ -91,7 +91,7 @@ public class CartService {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public void saveCartItems(Userx currentUser, Map<Long, Integer> productIdAndQuantity) {
         if (currentUser == null ||  productIdAndQuantity == null || productIdAndQuantity.isEmpty()) {
-            return;
+            throw new IllegalArgumentException("Current user or product/quantity map is null or empty");
         }
 
         for (Map.Entry<Long, Integer> entry : productIdAndQuantity.entrySet()) {
@@ -108,7 +108,7 @@ public class CartService {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public void removeCartItem(Userx currentUser, Long productId) {
         if (currentUser == null || productId == null) {
-            return;
+            throw new IllegalArgumentException("Current user or product id is null");
         }
 
         Optional<CartItem> existingItem = cartItemRepository.findFirstByUserAndProduct_Id(currentUser, productId);
@@ -126,6 +126,8 @@ public class CartService {
     public void clearCartItems(Userx currentUser) {
         if (currentUser != null) {
             cartItemRepository.deleteAllByUser(currentUser);
+        } else {
+            throw new IllegalArgumentException("Current user is null");
         }
     }
 }

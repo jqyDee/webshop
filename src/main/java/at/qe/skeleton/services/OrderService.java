@@ -44,7 +44,7 @@ public class OrderService {
     @PreAuthorize("isAuthenticated()")
     public Page<Order> getOrders(Userx currentUser, Pageable pageable) {
         if (currentUser == null) {
-            return Page.empty();
+            throw new IllegalArgumentException("currentUser is null");
         }
 
         if (currentUser.getRoles().contains(UserxRole.CUSTOMER)) {
@@ -68,7 +68,7 @@ public class OrderService {
     @Transactional
     public Order createOrder(Userx currentUser) throws IllegalArgumentException, OutOfStockException, CartEmptyException {
         if (currentUser == null) {
-            throw new IllegalArgumentException("User cannot be null");
+            throw new IllegalArgumentException("User is null");
         }
 
         // Get all cartItems from user
@@ -125,6 +125,10 @@ public class OrderService {
      * @return the saved order
      */
     private Order saveOrder(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException("Order is null");
+        }
+
         return this.orderRepository.save(order);
     }
 
@@ -232,6 +236,10 @@ public class OrderService {
      */
     private void validateAddressOwnership(Address address, Userx user)
             throws AccessDeniedException, IllegalArgumentException {
+        if (address == null || user == null || user.isNew()) {
+            throw new IllegalArgumentException("Address or User is null or User is new");
+        }
+
         if (address.getId() != null) {
             Address existingAddress = addressRepository.findById(address.getId())
                                                        .orElseThrow(() -> new IllegalArgumentException("Address not found"));
@@ -252,6 +260,10 @@ public class OrderService {
      * @return boolean whether the payment went through or not, in our case always true as payment only stubbed
      */
     private boolean performStubbedPayment(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException("Order is null");
+        }
+
         System.out.println("Simulate Order payment for Order:  " + order.getId() + " with total amount: " + order.getSum());
         return true;
     }
