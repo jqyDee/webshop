@@ -54,31 +54,63 @@ public class Order implements Persistable<Long>, Serializable {
         this.user = user;
     }
 
-    public Set<OrderItem> getProducts() {return products;}
+    public Set<OrderItem> getProducts() {
+        return products;
+    }
     public void addProduct(OrderItem orderItem) {
         products.add(orderItem); // The sum will always be updated whenever a product is added
         sum += orderItem.getTotalPrice();
         orderItem.setOrder(this);
     }
 
-    public OrderStatus getStatus() {return status;}
-    public void setStatus(OrderStatus status) {this.status = status;}
+    public OrderStatus getStatus() {
+        return status;
+    }
 
-    public double getSum() {return sum;}
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
 
-    public void setCreatedDate(LocalDateTime createdDate) {this.createdDate = createdDate;}
-    public LocalDateTime getCreatedDate() {return createdDate;}
+    public void setSum(double sum) {
+        this.sum = sum;
+    }
 
-    public Address getPaymentAddress() {return paymentAddress;}
-    public void setPaymentAddress(Address paymentAddress) {this.paymentAddress = paymentAddress;}
+    public double getSum() {
+        return sum;
+    }
 
-    public Address getShippingAddress() {return shippingAddress;}
-    public void setShippingAddress(Address shippingAddress) {this.shippingAddress = shippingAddress;}
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public Address getPaymentAddress() {
+        return paymentAddress;
+    }
+
+    public void setPaymentAddress(Address paymentAddress) {
+        this.paymentAddress = paymentAddress;
+    }
+
+    public Address getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(Address shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
 
     @Override
-    public Long getId() {return id;}
+    public Long getId() {
+        return id;
+    }
 
-    public void setId(Long id) {this.id = id;}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @Override
     public boolean isNew() {return null == this.id;}

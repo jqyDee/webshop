@@ -20,7 +20,7 @@ public abstract class UserxUpdateMapper extends DTOMapper<Userx, UserxUpdateDTO>
      * If not, we create a new one.
      */
     @ObjectFactory
-    public Userx resolveUser(UserxUpdateDTO dto, Long id) {
+    public Userx resolveUser(UserxUpdateDTO ignored, Long id) {
         if (id != null) {
             return userxService.loadUser(id).orElse(new Userx());
         }
@@ -35,16 +35,16 @@ public abstract class UserxUpdateMapper extends DTOMapper<Userx, UserxUpdateDTO>
     @Mapping(target = "id", ignore = true) // Protect the ID from being overwritten
     @Mapping(target = "createUser", ignore = true)
     @Mapping(target = "updateUser", ignore = true)
-    @Mapping(target = "createDate", ignore = true)
-    @Mapping(target = "updateDate", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "updatedDate", ignore = true)
     @Mapping(target = "authorities", ignore = true) // Ignore UserDetails derived field
     public abstract Userx mapFrom(UserxUpdateDTO dto, Long id);
 
     @Mapping(target = "id", ignore = true) // Protect the ID from being overwritten
     @Mapping(target = "createUser", ignore = true)
     @Mapping(target = "updateUser", ignore = true)
-    @Mapping(target = "createDate", ignore = true)
-    @Mapping(target = "updateDate", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "updatedDate", ignore = true)
     @Mapping(target = "authorities", ignore = true) // Ignore UserDetails derived field
     public abstract Userx mapFrom(UserxUpdateDTO dto);
 

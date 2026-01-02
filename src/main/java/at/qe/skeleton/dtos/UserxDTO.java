@@ -8,16 +8,15 @@ import java.time.LocalDateTime;
 
 /**
  * Data transfer object for the UserxTypes Entity.
- * 
  * This class is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
 public record UserxDTO (
     Long id,
     Long createdBy,
-    LocalDateTime createDate,
+    LocalDateTime createdDate,
     Long updatedBy,
-    LocalDateTime updateDate,
+    LocalDateTime updatedDate,
     @NotBlank String username,
     @NotBlank String firstName,
     @NotBlank String lastName,
