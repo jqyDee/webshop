@@ -102,7 +102,7 @@ public class OrderControllerTest {
         Userx mockUser = new Userx();
         mockUser.setId(id);
         mockUser.setUsername("userA");
-        mockUser.setRoles(Set.of(UserxRole.CUSTOMER));
+        mockUser.setRole(UserxRole.CUSTOMER);
         return mockUser;
     }
 

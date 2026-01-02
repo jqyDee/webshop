@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Set;
-
 /**
  * Tests for verifying the correct behavior of MapStruct mappers.
  * Generated with LLM: <a href="https://gemini.google.com/share/2dd04d9878c9">Link to conversation<a>
@@ -45,7 +43,7 @@ public class MapperTest {
         user.setLastName("Doe");
         user.setEmail("john@doe.com");
         user.setCreateUser(creator);
-        user.setRoles(Set.of(UserxRole.CUSTOMER));
+        user.setRole(UserxRole.CUSTOMER);
 
         // Map to DTO
         UserxDTO dto = userxMapper.mapTo(user);
@@ -53,7 +51,7 @@ public class MapperTest {
         Assertions.assertEquals(user.getId(), dto.id());
         Assertions.assertEquals(user.getUsername(), dto.username());
         Assertions.assertEquals(1L, dto.createdBy()); // Source: createUser.id
-        Assertions.assertTrue(dto.roles().contains(UserxRole.CUSTOMER));
+        Assertions.assertTrue(dto.role().equals(UserxRole.CUSTOMER));
 
         // Map from DTO
         Userx mappedUser = userxMapper.mapFrom(dto);
