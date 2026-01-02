@@ -3,19 +3,17 @@
  * Architecture" offered by Innsbruck University.
  */
 import React from "react";
-
 import {Button} from "primereact/button";
 import {Column} from "primereact/column";
 import {DataTable} from "primereact/datatable";
-
 import {Checkbox} from "primereact/checkbox";
 import {rolesBodyTemplate} from "./rolesBodyTemplate";
-import {UserxDTO} from "../DTO/api-generated.types";
+import {UserxDto} from "../api";
 
 interface UserListProps {
-    users: UserxDTO[];
+    users: UserxDto[];
     loading: boolean;
-    onEditUser: (user: UserxDTO) => void;
+    onEditUser: (user: UserxDto) => void;
 }
 
 
@@ -31,7 +29,7 @@ const UserListComponent: React.FC<UserListProps> = ({ users, loading, onEditUser
      * Renders the edit button for a user.
      * @param rowData
      */
-    const editButtonTemplate = (rowData: UserxDTO) => {
+    const editButtonTemplate = (rowData: UserxDto) => {
         return (<Button
             label={"Details"}
             icon="pi pi-external-link"
@@ -45,7 +43,7 @@ const UserListComponent: React.FC<UserListProps> = ({ users, loading, onEditUser
      * Renders the enable button for a user.
      * @param rowData
      */
-    const enableButtonTemplate = (rowData: UserxDTO) => {
+    const enableButtonTemplate = (rowData: UserxDto) => {
         return (
             <Checkbox checked={rowData.enabled} disabled={true}
                       className="p-mr-2"/>

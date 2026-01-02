@@ -2,11 +2,9 @@ package at.qe.skeleton.dtos;
 
 import at.qe.skeleton.model.UserxRole;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 /**
  * Data transfer object for the UserxTypes Entity.
@@ -28,5 +26,5 @@ public record UserxDTO (
     AddressDTO shippingAddress,
     AddressDTO paymentAddress,
     @NotNull boolean enabled,
-    @NotEmpty Set<UserxRole> roles
+    @NotNull UserxRole role
 ) {}

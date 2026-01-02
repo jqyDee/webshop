@@ -3,9 +3,7 @@ package at.qe.skeleton.model;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -54,10 +52,8 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
     private String email;
     private String phone;
 
-    @ElementCollection(targetClass = UserxRole.class, fetch = FetchType.EAGER)
-    @CollectionTable(name = "Userx_UserxRole")
     @Enumerated(EnumType.STRING)
-    private Set<UserxRole> roles;
+    private UserxRole role;
 
     boolean enabled;
 
@@ -86,7 +82,7 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
+        return List.of(role);
     }
 
     public String getUsername() {
@@ -145,12 +141,12 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
         this.enabled = enabled;
     }
 
-    public Set<UserxRole> getRoles() {
-        return roles;
+    public UserxRole getRole() {
+        return role;
     }
 
-    public void setRoles(Set<UserxRole> roles) {
-        this.roles = roles;
+    public void setRole(UserxRole role) {
+        this.role = role;
     }
 
     public Userx getCreateUser() {

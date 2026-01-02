@@ -5,22 +5,22 @@
 import React from 'react';
 import {Dialog} from 'primereact/dialog';
 import {Button} from "primereact/button";
-import {UserxUpdateDTO} from "../DTO/api-generated.types";
 import UserForm from './UserForm';
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
 import {UserxValidationResult} from "../utilities/userxUtilities";
 import {Message} from "primereact/message";
+import {UserxUpdateDto} from "../api";
 
 interface UserDialogProps {
     visible: boolean;
-    user: UserxUpdateDTO | null;
+    user: UserxUpdateDto | null;
     isNewUser: boolean;
     validation: UserxValidationResult;
     onHide: () => void;
     onSubmit: () => void;
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void;
-    onRolesChange: (event: { value: string[] }) => void;
+    onRolesChange: (event: { value: string }) => void;
     onUserEnabledChange: (event: CheckboxChangeEvent) => void;
 }
 
@@ -33,7 +33,7 @@ interface UserDialogProps {
  * @param onHide callback when the dialog is hidden
  * @param onSubmit callback when the user is submitted
  * @param onInputChange callback when the input changes
- * @param onRolesChange callback when the roles change
+ * @param onRolesChange callback when the role change
  * @param onUserEnabledChange callback when the user is enabled or disabled
  */
 const UserDialog: React.FC<UserDialogProps> = ({
