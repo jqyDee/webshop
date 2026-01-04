@@ -4,6 +4,7 @@ import at.qe.skeleton.exceptions.CartEmptyException;
 import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.AddressRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.repositories.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -32,6 +34,23 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.addressRepository = addressRepository;
+    }
+
+    /**
+     * Scheduled Task to clean up stale orders in the database.
+     * Default time interval is set to 10 minutes (600.000ms) but can be set as application
+     * property.
+     */
+    @Scheduled(fixedRateString = "${order.cleanup.rate}")
+    @Transactional
+    public void cleanupStaleOrders() {
+        int cutoff = 30; // cutoff time in minutes
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(cutoff);
+
+        Collection<Order> staleOrders = orderRepository.findAllByStatusInAndCreatedDateBefore(
+                OrderStatus.getStaleOrderStatuses(), threshold);
+
+        staleOrders.forEach(this::cancelStaleOrder);
     }
 
     /**
@@ -158,6 +177,20 @@ public class OrderService {
                     "Can't cancel order. Order status is not <= PENDING_PAYMENT.");
         }
 
+        order.setStatus(OrderStatus.CANCELLED);
+        for (OrderItem orderItem : order.getProducts()) {
+            productService.releaseStock(orderItem);
+        }
+        order.getProducts().clear();
+        orderRepository.save(order);
+    }
+
+    /**
+     * Cancels a stale order
+     *
+     * @param order stale order to be cancelled
+     */
+    private void cancelStaleOrder(Order order) {
         order.setStatus(OrderStatus.CANCELLED);
         for (OrderItem orderItem : order.getProducts()) {
             productService.releaseStock(orderItem);

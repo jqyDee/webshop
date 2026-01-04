@@ -3,6 +3,7 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.exceptions.CartEmptyException;
 import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.repositories.*;
+import jakarta.persistence.EntityManager;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.services.OrderService;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -40,6 +42,9 @@ class OrderServiceTest {
 
     @Autowired
     private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     private Userx customer1;
     private Userx customer2;
@@ -206,4 +211,35 @@ class OrderServiceTest {
         Assertions.assertThrows(IllegalStateException.class, () -> orderService.paymentReceived(order, customer3));
     }
 
+    @Transactional
+    public void backdateOrder(Long orderId, int minutesToSubtract) {
+        entityManager.createNativeQuery("UPDATE orders SET created_date = ?1 WHERE id = ?2")
+                     .setParameter(1, LocalDateTime.now().minusMinutes(minutesToSubtract))
+                     .setParameter(2, orderId)
+                     .executeUpdate();
+
+        entityManager.clear();
+    }
+
+    @Test
+    @Transactional
+    @DirtiesContext
+    @WithMockUser(username = "admin2", authorities = {"ADMIN"})
+    public void testCleanupStaleOrders() {
+        Order staleOrder = new Order();
+        staleOrder.setUser(customer1);
+        staleOrder.setStatus(OrderStatus.PENDING);
+        orderRepository.save(staleOrder);
+
+        backdateOrder(staleOrder.getId(), 45);
+        Assertions.assertNotNull(staleOrder.getId());
+        Order o1 = orderRepository.findById(staleOrder.getId()).orElseThrow();
+        Assertions.assertSame(OrderStatus.PENDING, o1.getStatus());
+
+        orderService.cleanupStaleOrders();
+
+        Order updatedOrder = orderRepository.findById(staleOrder.getId()).orElseThrow();
+        Assertions.assertEquals(OrderStatus.CANCELLED, updatedOrder.getStatus(),
+                                "Order older than 30 mins should be cancelled");
+    }
 }
