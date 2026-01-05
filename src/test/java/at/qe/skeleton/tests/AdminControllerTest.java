@@ -34,7 +34,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Some very basic tests for {@link AdminController}.
@@ -101,12 +100,12 @@ public class AdminControllerTest {
         manager.setUsername(username);
         manager.setFirstName("First");
         manager.setLastName("Last");
-        manager.setRoles(Set.of(UserxRole.MANAGER));
+        manager.setRole(UserxRole.MANAGER);
         List<Userx> managers = List.of(manager);
 
         Mockito.when(userService.getAllManagers()).thenReturn(managers);
         Mockito.when(userMapper.mapTo(Mockito.any(Userx.class))).thenReturn(new UserxDTO(
-                id, null, null, null, null, "testManager", "First", "Last", null, null, false, Set.of(UserxRole.MANAGER)));
+                id, null, null, null, null, "testManager", "First", "Last", null, null, null, null, false, UserxRole.MANAGER));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/admin/managers"))
                 .andExpect(MockMvcResultMatchers.status().isOk())

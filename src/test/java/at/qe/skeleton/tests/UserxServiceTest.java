@@ -7,7 +7,6 @@ import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.UserxService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -15,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -323,5 +323,14 @@ public class UserxServiceTest {
         Assertions.assertFalse(review2Opt.isEmpty());
         Review review2 = review1Opt.get();
         Assertions.assertNull(review2.getAuthor());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testGetAllManagers() {
+        Collection<Userx> managers = userService.getAllManagers();
+        Assertions.assertNotNull(managers);
+        Assertions.assertEquals(2, managers.size());
+        Assertions.assertTrue(managers.stream().allMatch(userx -> userx.getRole() == UserxRole.MANAGER));
     }
 }
