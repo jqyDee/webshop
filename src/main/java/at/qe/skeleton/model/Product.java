@@ -1,6 +1,8 @@
 package at.qe.skeleton.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.domain.Persistable;
@@ -31,7 +33,7 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     @Column(nullable = false)
     private int stock;
 
-    private double discount;
+    @Min(0) @Max(1) private double discount;
     private String shortDescription;
     private String description;
     private Double rating; // This should be derived from the reviews, null if no reviews ([0, 5] stars)
@@ -77,6 +79,9 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     }
 
     public void setDiscount(double discount) {
+        if (discount < 0.0 || discount > 1.0) {
+            throw new IllegalArgumentException("discount must be between 0.0 and 1.0");
+        }
         this.discount = discount;
     }
 

@@ -2,71 +2,80 @@
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-import React, {useEffect, useRef, useState} from 'react';
-
+import React, {useRef, useState} from 'react';
 import {Button} from "primereact/button";
 import {Card} from 'primereact/card';
 import {InputMaskChangeEvent} from "primereact/inputmask";
-import { Toast } from 'primereact/toast';
+import {Toast} from 'primereact/toast';
 import 'primeicons/primeicons.css';
-
 import UserListComponent from "./UserListComponent";
 import UserDialog from "./UserDialog";
-
-import {UserxDTO, UserxUpdateDTO} from "../DTO/api-generated.types";
-import {UserxApi} from "../utilities/userxApi";
 import {
-    createUserxRoleArrayFromStrings, emptyUserxUpdateDTO, fromUserxDTOtoUserxUpdateDTO, UserxValidationResult
+    createUserxRoleArrayFromStrings, emptyUserxUpdateDto,
+    fromUserxDtoToUserxUpdateDto,
+    UserxValidationResult
 } from '../utilities/userxUtilities';
 import {CheckboxChangeEvent} from "primereact/checkbox";
+import {UserxDto, UserxUpdateDto} from "../api";
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {
+    createUserMutation,
+    getAllUsersOptions,
+    updateUserMutation
+} from "../api/@tanstack/react-query.gen.ts";
 
 /**
  * Component for managing users.
  */
 const UserTable = () => {
-    const [users, setUsers] = useState<UserxDTO[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [selectedUser, setSelectedUser] = useState<UserxUpdateDTO | null>(null);
+    const [selectedUser, setSelectedUser] = useState<UserxUpdateDto | null>(null);
     const [isNewUser, setIsNewUser] = useState<boolean>(false);
     const [dialogVisible, setDialogVisible] = useState<boolean>(false);
-    const [validation, setValidation] = useState<UserxValidationResult>({ valid: true });
+    const [validation, setValidation] = useState<UserxValidationResult>({valid: true});
 
-  const toast = useRef<Toast | null>(null);
+    const toast = useRef<Toast | null>(null);
+    const createUser = useMutation({
+        ...createUserMutation(),
+        onError: (err) => {
+            console.error('Error saving user:', err);
+            toast.current?.show({severity: 'error', summary: 'Error', detail: 'Error saving user', life: 3000});
+        },
+        onSuccess: async () => await refetch()
+    });
+    const updateUser = useMutation({
+        ...updateUserMutation(),
+        onError: (err) => {
+            console.error('Error updating user:', err);
+            toast.current?.show({severity: 'error', summary: 'Error', detail: 'Error updating user', life: 3000});
+        },
+        onSuccess: async () => await refetch()
+    });
 
-    /**
-     * Fetch all users from the backend on mount once.
-     */
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const userxData = await UserxApi.fetchAllUsers();
-                // Setting the received DTOs directly
-                setUsers(userxData);
-            } catch (err: any) {
-                console.error('Error fetching users:', err);
-            } finally {
-                setLoading(false); // Set loading to false regardless of success or failure
-            }
-        };
-        void fetchUsers(); // ignore the returned promise; void explicit so ESLint doesn’t complain
-    }, []); // empty dependency array means this effect will only run once on mount
+    const {data: users, refetch, isLoading} = useQuery({
+        ...getAllUsersOptions(),
+    });
 
     /**
      * Validate the user object.
      * @param user
      * @param opts
      */
-    const validateUser = (user: UserxUpdateDTO, opts: { requirePassword?: boolean } = { requirePassword: true }): UserxValidationResult => {
+    const validateUser = (
+        user: UserxUpdateDto,
+        opts: {
+            requirePassword?: boolean
+        } = {requirePassword: true},
+    ): UserxValidationResult => {
 
-        if (!user) return { valid: false, message: 'No user selected' };
+        if (!user) return {valid: false, message: 'No user selected'};
 
-        const required: (keyof UserxUpdateDTO)[] = ['firstName', 'lastName', 'username'];
-        const { requirePassword = true } = opts; // password input on edit user not needed
-        const fieldErrors: Partial<Record<keyof UserxUpdateDTO, string>> = {};
+        const required: (keyof UserxUpdateDto)[] = ['firstName', 'lastName', 'username'];
+        const {requirePassword = true} = opts; // password input on edit user not needed
+        const fieldErrors: Partial<Record<keyof UserxUpdateDto, string>> = {};
 
         required.forEach((k) => {
-           const v = (user[k] as unknown as string) ?? '';
-           if (!v.trim()) fieldErrors[k] = 'Required';
+            const v = (user[k] as unknown as string) ?? '';
+            if (!v.trim()) fieldErrors[k] = 'Required';
         });
 
         // check for password required
@@ -74,14 +83,14 @@ const UserTable = () => {
         if (requirePassword && !pwd.trim()) fieldErrors.password = 'Required';
 
         // at least one role required (see also UserxCreateDTO in backend
-        if (!Array.isArray(user.roles) || user.roles.length === 0) {
-            fieldErrors.roles = 'Required';
+        if (!user.role) {
+            fieldErrors.role = 'Required';
         }
 
         const valid = Object.keys(fieldErrors).length === 0;
         return valid
-            ? { valid }
-            : { valid, message: 'Please fill in all required fields', fieldErrors };
+            ? {valid}
+            : {valid, message: 'Please fill in all required fields', fieldErrors};
     }
 
     /**
@@ -90,7 +99,7 @@ const UserTable = () => {
     const handleSubmit = async () => {
         if (!selectedUser) return;
 
-        const validationResult = validateUser(selectedUser, { requirePassword: isNewUser });
+        const validationResult = validateUser(selectedUser, {requirePassword: isNewUser});
         if (!validationResult.valid) {
             // Display an error eventMessage or handle the validation error
             setValidation(validationResult);
@@ -98,54 +107,24 @@ const UserTable = () => {
             return;
         }
 
-        setValidation({ valid: true });
+        setValidation({valid: true});
 
         if (isNewUser) {
-            await createUser();
+            await createUser.mutateAsync({body: selectedUser});
         } else {
-            await updateUser();
+            // id cant be undefined because the user isnt new
+            await updateUser.mutateAsync({body: selectedUser, path: {id: selectedUser.id!}});
         }
         hideDialog();
     };
 
     /**
-     * Create a new user and update the state.
-     */
-    const createUser = async () => {
-        if (!selectedUser) return;
-
-        try {
-            const newUser: UserxDTO = await UserxApi.createUser(selectedUser);
-            setUsers([...users, newUser]);
-        } catch (err: any) {
-            console.error('Error saving user:', err);
-            toast.current?.show({severity:'error', summary: 'Error', detail:'Error saving user', life: 3000});
-        }
-    }
-
-    /**
-     * Update an existing user and update the state.
-     */
-    const updateUser = async () => {
-        if (!selectedUser) return;
-
-        try {
-            const updatedUser: UserxDTO = await UserxApi.updateUser(selectedUser);
-            setUsers(users.map((user: UserxDTO) => user.id === updatedUser.id ? updatedUser : user));
-            hideDialog();
-        } catch (err: any) {
-            console.error('Error updating user:', err);
-            toast.current?.show({severity:'error', summary: 'Error', detail:'Error updating user', life: 3000});
-        }
-    }
-
-    /**
      * Open the edit dialog for a user.
      * @param user
      */
-    const openEditDialog = (user: UserxDTO) => {
-        setSelectedUser(fromUserxDTOtoUserxUpdateDTO(user));
-        setValidation({ valid: true });
+    const openEditDialog = (user: UserxDto) => {
+        setSelectedUser(fromUserxDtoToUserxUpdateDto(user));
+        setValidation({valid: true});
         setIsNewUser(false);
         showDialog()
     };
@@ -154,8 +133,8 @@ const UserTable = () => {
      * Open the dialog for creating a new user.
      */
     const openNewUserDialog = () => {
-        setSelectedUser(emptyUserxUpdateDTO);
-        setValidation({ valid: true });
+        setSelectedUser(emptyUserxUpdateDto);
+        setValidation({valid: true});
         showDialog()
         setIsNewUser(true);
     }
@@ -164,7 +143,7 @@ const UserTable = () => {
      * Show the dialog.
      */
     const showDialog = () => {
-        setValidation({ valid: true });
+        setValidation({valid: true});
         setDialogVisible(true);
     }
 
@@ -172,7 +151,7 @@ const UserTable = () => {
      * Hide the dialog.
      */
     const hideDialog = () => {
-        setValidation({ valid: true });
+        setValidation({valid: true});
         setDialogVisible(false);
     };
 
@@ -201,23 +180,23 @@ const UserTable = () => {
     }
 
     /**
-     * Handle roles change for the user dialog.
+     * Handle role change for the user dialog.
      * @param event
      */
-    const handleRolesChange = (event: { value: string[] }) => {
+    const handleRolesChange = (event: { value: string }) => {
         if (!selectedUser) return;
 
-        const roles = createUserxRoleArrayFromStrings(event.value);
+        const role = createUserxRoleArrayFromStrings(event.value);
 
-        setSelectedUser({...selectedUser, roles: roles});
+        setSelectedUser({...selectedUser, role: role});
     }
 
     return (<Card title="User List" className="m-4">
-            <Toast ref={toast} />
+            <Toast ref={toast}/>
             {/* Button that opens a new user dialog on click */}
             <Button label="Add User" icon="pi pi-plus" className="p-button-raised p-button-rounded"
                     style={{marginBottom: "10px"}} onClick={openNewUserDialog}/>
-            <UserListComponent users={users} loading={loading} onEditUser={openEditDialog}/>
+            <UserListComponent users={users ?? []} loading={isLoading} onEditUser={openEditDialog}/>
 
             {/* Dialog for creating or editing a user */}
             <UserDialog visible={dialogVisible} user={selectedUser} isNewUser={isNewUser} validation={validation}

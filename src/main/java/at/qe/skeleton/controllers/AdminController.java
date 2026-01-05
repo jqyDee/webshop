@@ -6,16 +6,15 @@ import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.UserxService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controllers for admin users.
@@ -30,7 +29,8 @@ public class AdminController {
     private final UserxService userService;
 
     @Autowired
-    public AdminController(UserxMapper userMapper, UserxService userService, UserxUpdateMapper userCreateMapper) {
+    public AdminController(UserxMapper userMapper, UserxService userService,
+                           UserxUpdateMapper userCreateMapper) {
         this.userUpdateMapper = userCreateMapper;
         this.userMapper = userMapper;
         this.userService = userService;
@@ -61,12 +61,8 @@ public class AdminController {
      */
     @GetMapping("/user/{id}")
     public ResponseEntity<UserxDTO> getUser(@PathVariable Long id) {
-        Optional<Userx> existingUserx = userService.loadUser(id);
-        if (existingUserx.isPresent()) {
-            return ResponseEntity.ok(userMapper.mapTo(existingUserx.get()));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Userx existingUserx = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
+        return ResponseEntity.ok(userMapper.mapTo(existingUserx));
     }
 
     /**
@@ -91,14 +87,11 @@ public class AdminController {
      */
     @PatchMapping("/user/{id}")
     public ResponseEntity<UserxDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
-        Optional<Userx> existingUserx = userService.loadUser(id);
-        if (existingUserx.isPresent()) {
-            Userx user = userUpdateMapper.mapFrom(userxUpdateDto, id);
-            Userx savedUser = userService.saveUser(user);
-            return ResponseEntity.ok(userMapper.mapTo(savedUser));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
+
+        Userx user = userUpdateMapper.mapFrom(userxUpdateDto, id);
+        Userx savedUser = userService.saveUser(user);
+        return ResponseEntity.ok(userMapper.mapTo(savedUser));
     }
     
     /**
@@ -109,17 +102,9 @@ public class AdminController {
      */
     @DeleteMapping("/user/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        Optional<Userx> existingUserx = userService.loadUser(id);
-        if (existingUserx.isPresent()) {
-            userService.deleteUser(existingUserx.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-    }
+        Userx existingUserx = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
 
-    @DeleteMapping("/product/{productId}/review/{reviewId}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        userService.deleteUser(existingUserx);
+        return ResponseEntity.noContent().build();
     }
 }

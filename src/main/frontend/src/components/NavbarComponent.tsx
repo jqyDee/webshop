@@ -4,12 +4,11 @@
  */
 import React from 'react';
 import {Menubar} from "primereact/menubar";
-
 import {useUser} from "../Contexts/authenticatedUserContext";
 import {menuConfig, MenuItemConfig} from "../config/menuConfig";
-import {UserxRole} from "../DTO/api-generated.types";
 import {MenuItem} from "primereact/menuitem";
 import {Link} from "react-router-dom";
+import {RoleEnum} from "../api";
 
 /**
  * Navbar component.
@@ -20,8 +19,8 @@ const NavbarComponent: React.FC = () => {
     const filterMenu = React.useCallback((items: MenuItemConfig[]): MenuItemConfig[] => {
         if (!user) return [];
 
-        const hasRole = (required?: UserxRole[]) =>
-            !required || required.some(r => user.roles.includes(r));
+        const hasRole = (required?: RoleEnum[]) =>
+            !required || required.some(r => user.role === r);
 
         return items
             .map(item => {

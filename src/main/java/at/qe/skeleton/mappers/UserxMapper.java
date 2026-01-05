@@ -7,7 +7,6 @@ import org.mapstruct.Mapping;
 
 /**
  * Mapping between UserxTypes and UserxDTOs.
- *
  * This class is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
@@ -19,9 +18,11 @@ public abstract class UserxMapper extends DTOMapper<Userx, UserxDTO>{
 
     @Mapping(target = "createUser", ignore = true)
     @Mapping(target = "updateUser", ignore = true)
-    @Mapping(target = "createDate", ignore = true)
-    @Mapping(target = "updateDate", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "updatedDate", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "shippingAddress", ignore = true)
+    @Mapping(target = "paymentAddress", ignore = true)
     public abstract Userx mapFrom(UserxDTO dto);
 }
