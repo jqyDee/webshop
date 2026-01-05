@@ -3,19 +3,19 @@
  * Architecture" offered by Innsbruck University.
  */
 import React from "react";
-import {UserxRole, UserxUpdateDTO} from "../DTO/api-generated.types";
 import {InputMask, InputMaskChangeEvent} from "primereact/inputmask";
 import {InputText} from "primereact/inputtext";
 import {Password} from "primereact/password";
-import {MultiSelect} from "primereact/multiselect";
 import {Checkbox, CheckboxChangeEvent} from "primereact/checkbox";
+import {RoleEnum, UserxUpdateDto} from "../api";
+import {Dropdown} from "primereact/dropdown";
 
 
 interface UserFormProps {
-    user: UserxUpdateDTO,
-    fieldErrors?: Partial<Record<keyof UserxUpdateDTO, string>>,
+    user: UserxUpdateDto,
+    fieldErrors?: Partial<Record<keyof UserxUpdateDto, string>>,
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
-    onRolesChange: (event: { value: string[] }) => void,
+    onRolesChange: (event: { value: string }) => void,
     onUserEnabledChange: (event: CheckboxChangeEvent) => void
 }
 
@@ -24,7 +24,7 @@ interface UserFormProps {
  * @param user the user to be edited
  * @param fieldErrors field validation
  * @param onInputChange callback when the input changes
- * @param onRolesChange callback when the roles change
+ * @param onRolesChange callback when the role change
  * @param onUserEnabledChange callback when the user is enabled or disabled
  */
 const UserForm: React.FC<UserFormProps> =
@@ -35,7 +35,7 @@ const UserForm: React.FC<UserFormProps> =
         onRolesChange,
         onUserEnabledChange
     }) => {
-        const userRoles = Object.values(UserxRole).map(role => ({ label: role, value: role }));
+        const userRoles = Object.values(RoleEnum).map(role => ({ label: role, value: role }));
 
         return (
             <div>
@@ -92,14 +92,14 @@ const UserForm: React.FC<UserFormProps> =
                         {fieldErrors?.password && <small className="p-error">{fieldErrors.password}</small>}
                     </div>
                     <div className="flex-auto mb-3">
-                        <label htmlFor="roles" className="font-bold block">Roles</label>
-                        <MultiSelect inputId="roles" name="roles" value={user.roles} onChange={onRolesChange}
+                        <label htmlFor="role" className="font-bold block">Roles</label>
+                        <Dropdown inputId="role" name="role" value={user.role} onChange={onRolesChange}
                             options={userRoles} optionLabel="label"
                             placeholder="Select Roles"
                             className="w-full md:w-20rem"
-                            invalid={!!fieldErrors?.roles}
+                            invalid={!!fieldErrors?.role}
                         />
-                        {fieldErrors?.roles && <small className="p-error">{fieldErrors.roles}</small>}
+                        {fieldErrors?.role && <small className="p-error">{fieldErrors.role}</small>}
                     </div>
                     <div className="flex-auto mb-3">
                         <label htmlFor="phone" className="font-bold block">Phone</label>

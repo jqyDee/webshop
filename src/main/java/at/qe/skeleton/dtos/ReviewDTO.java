@@ -1,15 +1,18 @@
 package at.qe.skeleton.dtos;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
 public record ReviewDTO(
-        @NotNull Long id,
-        @NotNull Long productId,
-        @NotBlank int rating,
-        @NotNull String title,
-        @NotNull String comment,
-        @NotNull LocalDateTime createdDate
+        Long id,
+        ProductDTO product,
+        UserxDTO author,
+        @Min(1) @Max(5) int rating,
+        @Size(max = 128) @NotBlank String title,
+        @Size(max = 512) @NotBlank String comment,
+        LocalDateTime createdDate
 ) {}

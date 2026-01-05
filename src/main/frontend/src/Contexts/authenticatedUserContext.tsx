@@ -5,10 +5,7 @@
 import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import {BEARER_TOKEN_LOCAL_STORAGE_KEY} from "../config/config";
 import {jwtDecode, JwtPayload} from "jwt-decode";
-import {UserxApi} from "../utilities/userxApi";
-import {UserxDTO, UserxRole} from "../DTO/api-generated.types";
-import {LoginRequestDTO} from "../DTO/api-generated.types";
-import {AuthApi} from "../utilities/authApi";
+import {authenticateUser, LoginRequestDto, UserxDto, RoleEnum, isAuthenticated} from "../api";
 
 /**
  * A context allows us to access the current user from any component in the component tree.
@@ -24,8 +21,8 @@ import {AuthApi} from "../utilities/authApi";
  * the current user state to the components in the component tree.
  */
 interface UserContextType {
-    currentUser: UserxDTO | null;
-    login: (loginDto: LoginRequestDTO) => Promise<void>;
+    currentUser: UserxDto | null;
+    login: (loginDto: LoginRequestDto) => Promise<void>;
     logout: () => void;
     error: Error | null;
     isAdmin: boolean;
@@ -37,7 +34,7 @@ interface UserContextType {
 // Create a new context object
 export const UserContext = createContext<UserContextType | null>(null);
 
-type CustomJwtPayload = JwtPayload & { roles: string[], name: string, username: string }
+type CustomJwtPayload = JwtPayload & { role: string, name: string, username: string }
 
 /**
  * The UserProvider component is a wrapper component that provides the current user state
@@ -73,8 +70,8 @@ export function UserProvider({children}: { children: React.ReactNode }) {
      * Login the user by setting the bearer token in the state and local storage.
      * @param loginDto the login data
      */
-    const login = async (loginDto: LoginRequestDTO) : Promise<void> => {
-        const { bearerToken } = await AuthApi.login(loginDto);
+    const login = async (loginDto: LoginRequestDto) : Promise<void> => {
+        const { bearerToken } = (await authenticateUser({body: loginDto})).data!;
         if (!bearerToken || bearerToken.length < 10) {
             setError(new Error('Missing or invalid bearer token in response!'));
             console.log('Error: missing or invalid bearer token in response');
@@ -99,17 +96,15 @@ export function UserProvider({children}: { children: React.ReactNode }) {
     /**
      * Get the current user by decoding the bearer token stored in the local storage.
      */
-    const currentUser = useMemo<UserxDTO | null>(() => {
+    const currentUser = useMemo<UserxDto | null>(() => {
         if (!token) {
             return null;
         }
 
         try {
             const decoded = jwtDecode<CustomJwtPayload>(token);
-
             const fullName = decoded.name ?? "";
             const [firstName = "", lastName = ""] = fullName.split(" ");
-            const roles = decoded.roles ?? [];
             return {
                 username: decoded.username ?? "",
                 firstName,
@@ -117,7 +112,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
                 email: "",
                 phone: "",
                 enabled: true,
-                roles: roles.map((role) => role as UserxRole),
+                role: decoded.role as RoleEnum,
             };
         } catch {
             // invalid token -> treat as logged out
@@ -139,9 +134,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
                 return false;
             }
 
-            const isAuthenticated = await UserxApi.isAuthenticated();
-
-            if (isAuthenticated) {
+            if (await isAuthenticated()) {
                 return true;
             } else {
                 setError(new Error('Authentication failed'));
@@ -155,10 +148,10 @@ export function UserProvider({children}: { children: React.ReactNode }) {
         }
     };
 
-    const roles = currentUser?.roles ?? [];
-    const isAdmin = roles.includes(UserxRole.ADMIN);
-    const isManager = roles.includes(UserxRole.MANAGER);
-    const isCustomer = roles.includes(UserxRole.CUSTOMER);
+    const role = currentUser?.role;
+    const isAdmin = role === RoleEnum.ADMIN;
+    const isManager = role === RoleEnum.MANAGER;
+    const isCustomer = role === RoleEnum.CUSTOMER;
 
     return (
         <UserContext.Provider

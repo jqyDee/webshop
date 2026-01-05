@@ -142,40 +142,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>cz.habarta.typescript-generator</groupId>
-                <artifactId>typescript-generator-maven-plugin</artifactId>
-                <version>3.2.1263</version>
-                <executions>
-                    <execution>
-                        <id>generate</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jsonLibrary>jackson2</jsonLibrary>
-                    <classPatterns>
-                        <pattern>at.qe.skeleton.dtos.*</pattern>
-                    </classPatterns>
-                    <outputKind>module</outputKind>
-                    <outputFile>src/main/frontend/src/DTO/api-generated.types.ts</outputFile>
-                    <outputFileType>implementationFile</outputFileType>
-                    <mapClasses>asInterfaces</mapClasses>
-
-                    <mapEnum>asEnum</mapEnum>
-                    <nonConstEnums>true</nonConstEnums>
-
-                    <optionalProperties>useSpecifiedAnnotations</optionalProperties>
-                    <requiredAnnotations>
-                        <annotation>jakarta.validation.constraints.NotNull</annotation>
-                        <annotation>jakarta.validation.constraints.NotBlank</annotation>
-                        <annotation>jakarta.validation.constraints.NotEmpty</annotation>
-                    </requiredAnnotations>
-                </configuration>
-            </plugin>
 	    <!-- Enable jacoco analysis -->
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>

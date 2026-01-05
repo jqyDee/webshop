@@ -1,9 +1,11 @@
 package at.qe.skeleton.tests;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
+import at.qe.skeleton.model.OrderItem;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.repositories.OrderItemRepository;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.UserxService;
 import jakarta.transaction.Transactional;
@@ -28,14 +30,18 @@ public class ProductServiceTest {
     ProductService productService;
     @Autowired
     private UserxService userxService;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Test
     public void testProductDataInitialization() {
-        Assertions.assertEquals(4, productService.getProducts(null, null, null, null).getContent().size(),
+        Assertions.assertEquals(6, productService.getProducts(null, null, null, null).getContent().size(),
                                 "Insufficient amount of products initialized for test data source");
 
         for (Product product : productService.getProducts(null, null, null, null)) {
             switch (product.getName()) {
+                case "Iphone 17":
+                case "Iphone 16":
                 case "Iphone 12":
                 case "Iphone 13":
                 case "Iphone 14":
@@ -53,7 +59,7 @@ public class ProductServiceTest {
     @Test
     @Transactional
     public void testReviewDataInitialization() {
-        Assertions.assertEquals(4, productService.getProducts(null, null, null, null).getContent().size());
+        Assertions.assertEquals(6, productService.getProducts(null, null, null, null).getContent().size());
 
         for (Product product : productService.getProducts(null, null, null, null)) {
             switch (product.getName()) {
@@ -78,27 +84,33 @@ public class ProductServiceTest {
         Optional<Product> product1 = productService.loadProduct(2000L);
         Optional<Product> product2 = productService.loadProduct(3000L);
         Optional<Product> product3 = productService.loadProduct(4000L);
+        Optional<Product> product4 = productService.loadProduct(5000L);
+        Optional<Product> product5 = productService.loadProduct(6000L);
         Assertions.assertTrue(product0.isPresent());
         Assertions.assertTrue(product1.isPresent());
         Assertions.assertTrue(product2.isPresent());
         Assertions.assertTrue(product3.isPresent());
+        Assertions.assertTrue(product4.isPresent());
+        Assertions.assertTrue(product5.isPresent());
 
         productsPage1Expected.add(product0.get());
         productsPage1Expected.add(product1.get());
         productsPage1Expected.add(product2.get());
         productsPage2Expected.add(product3.get());
+        productsPage2Expected.add(product4.get());
+        productsPage2Expected.add(product5.get());
 
         Collection<Product> productsPaged1 = productService.getProducts(0, 3, null, null).getContent();
         Collection<Product> productsPaged2 = productService.getProducts(1, 3, null, null).getContent();
         Collection<Product> productsPaged3 = productService.getProducts(2, 3, null, null).getContent();
 
-        Assertions.assertEquals(4, productService.getProducts(0, 3, null, null).getTotalElements(),
+        Assertions.assertEquals(6, productService.getProducts(0, 3, null, null).getTotalElements(),
                                 "Total element count is wrong");
 
         Assertions.assertEquals(3, productsPaged1.size(), "Insufficient amount of products retrieved");
         Assertions.assertEquals(productsPage1Expected, productsPaged1, "Wrong products in page");
 
-        Assertions.assertEquals(1, productsPaged2.size(), "Insufficient amount of products retrieved");
+        Assertions.assertEquals(3, productsPaged2.size(), "Insufficient amount of products retrieved");
         Assertions.assertEquals(productsPage2Expected, productsPaged2, "Wrong products in page");
 
         Assertions.assertEquals(0, productsPaged3.size(), "Too many products retrieved");
@@ -117,13 +129,13 @@ public class ProductServiceTest {
         Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).getContent().size(),
                                 "Insufficient amount of products retrieved");
 
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec2).getContent().size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec2).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(2, productService.getProducts(null, null, null, spec3).getContent().size(),
+        Assertions.assertEquals(4, productService.getProducts(null, null, null, spec3).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec4).getContent().size(),
+        Assertions.assertEquals(5, productService.getProducts(null, null, null, spec4).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec5).getContent().size(),
+        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec5).getContent().size(),
                                 "Insufficient amount of products retrieved");
         Assertions.assertEquals(1, productService.getProducts(null, null, null, spec6).getContent().size(),
                                 "Insufficient amount of products retrieved");
@@ -272,7 +284,7 @@ public class ProductServiceTest {
         Product toBeDeletedProduct = productOpt.get();
         productService.deleteProduct(toBeDeletedProduct);
 
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).getContent().size(),
+        Assertions.assertEquals(5, productService.getProducts(null, null, null, null).getContent().size(),
                                 "No Product has been deleted after calling deleteProduct");
         Optional<Product> freshlyDeletedProduct = productService.loadProduct(deleteProductId);
         Assertions.assertTrue(freshlyDeletedProduct.isEmpty(),
@@ -296,7 +308,7 @@ public class ProductServiceTest {
         Product toBeDeletedProduct = productOpt.get();
         productService.deleteProduct(toBeDeletedProduct);
 
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, null).getContent().size(),
+        Assertions.assertEquals(5, productService.getProducts(null, null, null, null).getContent().size(),
                                 "No Product has been deleted after calling deleteProduct");
         Optional<Product> freshlyDeletedProduct = productService.loadProduct(deleteProductId);
         Assertions.assertTrue(freshlyDeletedProduct.isEmpty(),
@@ -378,6 +390,24 @@ public class ProductServiceTest {
         Assertions.assertEquals(0, productAfter.getStock());
     }
 
+    @Transactional
+    @DirtiesContext
+    @Test
+    public void testReleaseStock() {
+        Long orderItemId = 9000L;
+        Long productId = 5000L;
+        Product product = productService.loadProduct(productId).orElseThrow();
+        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow();
+        int productStock = product.getStock();
+        int orderItemQuantity = orderItem.getQuantity();
+
+        productService.releaseStock(orderItem);
+
+        product =  productService.loadProduct(productId).orElseThrow();
+
+        Assertions.assertEquals(productStock + orderItemQuantity, product.getStock());
+    }
+
     @Test
     @Transactional
     public void testGetReviews() {
@@ -429,7 +459,9 @@ public class ProductServiceTest {
         Long productId = 1000L;
         Long reviewId = 2000L;
 
-        productService.removeReview(productId, reviewId);
+        Userx user = userxService.getUserByUsername("user2");
+
+        productService.removeReview(productId, reviewId, user);
 
         Page<Review> page = productService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
@@ -452,7 +484,10 @@ public class ProductServiceTest {
         Long productId = 1000L;
         Long reviewId = 1000L;
 
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> productService.removeReview(productId, reviewId));
+        Userx user = userxService.getUserByUsername("user2");
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                                () -> productService.removeReview(productId, reviewId, user));
 
         Page<Review> page = productService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
@@ -475,7 +510,9 @@ public class ProductServiceTest {
         Long productId = 1000L;
         Long reviewId = 1000L;
 
-        productService.removeReview(productId, reviewId);
+        Userx user = userxService.getUserByUsername("admin");
+
+        productService.removeReview(productId, reviewId, user);
 
         Page<Review> page = productService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);

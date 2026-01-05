@@ -1,13 +1,11 @@
 package at.qe.skeleton.services;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Review;
-import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductRepository;
 import at.qe.skeleton.specifications.ProductSpecification;
 import at.qe.skeleton.repositories.ReviewRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,15 +28,13 @@ import java.util.Set;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
-    private final AuthenticatedUserService authenticatedUserService;
     private final ReviewRepository reviewRepository;
 
     @Autowired
     public ProductService(
             ProductRepository productRepository,
-            AuthenticatedUserService authenticatedUserService, ReviewRepository reviewRepository) {
+            ReviewRepository reviewRepository) {
         this.productRepository = productRepository;
-        this.authenticatedUserService = authenticatedUserService;
         this.reviewRepository = reviewRepository;
     }
 
@@ -71,6 +68,10 @@ public class ProductService {
      * @return product matching the id
      */
     public Optional<Product> loadProduct(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         return this.productRepository.findById(id);
     }
 
@@ -82,6 +83,10 @@ public class ProductService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     public Product saveProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product is null");
+        }
+
         if (product.isNew()) {
             return this.productRepository.save(product);
         }
@@ -97,6 +102,10 @@ public class ProductService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     public void deleteProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product is null");
+        }
+
         this.productRepository.delete(product);
 
         // TODO: ProductSubscriptions that match the product have to be deleted if the product gets
@@ -112,6 +121,10 @@ public class ProductService {
      */
     @Transactional
     public boolean checkStock(Long productId, int quantity) {
+        if (productId == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         int rowsMatching = this.productRepository.checkStock(productId, quantity);
 
         return rowsMatching == 1;
@@ -127,9 +140,26 @@ public class ProductService {
      */
     @Transactional
     public boolean reserveStock(Long productId, int quantity) {
+        if (productId == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         int rowsUpdated = this.productRepository.reserveStock(productId, quantity);
 
         return rowsUpdated > 0;
+    }
+
+    /** Release stock of order item
+     *
+     * @param orderItem the order item which stocks should be released
+     */
+    @Transactional
+    public void releaseStock(OrderItem orderItem) {
+        if (orderItem == null) {
+            throw new IllegalArgumentException("OrderItem is null");
+        }
+
+        this.productRepository.releaseStock(orderItem.getProduct().getId(), orderItem.getQuantity());
     }
 
     /**
@@ -164,12 +194,12 @@ public class ProductService {
      */
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public Optional<Product> addReview(Long productId, Review newReview, Userx author) {
-        Optional<Product> productOpt = this.loadProduct(productId);
-        if (productOpt.isEmpty()) {
-            return Optional.empty();
+    public Optional<Product> addReview(Long productId, Review newReview, Userx author) throws AccessDeniedException {
+        if (productId == null || newReview == null || author == null) {
+            throw new IllegalArgumentException("Product id or review or user is null");
         }
-        Product product = productOpt.get();
+
+        Product product = this.loadProduct(productId).orElseThrow(EntityNotFoundException::new);
 
         newReview.setAuthor(author);
         product.addReview(newReview);
@@ -187,21 +217,22 @@ public class ProductService {
      */
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public void removeReview(Long productId, Long reviewId) {
-        Optional<Product> productOpt = this.loadProduct(productId);
-        if (productOpt.isEmpty() || reviewId == null) {
-            return;
+    public void removeReview(Long productId, Long reviewId, Userx currentUser)
+            throws AccessDeniedException {
+        if (productId == null || reviewId == null || currentUser == null) {
+            throw new IllegalArgumentException("Product id or review id is null");
         }
-        Product product = productOpt.get();
-        Userx currentUser = authenticatedUserService.getAuthenticatedUser();
+
+        Product product = this.loadProduct(productId).orElseThrow(EntityNotFoundException::new);
+
         Collection<Review> reviews = product.getReviews();
 
         reviews.stream()
-               .filter(review -> review.getId().equals(reviewId))
+               .filter(review -> Objects.equals(review.getId(), reviewId))
                .findFirst()
                .ifPresent(review -> {
-                   boolean isAuthor = review.getAuthor().equals(currentUser);
-                   boolean isAdmin = currentUser.getRoles().contains(UserxRole.ADMIN);
+                   boolean isAuthor = review.getAuthor() != null && review.getAuthor().equals(currentUser);
+                   boolean isAdmin = currentUser.getRole().equals(UserxRole.ADMIN);
 
                    if (!isAdmin && !isAuthor) {
                        throw new AccessDeniedException(
@@ -222,6 +253,10 @@ public class ProductService {
      * @param product the product to update the rating for
      */
     public void updateRating(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product is null");
+        }
+
         Set<Review> reviews = product.getReviews();
 
         if (reviews == null || reviews.isEmpty()) {

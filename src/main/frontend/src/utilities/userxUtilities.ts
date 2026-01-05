@@ -2,57 +2,41 @@
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-import {UserxDTO, UserxRole, UserxUpdateDTO} from "../DTO/api-generated.types";
+import {RoleEnum, UserxDto, UserxUpdateDto} from "../api";
 
 export type UserxValidationResult = {
     valid: boolean;
     message?: string;
-    fieldErrors?: Partial<Record<keyof UserxUpdateDTO, string>>
+    fieldErrors?: Partial<Record<keyof UserxUpdateDto, string>>
 };
 
 /**
- * Create a UserxRole array from a string array of roles
- * @param roles
+ * Create a UserxRole array from a string array of role
+ * @param role
  *
  * @returns UserxRole[]
  * @throws Error if an invalid role is provided
  */
-export const createUserxRoleArrayFromStrings = (roles: string[]): UserxRole[] => {
-    return roles.map(role => {
-        switch (role) {
-            case UserxRole.ADMIN.valueOf():
-                return UserxRole.ADMIN;
-            case UserxRole.MANAGER.valueOf():
-                return UserxRole.MANAGER;
-            case UserxRole.CUSTOMER.valueOf():
-                return UserxRole.CUSTOMER;
-            default:
-                throw new Error(`Invalid role: ${role}`);
-        }
-    });
-}
-
-/**
- * Create a UserxDTO from raw json,TODO: proper checking if json is correct
- * @param json raw json including UserxDTO
- *
- * @returns UserxDTO on success
- * @throws Error if json could not be parsed to valid json
- */
-export const userxDTOfromJson = (json: any): UserxDTO =>  {
-    if (!json || typeof json !== 'object') {
-        throw new Error('Invalid JSON for User');
+export const createUserxRoleArrayFromStrings = (role: string): RoleEnum => {
+    switch (role) {
+        case RoleEnum.ADMIN.valueOf():
+            return RoleEnum.ADMIN;
+        case RoleEnum.MANAGER.valueOf():
+            return RoleEnum.MANAGER;
+        case RoleEnum.CUSTOMER.valueOf():
+            return RoleEnum.CUSTOMER;
+        default:
+            throw new Error(`Invalid role: ${role}`);
     }
-    return json;
 }
 
 /**
- * Create UserxUpdateDTO from UserxDTO
- * @param user UserxDTO to map from
+ * Create UserxUpdateDto from UserxDto
+ * @param user UserxDto to map from
  *
- * @returns UserxUpdateDTO
+ * @returns UserxUpdateDto
  */
-export const fromUserxDTOtoUserxUpdateDTO = (user: UserxDTO): UserxUpdateDTO => {
+export const fromUserxDtoToUserxUpdateDto = (user: UserxDto): UserxUpdateDto => {
     return {
         id: user.id,
         username: user.username,
@@ -62,16 +46,16 @@ export const fromUserxDTOtoUserxUpdateDTO = (user: UserxDTO): UserxUpdateDTO => 
         email: user.email,
         phone: user.phone,
         enabled: user.enabled,
-        roles: user.roles,
+        role: user.role,
     };
 }
 
 /**
- * Create empty UserxUpdateDTO for new User Dialog
+ * Create empty UserxUpdateDto for new User Dialog
  *
- * @returns UserxUpdateDTO
+ * @returns UserxUpdateDto
  */
-export const emptyUserxUpdateDTO = (): UserxUpdateDTO => {
+export const emptyUserxUpdateDto = (): UserxUpdateDto => {
     return {
         id: undefined,
         username: "",
@@ -81,6 +65,6 @@ export const emptyUserxUpdateDTO = (): UserxUpdateDTO => {
         email: "",
         phone: "",
         enabled: true,
-        roles: [],
+        role: RoleEnum.CUSTOMER,
     };
 }

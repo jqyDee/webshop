@@ -3,8 +3,8 @@ package at.qe.skeleton.services;
 import at.qe.skeleton.exceptions.UsernameDuplicateException;
 import at.qe.skeleton.model.Userx;
 import java.util.Collection;
-
 import at.qe.skeleton.model.UserxRole;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +18,6 @@ import java.util.Optional;
 
 /**
  * Service for accessing and manipulating user data.
- *
  * This class is part of the skeleton project provided for students of the
  * course "Software Architecture" offered by Innsbruck University.
  */
@@ -64,23 +63,32 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Optional<Userx> loadUser(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         return userRepository.findById(id);
     }
     
     /**
-     * Saves the user. This method will also set {@link Userx#createDate} for new
-     * entities or {@link Userx#updateDate} for updated entities. The user
-     * requesting this operation will also be stored as {@link Userx#createDate}
-     * or {@link Userx#updateUser} respectively.
+     * Saves the user. This method will also set createdDate for new
+     * entities or updatedDate for updated entities. The user
+     * requesting this operation will also be stored as createdDate
+     * or updateUser respectively.
      *
      * @param user the user to save
      * @return the updated user
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Userx saveUser(Userx user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User is null");
+        }
+
         if (user.isNew()) {
             if (userRepository.existsByUsername(user.getUsername())) {
-                throw new UsernameDuplicateException("Username " + user.getUsername() + " not available");
+                throw new UsernameDuplicateException(
+                        "Username " + user.getUsername() + " not available");
             }
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setCreateUser(authenticatedUserService.getAuthenticatedUser());
@@ -97,12 +105,28 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteUser(Userx user) {
-        Optional<Userx> userOpt = userRepository.findById(user.getId());
-        userOpt.ifPresent(userRepository::delete);
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User or User.id is null");
+        }
+
+        Userx userFound = userRepository.findById(user.getId())
+                                        .orElseThrow(EntityNotFoundException::new);
+        userRepository.delete(userFound);
     }
 
+    /**
+     * Get user by username
+     *
+     * @param username username of user
+     * @return user
+     */
     public Userx getUserByUsername(String username) {
-        return userRepository.findFirstByUsername(username).orElse(null);
+        if (username == null) {
+            throw new IllegalArgumentException("Username is null");
+        }
+
+        return userRepository.findFirstByUsername(username)
+                             .orElseThrow(EntityNotFoundException::new);
     }
 
 
@@ -111,7 +135,7 @@ public class UserxService implements UserDetailsService {
      *
      * @param username the username identifying the user whose data is required.
      * @return the user with the given username and their details.
-     * @throws UsernameNotFoundException
+     * @throws UsernameNotFoundException if username not found
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

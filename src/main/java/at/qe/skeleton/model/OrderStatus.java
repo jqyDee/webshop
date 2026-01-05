@@ -6,5 +6,9 @@ public enum OrderStatus {
     PROCESSING,
     SHIPPED,
     DELIVERED,
-    CANCELLED
+    CANCELLED;
+
+    public boolean isCancellable() {
+        return this.ordinal() <= PENDING_PAYMENT.ordinal();
+    }
 }
