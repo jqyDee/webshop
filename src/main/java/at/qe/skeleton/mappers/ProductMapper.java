@@ -13,7 +13,7 @@ public abstract class ProductMapper extends DTOMapper<Product, ProductDTO> {
     public abstract Product mapFrom(ProductDTO dto);
 
     @Mapping(target = "id", ignore = true) // protect the id and the other following fields from being overwritten
-    @Mapping(target = "createDate")
+    @Mapping(target = "createdDate")
     @Mapping(target = "rating", ignore = true)
     @Mapping(target = "reviews", ignore = true)
     public abstract void updateProductFromDto(ProductDTO dto, @MappingTarget Product entity);
