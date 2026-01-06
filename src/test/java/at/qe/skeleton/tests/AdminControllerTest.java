@@ -34,7 +34,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Some very basic tests for {@link AdminController}.
@@ -90,6 +89,43 @@ public class AdminControllerTest {
         Mockito.when(jwtTokenProvider.validateTokenAndGetJws(Mockito.anyString()))
                 .thenReturn(Optional.of(mockJws));
     }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    void getAllManagersShouldReturnMappedManagers() throws Exception {
+        Long id = 1L;
+        String username = "testManager";
+        Userx manager = new Userx();
+        manager.setId(id);
+        manager.setUsername(username);
+        manager.setFirstName("First");
+        manager.setLastName("Last");
+        manager.setRole(UserxRole.MANAGER);
+        List<Userx> managers = List.of(manager);
+
+        Mockito.when(userService.getAllManagers()).thenReturn(managers);
+        Mockito.when(userMapper.mapTo(Mockito.any(Userx.class))).thenReturn(new UserxDTO(
+                id, null, null, null, null, "testManager", "First", "Last", null, null, null, null, false, UserxRole.MANAGER));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/admin/managers"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(id))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].username").value(username))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].firstName").value("First"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].lastName").value("Last"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    void getAllManagersShouldReturnEmptyListWhenNoManagers() throws Exception {
+        Mockito.when(userService.getAllManagers()).thenReturn(List.of());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/admin/managers"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(0));
+    }
+
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
