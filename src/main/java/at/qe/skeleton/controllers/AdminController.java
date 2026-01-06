@@ -36,9 +36,16 @@ public class AdminController {
         this.userService = userService;
     }
 
+    /**
+     * GET all existing Managers
+     *
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with a collection of all existing managers in the body
+     */
     @GetMapping("/managers")
     public ResponseEntity<Collection<UserxDTO>> getAllManagers() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Collection<Userx> allManagers = userService.getAllManagers();
+        List<UserxDTO> allManagersMapped = allManagers.stream().map(userMapper::mapTo).toList();
+        return ResponseEntity.ok(allManagersMapped);
     }
 
     /**
