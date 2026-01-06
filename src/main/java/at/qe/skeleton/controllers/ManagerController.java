@@ -38,9 +38,22 @@ public class ManagerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.mapTo(product));
     }
 
+    /**
+     * Updates a product
+     *
+     * @param id the id of the product tb updated
+     * @param productUpdateDTO updated version of that product
+     * @return {@link ResponseEntity} with status {@code 201 (Created)} with the updated product in the body, or with status {@code 404 (Not Found)} if no product with this id exists
+     */
     @PatchMapping("/product/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDTO productUpdateDTO) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Product existingProduct = productService.loadProduct(id).orElseThrow(EntityNotFoundException::new);
+
+        productMapper.updateProductFromDto(productUpdateDTO, existingProduct);
+
+        Product savedProduct = productService.saveProduct(existingProduct);
+
+        return ResponseEntity.ok(productMapper.mapTo(savedProduct));
     }
 
     /**
