@@ -1,0 +1,127 @@
+package at.qe.skeleton.tests;
+
+import at.qe.skeleton.configs.JwtConfig;
+import at.qe.skeleton.configs.JwtTokenProvider;
+import at.qe.skeleton.configs.TokenAuthenticationFilter;
+import at.qe.skeleton.dtos.OrderDTO;
+import at.qe.skeleton.mappers.OrderMapper;
+import at.qe.skeleton.model.Order;
+import at.qe.skeleton.model.OrderStatus;
+import at.qe.skeleton.model.Product;
+import at.qe.skeleton.services.OrderService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.List;
+import java.util.Optional;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+public class ManagerControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockitoSpyBean
+    private TokenAuthenticationFilter tokenAuthenticationFilter;
+
+    @MockitoBean
+    private JwtConfig jwtConfig;
+
+    @MockitoBean
+    private OrderService orderService;
+
+    @MockitoBean
+    private OrderMapper orderMapper;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        // mock setup of the Authentication Filter
+        Mockito.doAnswer(invocation -> {
+            HttpServletRequest request = invocation.getArgument(0);
+            HttpServletResponse response = invocation.getArgument(1);
+            FilterChain chain = invocation.getArgument(2);
+            chain.doFilter(request, response);
+            return null;
+        }).when(tokenAuthenticationFilter).doFilterInternal(
+                Mockito.any(HttpServletRequest.class),
+                Mockito.any(HttpServletResponse.class),
+                Mockito.any(FilterChain.class)
+        );
+
+        @SuppressWarnings("unchecked")
+        Jws<Claims> mockJws = (Jws<Claims>) Mockito.mock(Jws.class);
+        Claims mockClaims = Mockito.mock(Claims.class);
+        Mockito.when(mockClaims.getSubject()).thenReturn("admin");
+        Mockito.when(mockJws.getPayload()).thenReturn(mockClaims);
+        Mockito.when(jwtTokenProvider.validateTokenAndGetJws(Mockito.anyString()))
+                .thenReturn(Optional.of(mockJws));
+    }
+
+    @Test
+    @WithMockUser(username = "manager", authorities = {"MANAGER"})
+    public void testGetAllOrders() throws Exception {
+
+        Order testOrder1 = new Order();
+        testOrder1.setId(1L);
+        testOrder1.setStatus(OrderStatus.PROCESSING);
+
+        Order testOrder2 = new Order();
+        testOrder2.setId(2L);
+        testOrder2.setStatus(OrderStatus.PENDING_PAYMENT);
+
+        Order testOrder3 = new Order();
+        testOrder3.setId(3L);
+        testOrder3.setStatus(OrderStatus.DELIVERED);
+
+        List<Order> orders = List.of(testOrder1, testOrder2, testOrder3);
+
+        Pageable pageable = PageRequest.of(0, 3);
+
+        Page<Order> page = new PageImpl<>(orders, pageable, orders.size());
+
+        Mockito.when(orderService.getAllOrders(Mockito.any(Pageable.class))).thenReturn(page);
+
+        Mockito.when(orderMapper.mapTo(Mockito.any(Order.class))).thenAnswer(invocation -> {
+            Order source = invocation.getArgument(0);
+            return new OrderDTO(source.getId(), null, source.getStatus(), null, null, 0.0, null, null);
+        });
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/manager/orders")
+                .param("pageId", "0")
+                .param("pageSize", "3"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.pageSize").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.pageIdAfter").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items[0].id").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items[0].status").value("PROCESSING"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items[1].id").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items[1].status").value("PENDING_PAYMENT"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items[2].id").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items[2].status").value("DELIVERED"));
+    }
+
+}
