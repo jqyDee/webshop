@@ -18,6 +18,7 @@ const App: React.FC = () => {
         // Wrap the application in the UserProvider, which allows to access the authenticated user
         <UserProvider>
             <QueryClientProvider client={client}>
+                <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                 <Suspense fallback={<div>Loading...</div>}>
                     <BrowserRouter>
                         <Routes>
