@@ -10,6 +10,27 @@ import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute} from "./rout
 import PrivateRoute from './components/PrivateRoute';
 import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+import {client as apiClient} from "./api/client.gen.ts";
+
+// 1. Configure the API client globally to handle Spring-style sorting and filtering
+apiClient.setConfig({
+    baseUrl: 'http://localhost:8080',
+    querySerializer: (query) => {
+        const params = new URLSearchParams();
+        Object.entries(query).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                if (Array.isArray(value)) {
+                    // This handles sort=['name,asc', 'id,desc'] -> ?sort=name,asc&sort=id,desc
+                    value.forEach((v) => params.append(key, v));
+                } else {
+                    params.append(key, value.toString());
+                }
+            }
+        });
+        return params.toString();
+    },
+});
 
 const client = new QueryClient();
 
