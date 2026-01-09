@@ -10,6 +10,7 @@ import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute} from "./rout
 import PrivateRoute from './components/PrivateRoute';
 import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {CartContextProvider} from "./Contexts/cartContext.tsx";
 
 const client = new QueryClient();
 
@@ -18,21 +19,23 @@ const App: React.FC = () => {
         // Wrap the application in the UserProvider, which allows to access the authenticated user
         <UserProvider>
             <QueryClientProvider client={client}>
-                <Suspense fallback={<div>Loading...</div>}>
-                    <BrowserRouter>
-                        <Routes>
-                            <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
-                            {/* Protected Routes (authentication required) */}
-                            <Route element={<PrivateRoute/>}>
-                                <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
-                                <Route path={ManageUsersRoute.url}
-                                       Component={ManageUsersRoute.component}/>
-                                <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
-                            </Route>
-                            {/* end of protected routes */}
-                        </Routes>
-                    </BrowserRouter>
-                </Suspense>
+                <CartContextProvider>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <BrowserRouter>
+                            <Routes>
+                                <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
+                                {/* Protected Routes (authentication required) */}
+                                <Route element={<PrivateRoute/>}>
+                                    <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
+                                    <Route path={ManageUsersRoute.url}
+                                           Component={ManageUsersRoute.component}/>
+                                    <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                                </Route>
+                                {/* end of protected routes */}
+                            </Routes>
+                        </BrowserRouter>
+                    </Suspense>
+                </CartContextProvider>
             </QueryClientProvider>
         </UserProvider>
     );
