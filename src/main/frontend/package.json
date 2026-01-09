@@ -9,6 +9,7 @@
     "@tanstack/react-query-devtools": "^5.91.2",
     "axios": "^1.7.7",
     "jwt-decode": "^4.0.0",
+    "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.8.2",
     "react": "^18.3.1",
