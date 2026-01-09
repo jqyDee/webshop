@@ -4,11 +4,14 @@ import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.dtos.OrderDTO;
+import at.qe.skeleton.dtos.ProductDTO;
 import at.qe.skeleton.mappers.OrderMapper;
+import at.qe.skeleton.mappers.ProductMapper;
 import at.qe.skeleton.model.Order;
 import at.qe.skeleton.model.OrderStatus;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.services.OrderService;
+import at.qe.skeleton.services.ProductService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
@@ -24,8 +27,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,11 +55,20 @@ public class ManagerControllerTest {
     @MockitoBean
     private JwtConfig jwtConfig;
 
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+
     @MockitoBean
     private OrderService orderService;
 
     @MockitoBean
     private OrderMapper orderMapper;
+
+    @MockitoBean
+    private ProductService productService;
+
+    @MockitoBean
+    private ProductMapper productMapper;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -79,6 +92,36 @@ public class ManagerControllerTest {
         Mockito.when(mockJws.getPayload()).thenReturn(mockClaims);
         Mockito.when(jwtTokenProvider.validateTokenAndGetJws(Mockito.anyString()))
                 .thenReturn(Optional.of(mockJws));
+    }
+
+    @Test
+    @WithMockUser(username = "manager", authorities = {"MANAGER"})
+    public void testCreateProduct() throws Exception {
+        ProductDTO mockProductDTO = new ProductDTO(
+                1L, "mock", 100.5, 2, 0, null, null, null, null, null, null
+        );
+
+        Product mockProduct = new Product();
+        mockProduct.setId(1L);
+        mockProduct.setName("mock");
+        mockProduct.setPrice(100.5);
+        mockProduct.setStock(2);
+        mockProduct.setDiscount(0);
+
+        Mockito.when(productMapper.mapFrom(Mockito.any(ProductDTO.class))).thenReturn(mockProduct);
+        Mockito.when(productService.saveProduct(Mockito.any(Product.class))).thenReturn(mockProduct);
+        Mockito.when(productMapper.mapTo(Mockito.any(Product.class))).thenReturn(mockProductDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/manager/createProduct")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(mockProductDTO)))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("mock"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(100.5))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.stock").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.discount").value(0));
     }
 
     @Test

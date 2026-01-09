@@ -177,6 +177,15 @@ class OrderServiceTest {
     @Transactional
     @DirtiesContext
     @Test
+    @WithMockUser(username = "manager", authorities = {"MANAGER"})
+    public void testGetAllOrders() {
+        Page<Order> orders = orderService.getAllOrders(PageRequest.of(0, 10));
+        Assertions.assertEquals(3, orders.getTotalElements());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testPaymentReceivedUnauthorized() {
         Order order = orderRepository.findById(9000L).orElseThrow();

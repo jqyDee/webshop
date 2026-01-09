@@ -85,6 +85,15 @@ public class ManagerController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * GET all orders
+     *
+     * @param pageId id of page (0 indexed) or null
+     * @param pageSize size of page or null
+     * @param sort how the output should be sorted
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with a collection of products on
+     *         the specified page with the specified filters and sorting
+     */
     @GetMapping("/orders")
     public ResponseEntity<PageableListDTO<OrderDTO>> getAllOrders(
             @RequestParam(required = false) Integer pageId,
@@ -109,10 +118,5 @@ public class ManagerController {
         );
 
         return ResponseEntity.ok(pageableListDTO);
-    }
-
-    @PatchMapping("/order/{id}/cancel")
-    public ResponseEntity<Void> updateOrder(@PathVariable Long id) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
