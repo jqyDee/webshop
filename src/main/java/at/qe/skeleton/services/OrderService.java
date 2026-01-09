@@ -131,7 +131,7 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setName(cartItem.getProduct().getName());
-            orderItem.setTotal(cartItem.getProduct().getDiscountedPrice());
+            orderItem.setTotal(cartItem.getProduct().getPrice(), cartItem.getProduct().getDiscount());
             orderItem.setProduct(cartItem.getProduct());
             orderItems.add(orderItem);
         }
