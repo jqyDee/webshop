@@ -4,7 +4,7 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 
 import { client } from '../client.gen';
 import { addAllToShoppingCart, addProductToShoppingCart, authenticateUser, cancelOrder, clearShoppingCart, confirmOrder, createCurrentUser, createOrder, createProduct, createReview, createUser, deleteProduct, deleteProductFromShoppingCart, deleteReview, deleteUser, getAllManagers, getAllOrders, getAllUsers, getCurrentUser, getOrders, getProductById, getProducts, getReviews, getShoppingCart, getUser, isAuthenticated, type Options, subscribe, updateCurrentUser, updateOrder, updateProduct, updateProductInShoppingCart, updateSubscription, updateUser } from '../sdk.gen';
-import type { AddAllToShoppingCartData, AddProductToShoppingCartData, AuthenticateUserData, AuthenticateUserResponse, CancelOrderData, CancelOrderResponse, ClearShoppingCartData, ConfirmOrderData, ConfirmOrderResponse, CreateCurrentUserData, CreateCurrentUserResponse, CreateOrderData, CreateOrderResponse, CreateProductData, CreateProductResponse, CreateReviewData, CreateReviewResponse, CreateUserData, CreateUserResponse, DeleteProductData, DeleteProductFromShoppingCartData, DeleteReviewData, DeleteUserData, GetAllManagersData, GetAllManagersResponse, GetAllOrdersData, GetAllOrdersResponse, GetAllUsersData, GetAllUsersResponse, GetCurrentUserData, GetCurrentUserResponse, GetOrdersData, GetOrdersResponse, GetProductByIdData, GetProductByIdResponse, GetProductsData, GetProductsResponse, GetReviewsData, GetReviewsResponse, GetShoppingCartData, GetShoppingCartResponse, GetUserData, GetUserResponse, IsAuthenticatedData, IsAuthenticatedResponse, SubscribeData, SubscribeResponse, UpdateCurrentUserData, UpdateCurrentUserResponse, UpdateOrderData, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductResponse, UpdateSubscriptionData, UpdateSubscriptionResponse, UpdateUserData, UpdateUserResponse } from '../types.gen';
+import type { AddAllToShoppingCartData, AddProductToShoppingCartData, AuthenticateUserData, AuthenticateUserResponse, CancelOrderData, CancelOrderResponse, ClearShoppingCartData, ConfirmOrderData, ConfirmOrderResponse, CreateCurrentUserData, CreateCurrentUserResponse, CreateOrderData, CreateOrderResponse, CreateProductData, CreateProductResponse, CreateReviewData, CreateReviewResponse, CreateUserData, CreateUserResponse, DeleteProductData, DeleteProductFromShoppingCartData, DeleteReviewData, DeleteUserData, GetAllManagersData, GetAllManagersResponse, GetAllOrdersData, GetAllOrdersResponse, GetAllUsersData, GetAllUsersResponse, GetCurrentUserData, GetCurrentUserResponse, GetOrdersData, GetOrdersResponse, GetProductByIdData, GetProductByIdResponse, GetProductsData, GetProductsResponse, GetReviewsData, GetReviewsResponse, GetShoppingCartData, GetShoppingCartResponse, GetUserData, GetUserResponse, IsAuthenticatedData, IsAuthenticatedResponse, SubscribeData, SubscribeResponse, UpdateCurrentUserData, UpdateCurrentUserResponse, UpdateOrderData, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductInShoppingCartResponse, UpdateProductResponse, UpdateSubscriptionData, UpdateSubscriptionResponse, UpdateUserData, UpdateUserResponse } from '../types.gen';
 
 export const authenticateUserMutation = (options?: Partial<Options<AuthenticateUserData>>): UseMutationOptions<AuthenticateUserResponse, DefaultError, Options<AuthenticateUserData>> => {
     const mutationOptions: UseMutationOptions<AuthenticateUserResponse, DefaultError, Options<AuthenticateUserData>> = {
@@ -138,6 +138,20 @@ export const createReviewMutation = (options?: Partial<Options<CreateReviewData>
     return mutationOptions;
 };
 
+export const createOrderMutation = (options?: Partial<Options<CreateOrderData>>): UseMutationOptions<CreateOrderResponse, DefaultError, Options<CreateOrderData>> => {
+    const mutationOptions: UseMutationOptions<CreateOrderResponse, DefaultError, Options<CreateOrderData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createOrder({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const confirmOrderMutation = (options?: Partial<Options<ConfirmOrderData>>): UseMutationOptions<ConfirmOrderResponse, DefaultError, Options<ConfirmOrderData>> => {
     const mutationOptions: UseMutationOptions<ConfirmOrderResponse, DefaultError, Options<ConfirmOrderData>> = {
         mutationFn: async (fnOptions) => {
@@ -156,20 +170,6 @@ export const cancelOrderMutation = (options?: Partial<Options<CancelOrderData>>)
     const mutationOptions: UseMutationOptions<CancelOrderResponse, DefaultError, Options<CancelOrderData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await cancelOrder({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const createOrderMutation = (options?: Partial<Options<CreateOrderData>>): UseMutationOptions<CreateOrderResponse, DefaultError, Options<CreateOrderData>> => {
-    const mutationOptions: UseMutationOptions<CreateOrderResponse, DefaultError, Options<CreateOrderData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await createOrder({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -251,8 +251,8 @@ export const deleteProductFromShoppingCartMutation = (options?: Partial<Options<
     return mutationOptions;
 };
 
-export const updateProductInShoppingCartMutation = (options?: Partial<Options<UpdateProductInShoppingCartData>>): UseMutationOptions<unknown, DefaultError, Options<UpdateProductInShoppingCartData>> => {
-    const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<UpdateProductInShoppingCartData>> = {
+export const updateProductInShoppingCartMutation = (options?: Partial<Options<UpdateProductInShoppingCartData>>): UseMutationOptions<UpdateProductInShoppingCartResponse, DefaultError, Options<UpdateProductInShoppingCartData>> => {
+    const mutationOptions: UseMutationOptions<UpdateProductInShoppingCartResponse, DefaultError, Options<UpdateProductInShoppingCartData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await updateProductInShoppingCart({
                 ...options,
@@ -438,9 +438,9 @@ export const getProductsOptions = (options: Options<GetProductsData>) => queryOp
     queryKey: getProductsQueryKey(options)
 });
 
-export const getOrdersQueryKey = (options: Options<GetOrdersData>) => createQueryKey('getOrders', options);
+export const getOrdersQueryKey = (options?: Options<GetOrdersData>) => createQueryKey('getOrders', options);
 
-export const getOrdersOptions = (options: Options<GetOrdersData>) => queryOptions<GetOrdersResponse, DefaultError, GetOrdersResponse, ReturnType<typeof getOrdersQueryKey>>({
+export const getOrdersOptions = (options?: Options<GetOrdersData>) => queryOptions<GetOrdersResponse, DefaultError, GetOrdersResponse, ReturnType<typeof getOrdersQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
         const { data } = await getOrders({
             ...options,

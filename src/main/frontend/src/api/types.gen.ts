@@ -14,7 +14,7 @@ export type LoginResponseDto = {
 };
 
 export type AddressDto = {
-    id?: number;
+    id: number;
     street: string;
     number: string;
     postalCode: string;
@@ -39,9 +39,9 @@ export type UserxUpdateDto = {
 export type UserxDto = {
     id?: number;
     createdBy?: number;
-    createdDate?: string;
+    createDate?: string;
     updatedBy?: number;
-    updatedDate?: string;
+    updateDate?: string;
     username: string;
     firstName: string;
     lastName: string;
@@ -59,7 +59,6 @@ export type ProductDto = {
     price: number;
     stock: number;
     discount: number;
-    discountedPrice?: number;
     shortDescription?: string;
     description?: string;
     rating?: number;
@@ -78,28 +77,32 @@ export type ReviewDto = {
     createdDate?: string;
 };
 
-export type OrderConfirmRequestDto = {
-    shippingAddress: AddressDto;
-    paymentAddress: AddressDto;
-};
-
 export type OrderDto = {
     id?: number;
-    user: UserxDto;
-    status: StatusEnum;
+    userId?: number;
+    status?: StatusEnum;
     shippingAddress?: AddressDto;
     paymentAddress?: AddressDto;
     sum?: number;
-    products: Array<OrderItemDto>;
+    products?: {
+        [key: string]: number;
+    };
     createdDate?: string;
 };
 
-export type OrderItemDto = {
+export type OrderResponseDto = {
+    failed: boolean;
+    orderId?: number;
+    order?: OrderDto;
+    productsInStock?: {
+        [key: string]: number;
+    };
+};
+
+export type CartItemDto = {
     id?: number;
     product: ProductDto;
-    order: OrderDto;
-    name?: string;
-    total?: number;
+    user: UserxDto;
     quantity?: number;
 };
 
@@ -137,13 +140,6 @@ export type PageableListDtoOrderDto = {
     pageCount?: number;
     totalCount: number;
     items?: Array<OrderDto>;
-};
-
-export type CartItemDto = {
-    id?: number;
-    product: ProductDto;
-    user: UserxDto;
-    quantity?: number;
 };
 
 export enum RoleEnum {
@@ -285,13 +281,27 @@ export type CreateReviewResponses = {
 
 export type CreateReviewResponse = CreateReviewResponses[keyof CreateReviewResponses];
 
-export type ConfirmOrderData = {
-    body: OrderConfirmRequestDto;
-    path: {
-        orderId: number;
-    };
+export type CreateOrderData = {
+    body?: never;
+    path?: never;
     query?: never;
-    url: '/api/orders/{orderId}/confirm';
+    url: '/api/orders/createOrder';
+};
+
+export type CreateOrderResponses = {
+    /**
+     * OK
+     */
+    200: OrderResponseDto;
+};
+
+export type CreateOrderResponse = CreateOrderResponses[keyof CreateOrderResponses];
+
+export type ConfirmOrderData = {
+    body: OrderDto;
+    path?: never;
+    query?: never;
+    url: '/api/orders/confirmOrder';
 };
 
 export type ConfirmOrderResponses = {
@@ -304,12 +314,10 @@ export type ConfirmOrderResponses = {
 export type ConfirmOrderResponse = ConfirmOrderResponses[keyof ConfirmOrderResponses];
 
 export type CancelOrderData = {
-    body?: never;
-    path: {
-        orderId: number;
-    };
+    body: OrderDto;
+    path?: never;
     query?: never;
-    url: '/api/orders/{orderId}/cancel';
+    url: '/api/orders/cancelOrder';
 };
 
 export type CancelOrderResponses = {
@@ -320,22 +328,6 @@ export type CancelOrderResponses = {
 };
 
 export type CancelOrderResponse = CancelOrderResponses[keyof CancelOrderResponses];
-
-export type CreateOrderData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/orders/createOrder';
-};
-
-export type CreateOrderResponses = {
-    /**
-     * OK
-     */
-    200: OrderDto;
-};
-
-export type CreateOrderResponse = CreateOrderResponses[keyof CreateOrderResponses];
 
 export type CreateProductData = {
     body: ProductDto;
@@ -430,8 +422,10 @@ export type UpdateProductInShoppingCartResponses = {
     /**
      * OK
      */
-    200: unknown;
+    200: CartItemDto;
 };
+
+export type UpdateProductInShoppingCartResponse = UpdateProductInShoppingCartResponses[keyof UpdateProductInShoppingCartResponses];
 
 export type AddProductToShoppingCartData = {
     body?: never;
@@ -651,11 +645,7 @@ export type GetProductsResponse = GetProductsResponses[keyof GetProductsResponse
 export type GetOrdersData = {
     body?: never;
     path?: never;
-    query: {
-        pageId?: number;
-        pageSize?: number;
-        sort: Sort;
-    };
+    query?: never;
     url: '/api/orders';
 };
 
