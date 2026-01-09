@@ -4,13 +4,14 @@ import {Tag} from "primereact/tag";
 import {Rating} from "primereact/rating";
 import {classNames} from "primereact/utils";
 import {Button} from "primereact/button";
-import DefaultImage from "../../public/default.jpg"
 import {Dropdown} from "primereact/dropdown";
 import {InputNumber} from "primereact/inputnumber";
 import {InputText} from "primereact/inputtext";
 import {IconField} from "primereact/iconfield";
 import {InputIcon} from "primereact/inputicon";
 import React, {useEffect, useState} from "react";
+
+import DefaultImage from "../assets/default.jpg"
 
 interface ProductListComponentProps {
     products: ProductDto[],
