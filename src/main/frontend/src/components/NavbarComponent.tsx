@@ -2,19 +2,22 @@
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-import React from 'react';
-import {Menubar} from "primereact/menubar";
+import React, {ReactNode} from 'react';
+import {Menubar, MenubarProps} from "primereact/menubar";
 import {useUser} from "../Contexts/authenticatedUserContext";
 import {menuConfig, MenuItemConfig} from "../config/menuConfig";
 import {MenuItem} from "primereact/menuitem";
 import {Link} from "react-router-dom";
 import {RoleEnum} from "../api";
+import {Avatar} from "primereact/avatar";
+import {useCart} from "../Contexts/cartContext.tsx";
 
 /**
  * Navbar component.
  */
 const NavbarComponent: React.FC = () => {
     const {currentUser: user} = useUser();
+    const {cartItems} = useCart();
 
     const filterMenu = React.useCallback((items: MenuItemConfig[]): MenuItemConfig[] => {
         if (!user) return [];
@@ -67,6 +70,12 @@ const NavbarComponent: React.FC = () => {
         });
     }, []);
 
+    const endContent = (_: MenubarProps): ReactNode => {
+        return (
+            <Avatar icon="pi pi-shopping-cart" onClick={(_) => console.log(cartItems)}/>
+        )
+    };
+
     const filteredItems = React.useMemo(() => filterMenu(menuConfig), [filterMenu]);
 
     const model = React.useMemo(() => buildMenubar(filteredItems), [filteredItems, buildMenubar]);
@@ -78,7 +87,7 @@ const NavbarComponent: React.FC = () => {
 
     return (
         <div className="card">
-            <Menubar model={model} />
+            <Menubar model={model} end={endContent}/>
         </div>
     );
 }

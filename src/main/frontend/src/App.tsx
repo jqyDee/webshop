@@ -10,15 +10,24 @@ import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute} from "./rout
 import PrivateRoute from './components/PrivateRoute';
 import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {CartContextProvider} from "./Contexts/cartContext.tsx";
 
-const client = new QueryClient();
+const client = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5,    // Data is "fresh" for 5 minutes
+            refetchOnWindowFocus: false, // Stop refetching on window click
+        },
+    },
+});
 
 const App: React.FC = () => {
     return (
         // Wrap the application in the UserProvider, which allows to access the authenticated user
         <UserProvider>
             <QueryClientProvider client={client}>
+                <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                 <CartContextProvider>
                     <Suspense fallback={<div>Loading...</div>}>
                         <BrowserRouter>
