@@ -5,6 +5,13 @@ import {useState} from "react";
 import {ProductFilterDto} from "../api";
 import {DataViewPageEvent} from "primereact/dataview";
 
+const sortOptions = [
+    { label: 'Name: A-Z', value: 'name' },
+    { label: 'Price High to Low', value: '!price' },
+    { label: 'Price Low to High', value: 'price' },
+    { label: 'Rating: High to Low', value: '!rating' },
+];
+
 const ProductTableComponent = () => {
     // pagination state
     const [lazyState, setLazyState] = useState({
@@ -17,13 +24,6 @@ const ProductTableComponent = () => {
     const [sortKey, setSortKey] = useState<string>('name');
     const [sortField, setSortField] = useState<string>('name');
     const [sortOrder, setSortOrder] = useState<number>(1); // 1 = Asc, -1 = Desc
-
-    const sortOptions = [
-        { label: 'Name: A-Z', value: 'name' },
-        { label: 'Price High to Low', value: '!price' },
-        { label: 'Price Low to High', value: 'price' },
-        { label: 'Rating: High to Low', value: '!rating' },
-    ];
 
     const onSortChange = (event: any) => {
         const value = event.value;

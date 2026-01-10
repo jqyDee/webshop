@@ -12,6 +12,7 @@ import {InputIcon} from "primereact/inputicon";
 import React, {useEffect, useState} from "react";
 
 import DefaultImage from "../assets/default.jpg"
+import {useCart} from "../Contexts/cartContext.tsx";
 
 interface ProductListComponentProps {
     products: ProductDto[],
@@ -30,6 +31,7 @@ interface ProductListComponentProps {
 
 const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
 
+    const { addToCart } = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
 
     useEffect(() => {
@@ -140,7 +142,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
     const itemTemplate = (product: ProductDto, index: number) => {
         return (
             <div className="col-12" key={product.id}>
-                <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4', { 'border-top-1 surface-border': index !== 0 })}>
+                <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4', { 'border-top-1 surface-border': index !== 0 }) }>
                     <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round"
                          src={product.imageUrl || DefaultImage}
                          alt={product.name}
@@ -150,7 +152,11 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                     />
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                         <div className="flex flex-column align-items-center sm:align-items-start gap-2">
-                            <div className="text-2xl font-bold text-900">{product.name}</div>
+                            <div className="text-2xl font-bold text-900 cursor-pointer hover:underline"
+                                 onClick={() => console.log(`Open product page for id: ${product.id}`)}
+                            >
+                                {product.name}
+                            </div>
                             <div className="text-sm text-900">{product.shortDescription}</div>
                             <Rating value={product.rating} readOnly cancel={false}></Rating>
                             <div className="flex align-items-center gap-3">
@@ -176,7 +182,14 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                             {product.discount > 0.0 && (
                                 <Tag severity="danger" value={`${product.discount * 100}% OFF`} />
                             )}
-                            <Button icon="pi pi-shopping-cart" className="p-button-rounded" disabled={product.stock === 0}></Button>
+                            <Button icon="pi pi-shopping-cart"
+                                    className="p-button-rounded"
+                                    disabled={product.stock === 0}
+                                    onClick={() => {
+                                        addToCart(product, 1);
+                                    }}
+                            >
+                            </Button>
                         </div>
                     </div>
                 </div>
