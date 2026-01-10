@@ -13,6 +13,8 @@ export const menuConfig: MenuItemConfig[] = [
     {
         label: 'Home', icon: 'pi pi-home', route: ROUTES.HOME
     }, {
+        label: "Products", icon: "pi pi-list", route: ROUTES.PRODUCTS
+    }, {
         label: 'Admin Submenu', icon: 'pi pi-star',
         roles: [RoleEnum.ADMIN],
         items: [{
