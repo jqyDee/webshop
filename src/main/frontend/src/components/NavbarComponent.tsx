@@ -2,14 +2,17 @@
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-import React, {ReactNode} from 'react';
-import {Menubar, MenubarProps} from "primereact/menubar";
+import React, { useRef } from 'react';
+import {Menubar} from "primereact/menubar";
 import {useUser} from "../Contexts/authenticatedUserContext";
 import {menuConfig, MenuItemConfig} from "../config/menuConfig";
 import {MenuItem} from "primereact/menuitem";
 import {Link} from "react-router-dom";
 import {RoleEnum} from "../api";
-import {Avatar} from "primereact/avatar";
+import { TieredMenu } from "primereact/tieredmenu"; // Use TieredMenu for the dropdown
+import { Avatar } from "primereact/avatar";
+import { ROUTES } from "../utilities/routes.paths.ts";
+import { Button } from "primereact/button";
 import {useCart} from "../Contexts/cartContext.tsx";
 
 /**
@@ -18,12 +21,14 @@ import {useCart} from "../Contexts/cartContext.tsx";
 const NavbarComponent: React.FC = () => {
     const {currentUser: user} = useUser();
     const {cartItems} = useCart();
+    const userMenuRef = useRef<TieredMenu>(null);
 
     const filterMenu = React.useCallback((items: MenuItemConfig[]): MenuItemConfig[] => {
-        if (!user) return [];
-
-        const hasRole = (required?: RoleEnum[]) =>
-            !required || required.some(r => user.role === r);
+        const hasRole = (required?: RoleEnum[]) => {
+            if (!required || required.length === 0) return true;
+            if (!user) return false;
+            return required.some(r => user.role === r);
+        }
 
         return items
             .map(item => {
@@ -40,9 +45,9 @@ const NavbarComponent: React.FC = () => {
 
     // we want to use navigate (react router) to ensure pure client-side navigation on menu item click
     // incidentally, we also want to fix primereact component-related aria warnings
-    const buildMenubar = React.useCallback((items: MenuItemConfig[]): MenuItem[] => {
+    const buildMenubarModel = React.useCallback((items: MenuItemConfig[]): MenuItem[] => {
         return items.map(configItem => {
-            const children = configItem.items ? buildMenubar(configItem.items) : undefined;
+            const children = configItem.items ? buildMenubarModel(configItem.items) : undefined;
 
             const menuItem: MenuItem = {
                 label: configItem.label,
@@ -70,24 +75,31 @@ const NavbarComponent: React.FC = () => {
         });
     }, []);
 
-    const endContent = (_: MenubarProps): ReactNode => {
-        return (
-            <Avatar icon="pi pi-shopping-cart" onClick={(_) => console.log(cartItems)}/>
-        )
-    };
+    const leftModel = React.useMemo(() => buildMenubarModel(filterMenu(menuConfig)), [filterMenu, buildMenubarModel]);
+    const rightModel = React.useMemo(() => buildMenubarModel(filterMenu(userMenuConfig)), [filterMenu, buildMenubarModel]);
 
-    const filteredItems = React.useMemo(() => filterMenu(menuConfig), [filterMenu]);
-
-    const model = React.useMemo(() => buildMenubar(filteredItems), [filteredItems, buildMenubar]);
-
-    // don't render Menubar if no user is logged in
-    if (!user) {
-        return null;
-    }
+    const endContent = () => (
+        <div className="flex align-items-center gap-3 pr-3">
+            {user ? (
+                <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => userMenuRef.current?.toggle(e)}>
+                    <div className="flex flex-column align-items-end">
+                        <span className="font-bold text-sm text-900">{user.firstName} {user.lastName}</span>
+                        <small className="text-500">{user.role}</small>
+                    </div>
+                    <Avatar icon="pi pi-user" shape="circle"/>
+                    <TieredMenu model={rightModel} popup ref={userMenuRef} />
+                </div>
+            ) : (
+                <Link to={ROUTES.LOGIN} style={{ textDecoration: 'none' }}>
+                    <Button label="Login" icon="pi pi-sign-in" className="p-button-text p-button-sm" />
+                </Link>
+            )}
+        </div>
+    );
 
     return (
         <div className="card">
-            <Menubar model={model} end={endContent}/>
+            <Menubar model={leftModel} end={endContent} />
         </div>
     );
 }
