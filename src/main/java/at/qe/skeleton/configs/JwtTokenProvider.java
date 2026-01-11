@@ -49,7 +49,7 @@ public class JwtTokenProvider {
         // Get the authenticated user, we can do this since the UserxTypes class implements UserDetails
         Userx user = (Userx) authentication.getPrincipal();
 
-        List<String> roles = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+        String role = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList().getFirst();
 
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtConfig.getJwtSecret()));
 
@@ -71,7 +71,7 @@ public class JwtTokenProvider {
                     .add(jwtConfig.getTokenAudience())
                 .and()
                 .subject(authentication.getName())
-                .claim("roles", roles)
+                .claim("role", role)
                 .claim("name", user.getFirstName() + " " + user.getLastName())
                 .claim("username", user.getUsername())
                 .claim("email", user.getEmail()).compact();

@@ -1,9 +1,11 @@
 package at.qe.skeleton.services;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
-import at.qe.skeleton.model.Product;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductRepository;
 import at.qe.skeleton.specifications.ProductSpecification;
+import at.qe.skeleton.repositories.ReviewRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,10 +13,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service for accessing and manipulating product data.
@@ -22,12 +28,14 @@ import java.util.Optional;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ReviewRepository reviewRepository;
 
     @Autowired
     public ProductService(
-            ProductRepository productRepository
-    ) {
+            ProductRepository productRepository,
+            ReviewRepository reviewRepository) {
         this.productRepository = productRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     /**
@@ -60,6 +68,10 @@ public class ProductService {
      * @return product matching the id
      */
     public Optional<Product> loadProduct(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         return this.productRepository.findById(id);
     }
 
@@ -71,6 +83,10 @@ public class ProductService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     public Product saveProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product is null");
+        }
+
         if (product.isNew()) {
             return this.productRepository.save(product);
         }
@@ -86,9 +102,11 @@ public class ProductService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MANAGER')")
     public void deleteProduct(Product product) {
-        this.productRepository.delete(product);
+        if (product == null) {
+            throw new IllegalArgumentException("Product is null");
+        }
 
-        // TODO: Reviews should be deleted without having to do anything.
+        this.productRepository.delete(product);
 
         // TODO: ProductSubscriptions that match the product have to be deleted if the product gets
         //       deleted.
@@ -103,6 +121,10 @@ public class ProductService {
      */
     @Transactional
     public boolean checkStock(Long productId, int quantity) {
+        if (productId == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         int rowsMatching = this.productRepository.checkStock(productId, quantity);
 
         return rowsMatching == 1;
@@ -118,9 +140,110 @@ public class ProductService {
      */
     @Transactional
     public boolean reserveStock(Long productId, int quantity) {
+        if (productId == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         int rowsUpdated = this.productRepository.reserveStock(productId, quantity);
 
         return rowsUpdated > 0;
+    }
+
+    /** Release stock of order item
+     *
+     * @param orderItem the order item which stocks should be released
+     */
+    @Transactional
+    public void releaseStock(OrderItem orderItem) {
+        if (orderItem == null) {
+            throw new IllegalArgumentException("OrderItem is null");
+        }
+
+        this.productRepository.releaseStock(orderItem.getProduct().getId(), orderItem.getQuantity());
+    }
+
+    /**
+     * Get Products for the specified page. If parameters are left null they are ignored.
+     *
+     * @param productId product id to get the reviews for
+     * @param pageId id of page (0 indexed) or null
+     * @param pageSize size of page or null
+     * @param sort how the output should be sorted
+     * @return page of reviews
+     */
+    public Page<Review> getReviews(Long productId, Integer pageId, Integer pageSize,
+                                   Sort sort) {
+        Sort finalSort = (sort != null) ? sort : Sort.unsorted();
+
+        Pageable pageable = (pageId != null && pageSize != null && pageSize > 0)
+                ? PageRequest.of(pageId, pageSize, finalSort)
+                : Pageable.unpaged();
+
+        // It seems easier to just load the products directly from the product itself,
+        // but then pagination is really difficult
+        return reviewRepository.findByProductId(productId, pageable);
+    }
+
+    /**
+     * Add a review to a product
+     *
+     * @param productId the product id of the product which the review should be saved at
+     * @param newReview the new review, IMPORTANT: review_id has to be null
+     * @param author the author of the review: get through @AuthorisationPrincipal
+     * @return the updated Product
+     */
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public Optional<Product> addReview(Long productId, Review newReview, Userx author) throws AccessDeniedException {
+        if (productId == null || newReview == null || author == null) {
+            throw new IllegalArgumentException("Product id or review or user is null");
+        }
+
+        Product product = this.loadProduct(productId).orElseThrow(EntityNotFoundException::new);
+
+        newReview.setAuthor(author);
+        product.addReview(newReview);
+
+        updateRating(product);
+
+        return Optional.of(this.productRepository.save(product));
+    }
+
+    /**
+     * Remove a review from a product
+     *
+     * @param productId the product id of the product which the review should be deleted at
+     * @param reviewId the review id of the review tha should be deleted
+     */
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public void removeReview(Long productId, Long reviewId, Userx currentUser)
+            throws AccessDeniedException {
+        if (productId == null || reviewId == null || currentUser == null) {
+            throw new IllegalArgumentException("Product id or review id is null");
+        }
+
+        Product product = this.loadProduct(productId).orElseThrow(EntityNotFoundException::new);
+
+        Collection<Review> reviews = product.getReviews();
+
+        reviews.stream()
+               .filter(review -> Objects.equals(review.getId(), reviewId))
+               .findFirst()
+               .ifPresent(review -> {
+                   boolean isAuthor = review.getAuthor() != null && review.getAuthor().equals(currentUser);
+                   boolean isAdmin = currentUser.getRole().equals(UserxRole.ADMIN);
+
+                   if (!isAdmin && !isAuthor) {
+                       throw new AccessDeniedException(
+                               "You are not authorized to perform this action.");
+                   }
+
+                   product.removeReview(review);
+                   updateRating(product);
+                   productRepository.save(product);
+               });
+
     }
 
     /**
@@ -129,16 +252,23 @@ public class ProductService {
      *
      * @param product the product to update the rating for
      */
-    @Transactional
     public void updateRating(Product product) {
-        // TODO: when reviews are done; getAverage call should be DB query
-        // Double calculatedAverage = reviewRepository.getAverageRatingByProduct(product);
-        Double calculatedAverage = null;
+        if (product == null) {
+            throw new IllegalArgumentException("Product is null");
+        }
 
-        double newRating = (calculatedAverage != null) ? calculatedAverage : 0.0;
+        Set<Review> reviews = product.getReviews();
 
-        product.setRating(newRating);
+        if (reviews == null || reviews.isEmpty()) {
+            product.setRating(null);
+            return;
+        }
 
-        productRepository.save(product);
+        Double calculatedAverage = reviews.stream()
+                                          .mapToInt(Review::getRating)
+                                          .average()
+                                          .orElse(0.0);
+
+        product.setRating(calculatedAverage);
     }
 }

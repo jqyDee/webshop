@@ -5,9 +5,13 @@ import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.dtos.ProductDTO;
 import at.qe.skeleton.dtos.ProductFilterDTO;
+import at.qe.skeleton.dtos.ReviewDTO;
 import at.qe.skeleton.mappers.ProductMapper;
+import at.qe.skeleton.mappers.ReviewMapper;
 import at.qe.skeleton.model.Product;
+import at.qe.skeleton.model.Review;
 import at.qe.skeleton.services.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
@@ -26,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,6 +62,9 @@ public class ProductControllerTest {
 
     @MockitoBean
     private ProductMapper productMapper;
+
+    @MockitoBean
+    private ReviewMapper reviewMapper;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -150,7 +158,8 @@ public class ProductControllerTest {
                .andExpect(MockMvcResultMatchers.jsonPath("$.items", Matchers.hasSize(2)))
                .andExpect(MockMvcResultMatchers.jsonPath("$.items[0].name").value("Product 1"))
                .andExpect(MockMvcResultMatchers.jsonPath("$.items[1].name").value("Product 2"))
-               .andExpect(MockMvcResultMatchers.jsonPath("$.totalCount").value(3));
+               .andExpect(MockMvcResultMatchers.jsonPath("$.totalCount").value(3))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.pageCount").value(2));
     }
 
     @Test
@@ -202,5 +211,140 @@ public class ProductControllerTest {
         // Check Pagination
         Assertions.assertEquals(0, pageIdCaptor.getValue());
         Assertions.assertEquals(10, pageSizeCaptor.getValue());
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testGetReviews() throws Exception {
+        Review review1 = new Review();
+        review1.setId(1L);
+        review1.setRating(1);
+        review1.setTitle("Review 1");
+        review1.setComment("Review 1 comment");
+
+        Review review2 = new Review();
+        review2.setId(1L);
+        review2.setRating(2);
+        review2.setTitle("Review 2");
+        review2.setComment("Review 2 comment");
+
+        List<Review> reviews = List.of(review1, review2);
+        Pageable pageable = PageRequest.of(0, 2);
+        int total_count = 3;
+
+        Page<Review> page = new PageImpl<>(reviews, pageable, total_count);
+
+        Mockito.when(productService.getReviews(
+                ArgumentMatchers.eq(1L),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.eq(2),
+                ArgumentMatchers.any(Sort.class)
+        )).thenReturn(page);
+
+        Mockito.when(reviewMapper.mapTo(ArgumentMatchers.any(Review.class)))
+                .thenAnswer(invocation -> {
+                    Review review = invocation.getArgument(0);
+                    return new ReviewDTO(review.getId(), null , null, review.getRating(), review.getTitle(), review.getComment(), null);
+                });
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/product/{id}/reviews", 1L)
+                                              .param("pageId", "0")
+                                              .param("pageSize", "2")
+                                              .param("sort", "rating,desc"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.pageSize").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.pageIdAfter").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.items", Matchers.hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.totalCount").value(total_count))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.pageCount").value(2));
+
+        ArgumentCaptor<Long> productIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<Integer> pageIdCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> pageSizeCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+
+        Mockito.verify(productService).getReviews(
+                productIdCaptor.capture(),
+                pageIdCaptor.capture(),
+                pageSizeCaptor.capture(), // we can skip verifying pageSize if we want, or capture it too
+                sortCaptor.capture()
+        );
+
+        // Check Sorting Mapping
+        Sort capturedSort = sortCaptor.getValue();
+        Assertions.assertEquals(Sort.Direction.DESC, Objects.requireNonNull(
+                capturedSort.getOrderFor("rating")).getDirection());
+
+        // Check Pagination
+        Assertions.assertEquals(1L, productIdCaptor.getValue());
+        Assertions.assertEquals(0, pageIdCaptor.getValue());
+        Assertions.assertEquals(2, pageSizeCaptor.getValue());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testCreateReview() throws Exception {
+        ReviewDTO reviewCreationRequest = new ReviewDTO(null, null, null, 4, "Review 1",
+                                                        "Comment 1", null);
+        Review review = new Review();
+        review.setRating(4);
+        review.setTitle("Review 1");
+        review.setComment("Comment 1");
+
+        Product product = new Product();
+        product.setId(1L);
+
+        Mockito.when(reviewMapper.mapFrom(ArgumentMatchers.any(ReviewDTO.class))).thenReturn(review);
+        Mockito.when(productService.addReview(
+                ArgumentMatchers.any(Long.class),
+                ArgumentMatchers.any(Review.class),
+                ArgumentMatchers.any()
+        )).thenReturn(Optional.of(product));
+        Mockito.when(productMapper.mapTo(ArgumentMatchers.any(Product.class))).thenReturn(
+                new ProductDTO(1L, null, 2.0, 10, 0.0, null, null, null, null, null, null));
+
+        String jsonBody = new ObjectMapper().writeValueAsString(reviewCreationRequest);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/createReview", 1L)
+                                              .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                              .contentType(MediaType.APPLICATION_JSON)
+                                              .content(jsonBody))
+               .andExpect(MockMvcResultMatchers.status().isOk())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testDeleteReviewSuccess() throws Exception {
+        Long productId = 1L;
+        Long reviewId = 100L;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/product/{productId}/review/{reviewId}", productId, reviewId)
+                                              .with(SecurityMockMvcRequestPostProcessors.csrf()))
+               .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productService).removeReview(
+                ArgumentMatchers.eq(productId),
+                ArgumentMatchers.eq(reviewId),
+                ArgumentMatchers.any()
+        );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testDeleteReviewAccessDenied() throws Exception {
+        Long productId = 1L;
+        Long reviewId = 100L;
+
+        Mockito.doThrow(new org.springframework.security.access.AccessDeniedException("Not allowed"))
+               .when(productService).removeReview(
+                       ArgumentMatchers.eq(productId),
+                       ArgumentMatchers.eq(reviewId),
+                       ArgumentMatchers.any()
+               );
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/product/{productId}/review/{reviewId}", productId, reviewId)
+                                              .with(SecurityMockMvcRequestPostProcessors.csrf()))
+               .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 }
