@@ -82,7 +82,7 @@ public class ManagerController {
         Product existingProduct = productService.loadProduct(id).orElseThrow(EntityNotFoundException::new);
 
         productService.deleteProduct(existingProduct);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     /**

@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -167,4 +168,22 @@ public class ManagerControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.items[2].status").value("DELIVERED"));
     }
 
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testDeleteProduct() throws Exception {
+        Long produtctId = 1L;
+
+        Product p1 = new Product();
+        p1.setId(produtctId);
+
+        Mockito.when(productService.loadProduct(ArgumentMatchers.eq(produtctId)))
+               .thenReturn(Optional.of(p1));
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/manager/product/{productId}", produtctId)
+                                      .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productService).deleteProduct(ArgumentMatchers.eq(p1));
+    }
 }
