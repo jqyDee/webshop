@@ -5,6 +5,7 @@ import at.qe.skeleton.mappers.CartItemMapper;
 import at.qe.skeleton.model.CartItem;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.CartService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -66,23 +67,6 @@ public class CartController {
     }
 
     /**
-     * ADD cart item {productId, quantity} to the database
-     *
-     * @param productId id of product the cart item will be created of
-     * @param quantity quantity of the product in the cart item
-     * @param user currently authenticated user
-     * @return VOID
-     */
-    @PostMapping("/{productId}")
-    public ResponseEntity<Void> addProductToShoppingCart(
-            @PathVariable Long productId, @RequestParam int quantity,
-            @AuthenticationPrincipal Userx user) {
-        cartService.saveCartItem(user, productId, quantity);
-
-        return ResponseEntity.ok().build();
-    }
-
-    /**
      * REMOVE cart item from the database
      *
      * @param productId id of the product the cart item should be deleted from
@@ -107,9 +91,21 @@ public class CartController {
      */
     @PatchMapping("/{productId}")
     public ResponseEntity<Void> updateProductInShoppingCart(
-            @PathVariable Long productId, @RequestParam int quantity,
+            @PathVariable Long productId, @RequestParam int quantity, @RequestParam boolean add,
             @AuthenticationPrincipal Userx user) {
-        cartService.saveCartItem(user, productId, quantity);
+        int newQuantity = quantity;
+        if (add) {
+            Collection<CartItem> items = cartService.getCartItems(user);
+            CartItem item = items.stream().filter(c -> c.getUser() == user && (c.getProduct()
+                                                                                .getId() != null && c.getProduct()
+                                                                                                     .getId()
+                                                                                                     .equals(productId)))
+                                 .findFirst().orElseThrow(EntityNotFoundException::new);
+
+            newQuantity += item.getQuantity();
+        }
+
+        cartService.saveCartItem(user, productId, newQuantity);
 
         return ResponseEntity.ok().build();
     }

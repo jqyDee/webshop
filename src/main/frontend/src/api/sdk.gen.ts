@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddAllToShoppingCartData, AddAllToShoppingCartResponses, AddProductToShoppingCartData, AddProductToShoppingCartResponses, AuthenticateUserData, AuthenticateUserResponses, CancelOrderData, CancelOrderResponses, ClearShoppingCartData, ClearShoppingCartResponses, ConfirmOrderData, ConfirmOrderResponses, CreateCurrentUserData, CreateCurrentUserResponses, CreateOrderData, CreateOrderResponses, CreateProductData, CreateProductResponses, CreateReviewData, CreateReviewResponses, CreateUserData, CreateUserResponses, DeleteProductData, DeleteProductFromShoppingCartData, DeleteProductFromShoppingCartResponses, DeleteProductResponses, DeleteReviewData, DeleteReviewResponses, DeleteUserData, DeleteUserResponses, GetAllManagersData, GetAllManagersResponses, GetAllOrdersData, GetAllOrdersResponses, GetAllUsersData, GetAllUsersResponses, GetCurrentUserData, GetCurrentUserResponses, GetOrdersData, GetOrdersResponses, GetProductByIdData, GetProductByIdResponses, GetProductsData, GetProductsResponses, GetReviewsData, GetReviewsResponses, GetShoppingCartData, GetShoppingCartResponses, GetUserData, GetUserResponses, IsAuthenticatedData, IsAuthenticatedResponses, SubscribeData, SubscribeResponses, UpdateCurrentUserData, UpdateCurrentUserResponses, UpdateOrderData, UpdateOrderResponses, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductInShoppingCartResponses, UpdateProductResponses, UpdateSubscriptionData, UpdateSubscriptionResponses, UpdateUserData, UpdateUserResponses } from './types.gen';
+import type { AddAllToShoppingCartData, AddAllToShoppingCartResponses, AuthenticateUserData, AuthenticateUserResponses, CancelOrderData, CancelOrderResponses, ClearShoppingCartData, ClearShoppingCartResponses, ConfirmOrderData, ConfirmOrderResponses, CreateCurrentUserData, CreateCurrentUserResponses, CreateOrderData, CreateOrderResponses, CreateProductData, CreateProductResponses, CreateReviewData, CreateReviewResponses, CreateUserData, CreateUserResponses, DeleteProductData, DeleteProductFromShoppingCartData, DeleteProductFromShoppingCartResponses, DeleteProductResponses, DeleteReviewData, DeleteReviewResponses, DeleteUserData, DeleteUserResponses, GetAllManagersData, GetAllManagersResponses, GetAllOrdersData, GetAllOrdersResponses, GetAllUsersData, GetAllUsersResponses, GetCurrentUserData, GetCurrentUserResponses, GetOrdersData, GetOrdersResponses, GetProductByIdData, GetProductByIdResponses, GetProductsData, GetProductsResponses, GetReviewsData, GetReviewsResponses, GetShoppingCartData, GetShoppingCartResponses, GetUserData, GetUserResponses, IsAuthenticatedData, IsAuthenticatedResponses, SubscribeData, SubscribeResponses, UpdateCurrentUserData, UpdateCurrentUserResponses, UpdateOrderData, UpdateOrderResponses, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductInShoppingCartResponses, UpdateProductResponses, UpdateSubscriptionData, UpdateSubscriptionResponses, UpdateUserData, UpdateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -53,10 +53,8 @@ export const createReview = <ThrowOnError extends boolean = false>(options: Opti
     }
 });
 
-export const createOrder = <ThrowOnError extends boolean = false>(options?: Options<CreateOrderData, ThrowOnError>) => (options?.client ?? client).post<CreateOrderResponses, unknown, ThrowOnError>({ url: '/api/orders/createOrder', ...options });
-
 export const confirmOrder = <ThrowOnError extends boolean = false>(options: Options<ConfirmOrderData, ThrowOnError>) => (options.client ?? client).post<ConfirmOrderResponses, unknown, ThrowOnError>({
-    url: '/api/orders/confirmOrder',
+    url: '/api/orders/{orderId}/confirm',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -64,14 +62,9 @@ export const confirmOrder = <ThrowOnError extends boolean = false>(options: Opti
     }
 });
 
-export const cancelOrder = <ThrowOnError extends boolean = false>(options: Options<CancelOrderData, ThrowOnError>) => (options.client ?? client).post<CancelOrderResponses, unknown, ThrowOnError>({
-    url: '/api/orders/cancelOrder',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+export const cancelOrder = <ThrowOnError extends boolean = false>(options: Options<CancelOrderData, ThrowOnError>) => (options.client ?? client).post<CancelOrderResponses, unknown, ThrowOnError>({ url: '/api/orders/{orderId}/cancel', ...options });
+
+export const createOrder = <ThrowOnError extends boolean = false>(options?: Options<CreateOrderData, ThrowOnError>) => (options?.client ?? client).post<CreateOrderResponses, unknown, ThrowOnError>({ url: '/api/orders/createOrder', ...options });
 
 export const createProduct = <ThrowOnError extends boolean = false>(options: Options<CreateProductData, ThrowOnError>) => (options.client ?? client).post<CreateProductResponses, unknown, ThrowOnError>({
     url: '/api/manager/createProduct',
@@ -95,12 +88,6 @@ export const addAllToShoppingCart = <ThrowOnError extends boolean = false>(optio
     }
 });
 
-export const deleteProductFromShoppingCart = <ThrowOnError extends boolean = false>(options: Options<DeleteProductFromShoppingCartData, ThrowOnError>) => (options.client ?? client).delete<DeleteProductFromShoppingCartResponses, unknown, ThrowOnError>({ url: '/api/cart/{productId}', ...options });
-
-export const updateProductInShoppingCart = <ThrowOnError extends boolean = false>(options: Options<UpdateProductInShoppingCartData, ThrowOnError>) => (options.client ?? client).patch<UpdateProductInShoppingCartResponses, unknown, ThrowOnError>({ url: '/api/cart/{productId}', ...options });
-
-export const addProductToShoppingCart = <ThrowOnError extends boolean = false>(options: Options<AddProductToShoppingCartData, ThrowOnError>) => (options.client ?? client).post<AddProductToShoppingCartResponses, unknown, ThrowOnError>({ url: '/api/cart/{productId}', ...options });
-
 export const createUser = <ThrowOnError extends boolean = false>(options: Options<CreateUserData, ThrowOnError>) => (options.client ?? client).post<CreateUserResponses, unknown, ThrowOnError>({
     url: '/api/admin/createUser',
     ...options,
@@ -115,6 +102,10 @@ export const deleteProduct = <ThrowOnError extends boolean = false>(options: Opt
 export const updateProduct = <ThrowOnError extends boolean = false>(options: Options<UpdateProductData, ThrowOnError>) => (options.client ?? client).patch<UpdateProductResponses, unknown, ThrowOnError>({ url: '/api/manager/product/{id}', ...options });
 
 export const updateOrder = <ThrowOnError extends boolean = false>(options: Options<UpdateOrderData, ThrowOnError>) => (options.client ?? client).patch<UpdateOrderResponses, unknown, ThrowOnError>({ url: '/api/manager/order/{id}/cancel', ...options });
+
+export const deleteProductFromShoppingCart = <ThrowOnError extends boolean = false>(options: Options<DeleteProductFromShoppingCartData, ThrowOnError>) => (options.client ?? client).delete<DeleteProductFromShoppingCartResponses, unknown, ThrowOnError>({ url: '/api/cart/{productId}', ...options });
+
+export const updateProductInShoppingCart = <ThrowOnError extends boolean = false>(options: Options<UpdateProductInShoppingCartData, ThrowOnError>) => (options.client ?? client).patch<UpdateProductInShoppingCartResponses, unknown, ThrowOnError>({ url: '/api/cart/{productId}', ...options });
 
 export const deleteUser = <ThrowOnError extends boolean = false>(options: Options<DeleteUserData, ThrowOnError>) => (options.client ?? client).delete<DeleteUserResponses, unknown, ThrowOnError>({ url: '/api/admin/user/{id}', ...options });
 
@@ -137,7 +128,7 @@ export const getReviews = <ThrowOnError extends boolean = false>(options: Option
 
 export const getProducts = <ThrowOnError extends boolean = false>(options: Options<GetProductsData, ThrowOnError>) => (options.client ?? client).get<GetProductsResponses, unknown, ThrowOnError>({ url: '/api/product/products', ...options });
 
-export const getOrders = <ThrowOnError extends boolean = false>(options?: Options<GetOrdersData, ThrowOnError>) => (options?.client ?? client).get<GetOrdersResponses, unknown, ThrowOnError>({ url: '/api/orders', ...options });
+export const getOrders = <ThrowOnError extends boolean = false>(options: Options<GetOrdersData, ThrowOnError>) => (options.client ?? client).get<GetOrdersResponses, unknown, ThrowOnError>({ url: '/api/orders', ...options });
 
 export const getAllOrders = <ThrowOnError extends boolean = false>(options?: Options<GetAllOrdersData, ThrowOnError>) => (options?.client ?? client).get<GetAllOrdersResponses, unknown, ThrowOnError>({ url: '/api/manager/orders', ...options });
 
