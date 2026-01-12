@@ -1,0 +1,109 @@
+import {useParams} from "react-router-dom";
+import {useQuery} from "@tanstack/react-query";
+import {getProductByIdOptions} from "../api/@tanstack/react-query.gen.ts";
+import {ProgressSpinner} from "primereact/progressspinner";
+import {Button} from "primereact/button";
+import {Tag} from "primereact/tag";
+import {Rating} from "primereact/rating";
+import DefaultImage from "../assets/default.jpg"
+import {Accordion, AccordionTab} from "primereact/accordion";
+
+const ProductDetailsComponent: React.FC = () => {
+    const {id} = useParams<{ id: string }>();
+
+    const {data: product, isLoading, error} = useQuery(
+        getProductByIdOptions({
+            path: {id: Number(id)}
+        })
+    );
+
+    if (isLoading) return (
+        <div className="flex justify-content-center mt-8">
+            <ProgressSpinner/>
+        </div>
+    );
+
+    if (error || !product) return (
+        <div className="text-center mt-8">
+            Product not found.
+        </div>
+    );
+
+    const hasDiscount = product.discount > 0;
+    const discountedPrice = 9999;
+
+    return (
+        <div className="border-none">
+            <div className="grid">
+                <div className="col-12 md:col-6 flex justify-content-center">
+                    <img
+                        src={product.imageUrl || DefaultImage}
+                        alt={product.name}
+                        className="shadow-4 w-full"
+                        style={{ maxWidth: '500px', objectFit: 'contain' }}
+                        onError={(e) => {
+                            (e.currentTarget.src = DefaultImage);
+                        }}
+                    />
+                </div>
+
+                <div className="col-12 md:col-6 px-4 md:text-right md:flex xl:text-right xl:flex flex-column align-items-end">
+                    <h1 className="text-4xl font-bold text-900 mb-2">{product.name}</h1>
+
+                    <div className="flex align-items-center gap-2 mb-4">
+                        <Rating value={product.rating || 0} readOnly cancel={false} />
+                        <span className="text-500">({product.rating?.toFixed(1)})</span>
+                    </div>
+
+                    <hr className="my-4 border-top-1 border-300 w-full" />
+
+                    <div className="mb-4">
+                        {hasDiscount ? (
+                            <div className="flex align-items-baseline gap-2">
+                                <span className="text-3xl font-bold text-red-600">${discountedPrice.toFixed(2)}</span>
+                                <span className="text-xl text-500 line-through">${product.price.toFixed(2)}</span>
+                                <Tag severity="danger" value={`-${product.discount * 100}%`} />
+                            </div>
+                        ) : (
+                            <span className="text-3xl font-bold text-900">${product.price.toFixed(2)}</span>
+                        )}
+                    </div>
+
+                    <div className="mb-4">
+                        <Tag
+                            severity={product.stock > 0 ? 'success' : 'danger'}
+                            value={product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                        />
+                        {product.stock > 0 && <span className="ml-2 text-600">Only {product.stock} left!</span>}
+                    </div>
+
+                    <p className="text-700 line-height-3 mb-5 text-lg">
+                        {product.shortDescription}
+                    </p>
+
+                    <div className="flex flex-column">
+                        <Button
+                            label="Add to Cart"
+                            icon="pi pi-shopping-cart"
+                            className="p-button-lg xl:w-15rem md:w-10rem sm:w-full"
+                            disabled={product.stock === 0}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="col-12">
+                <Accordion activeIndex={0}>
+                    <AccordionTab header="Description">
+                        <p>{product.description}</p>
+                    </AccordionTab>
+                    <AccordionTab header="Private Details">
+                        <p>{JSON.stringify(product)}</p>
+                    </AccordionTab>
+                </Accordion>
+            </div>
+        </div>
+    );
+}
+
+export default ProductDetailsComponent;
