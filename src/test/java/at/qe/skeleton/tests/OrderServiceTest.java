@@ -3,6 +3,7 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.exceptions.CartEmptyException;
 import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.repositories.*;
+import at.qe.skeleton.services.PaymentService;
 import jakarta.persistence.EntityManager;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.model.*;
@@ -50,6 +51,8 @@ class OrderServiceTest {
     private Userx customer2;
     private Userx customer3;
     private Userx admin;
+    @Autowired
+    private PaymentService paymentService;
 
     @BeforeEach
     public void setup() {
@@ -151,7 +154,7 @@ class OrderServiceTest {
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testPaymentReceived() {
         Order order = orderRepository.findById(8000L).orElseThrow();
-        Order updatedOrder = orderService.paymentReceived(order, customer1);
+        Order updatedOrder = paymentService.paymentReceived(order, customer1);
 
         Assertions.assertEquals(OrderStatus.PROCESSING, updatedOrder.getStatus());
     }
@@ -180,7 +183,7 @@ class OrderServiceTest {
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testPaymentReceivedUnauthorized() {
         Order order = orderRepository.findById(9000L).orElseThrow();
-        Assertions.assertThrows(AccessDeniedException.class, () -> orderService.paymentReceived(order, customer2));
+        Assertions.assertThrows(AccessDeniedException.class, () -> paymentService.paymentReceived(order, customer2));
     }
 
     @Transactional
@@ -208,11 +211,12 @@ class OrderServiceTest {
     public void testWrongOrderStatus() {
         Order order = orderRepository.findById(7000L).orElseThrow();
         Assertions.assertThrows(IllegalStateException.class, () -> orderService.cancelOrder(order, customer3));
-        Assertions.assertThrows(IllegalStateException.class, () -> orderService.paymentReceived(order, customer3));
+        Assertions.assertThrows(IllegalStateException.class, () -> paymentService.paymentReceived(order, customer3));
     }
 
     @Transactional
     public void backdateOrder(Long orderId, int minutesToSubtract) {
+
         entityManager.createNativeQuery("UPDATE orders SET created_date = ?1 WHERE id = ?2")
                      .setParameter(1, LocalDateTime.now().minusMinutes(minutesToSubtract))
                      .setParameter(2, orderId)

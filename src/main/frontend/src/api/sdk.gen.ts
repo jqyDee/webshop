@@ -53,10 +53,8 @@ export const createReview = <ThrowOnError extends boolean = false>(options: Opti
     }
 });
 
-export const createOrder = <ThrowOnError extends boolean = false>(options?: Options<CreateOrderData, ThrowOnError>) => (options?.client ?? client).post<CreateOrderResponses, unknown, ThrowOnError>({ url: '/api/orders/createOrder', ...options });
-
 export const confirmOrder = <ThrowOnError extends boolean = false>(options: Options<ConfirmOrderData, ThrowOnError>) => (options.client ?? client).post<ConfirmOrderResponses, unknown, ThrowOnError>({
-    url: '/api/orders/confirmOrder',
+    url: '/api/orders/{orderId}/confirm',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -64,14 +62,9 @@ export const confirmOrder = <ThrowOnError extends boolean = false>(options: Opti
     }
 });
 
-export const cancelOrder = <ThrowOnError extends boolean = false>(options: Options<CancelOrderData, ThrowOnError>) => (options.client ?? client).post<CancelOrderResponses, unknown, ThrowOnError>({
-    url: '/api/orders/cancelOrder',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
+export const cancelOrder = <ThrowOnError extends boolean = false>(options: Options<CancelOrderData, ThrowOnError>) => (options.client ?? client).post<CancelOrderResponses, unknown, ThrowOnError>({ url: '/api/orders/{orderId}/cancel', ...options });
+
+export const createOrder = <ThrowOnError extends boolean = false>(options?: Options<CreateOrderData, ThrowOnError>) => (options?.client ?? client).post<CreateOrderResponses, unknown, ThrowOnError>({ url: '/api/orders/createOrder', ...options });
 
 export const createProduct = <ThrowOnError extends boolean = false>(options: Options<CreateProductData, ThrowOnError>) => (options.client ?? client).post<CreateProductResponses, unknown, ThrowOnError>({
     url: '/api/manager/createProduct',
@@ -137,7 +130,7 @@ export const getReviews = <ThrowOnError extends boolean = false>(options: Option
 
 export const getProducts = <ThrowOnError extends boolean = false>(options: Options<GetProductsData, ThrowOnError>) => (options.client ?? client).get<GetProductsResponses, unknown, ThrowOnError>({ url: '/api/product/products', ...options });
 
-export const getOrders = <ThrowOnError extends boolean = false>(options?: Options<GetOrdersData, ThrowOnError>) => (options?.client ?? client).get<GetOrdersResponses, unknown, ThrowOnError>({ url: '/api/orders', ...options });
+export const getOrders = <ThrowOnError extends boolean = false>(options: Options<GetOrdersData, ThrowOnError>) => (options.client ?? client).get<GetOrdersResponses, unknown, ThrowOnError>({ url: '/api/orders', ...options });
 
 export const getAllOrders = <ThrowOnError extends boolean = false>(options?: Options<GetAllOrdersData, ThrowOnError>) => (options?.client ?? client).get<GetAllOrdersResponses, unknown, ThrowOnError>({ url: '/api/manager/orders', ...options });
 
