@@ -47,22 +47,28 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
 
     // SYNCING
     useEffect(() => {
-        const syncCart = async () => {
-            if (currentUser && localCart.length > 0) {
-                // Backend expects a Map<Long, Integer> (productId: quantity)
+        if (!currentUser || localCart.length === 0) return;
+
+        (async () => {
+            try {
+                // backend expects map
                 const body: Record<string, number> = {};
                 localCart.forEach(item => {
                     body[item.product.id.toString()] = item.quantity || 1;
                 });
 
                 await syncMutation.mutateAsync({ body });
-                setLocalCart([]); // Clear guest cart
+
+                // cleanup cart
+                setLocalCart([]);
                 localStorage.removeItem(CART_STORAGE_KEY);
+
                 await queryClient.invalidateQueries({queryKey: getShoppingCartQueryKey()});
+            } catch (error) {
+                console.error("Failed to sync cart: ", error);
             }
-        };
-        syncCart();
-    }, [currentUser]);
+        })();
+    }, [currentUser, setLocalCart]);
 
     // ACTIONS
     const updateCartItem = useCallback(async (product: ProductDto, quantity: number, add: boolean = true) => {
@@ -85,7 +91,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
                 return [...prev, { product, quantity, user: {} as any }];
             });
         }
-    }, [currentUser, updateMutation, queryClient]);
+    }, [currentUser, updateMutation, queryClient, setLocalCart]);
 
     const removeFromCart = useCallback(async (productId: number) => {
         if (currentUser) {
@@ -94,7 +100,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
         } else {
             setLocalCart(prev => prev.filter(item => item.product.id !== productId));
         }
-    }, [currentUser, updateMutation, queryClient]);
+    }, [currentUser, updateMutation, queryClient, setLocalCart]);
 
     const cartItems = currentUser ? (remoteCart ?? []) : localCart;
     const isLoading = isFetchingRemote;

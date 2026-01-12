@@ -81,7 +81,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
         localStorage.setItem(BEARER_TOKEN_LOCAL_STORAGE_KEY, bearerToken);
         setToken(bearerToken); // trigger re-render
         setError(null);
-    }, []);
+    }, [setToken, setError]);
 
     /**
      * Logout the current user by removing the bearer token from the state and local storage. Note
@@ -91,7 +91,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
     const logout = useCallback(async () => {
         localStorage.removeItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
         setToken(null);
-    }, []);
+    }, [setToken]);
 
     /**
      * Get the current user by decoding the bearer token stored in the local storage.
@@ -146,7 +146,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
             void logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
             return false;
         }
-    }, [token]);
+    }, [token, logout, setError]);
 
     const role = currentUser?.role;
     const isAdmin = role === RoleEnum.ADMIN;
