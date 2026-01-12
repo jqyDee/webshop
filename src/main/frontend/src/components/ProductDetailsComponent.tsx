@@ -7,6 +7,7 @@ import {Tag} from "primereact/tag";
 import {Rating} from "primereact/rating";
 import DefaultImage from "../assets/default.jpg"
 import {Accordion, AccordionTab} from "primereact/accordion";
+import ReviewTableComponent from "./ReviewTableComponent.tsx";
 
 const ProductDetailsComponent: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -93,12 +94,15 @@ const ProductDetailsComponent: React.FC = () => {
             </div>
 
             <div className="col-12">
-                <Accordion activeIndex={0}>
+                <Accordion activeIndex={[2]} multiple>
                     <AccordionTab header="Description">
                         <p>{product.description}</p>
                     </AccordionTab>
                     <AccordionTab header="Private Details">
                         <p>{JSON.stringify(product)}</p>
+                    </AccordionTab>
+                    <AccordionTab header="Customer Reviews">
+                        <ReviewTableComponent product={product}/>
                     </AccordionTab>
                 </Accordion>
             </div>

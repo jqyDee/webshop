@@ -100,7 +100,7 @@ public class ProductController {
     public ResponseEntity<PageableListDTO<ReviewDTO>> getReviews(@PathVariable Long id,
                                                                  @RequestParam(required = false) Integer pageId,
                                                                  @RequestParam(required = false) Integer pageSize,
-                                                                 @SortDefault(sort = "name", direction = Sort.Direction.ASC) Sort sort
+                                                                 @SortDefault(sort = "createdDate", direction = Sort.Direction.ASC) Sort sort
     ) {
         Page<Review> reviewPage = productService.getReviews(id, pageId, pageSize, sort);
 
