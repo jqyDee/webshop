@@ -79,8 +79,8 @@ public class WebSecurityConfig {
                             .requestMatchers("/h2-console/**").access(devOnly())
                             .requestMatchers("/authentication/**").permitAll()
                             .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
-                            .requestMatchers("/api/**").authenticated()
                             .requestMatchers("/api/orders/**").hasAnyAuthority("USER")
+                            .requestMatchers("/api/**").authenticated()
                             .anyRequest().authenticated()
                     )
                     // Add the token authentication filter before the UsernamePasswordAuthenticationFilter

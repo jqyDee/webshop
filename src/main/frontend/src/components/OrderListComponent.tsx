@@ -11,6 +11,7 @@ interface OrderListComponentProps {
     pageSize: number;
     onPage: (event: DataViewPageEvent) => void;
     onView: (orderId: number) => void;
+    showUserColumn?: boolean;
 }
 
 const OrderListComponent: React.FC<OrderListComponentProps> = ({
@@ -21,12 +22,14 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
                                                                    pageSize,
                                                                    onPage,
                                                                    onView,
+                                                                   showUserColumn,
                                                                }) => {
 
     const itemTemplate = (order: OrderDto) => (
         <div className="order-card p-4 border-1 surface-border border-round mb-3 flex justify-content-between">
             <div>
                 <strong>Order #{order.id}</strong>
+                {showUserColumn && <p>User: {order.user.id}</p>}
                 <p>Status: {order.status}</p>
                 <p>Total: {order.sum} €</p>
                 {order.createdDate && (

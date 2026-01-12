@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import OrderListComponent from "./OrderListComponent";
 import { getOrdersOptions } from "../api/@tanstack/react-query.gen";
+import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {RoleEnum} from "../api";
 
 const OrderTableComponent: React.FC = () => {
     const navigate = useNavigate();
+    const { currentUser } = useUser();
 
     const [lazyState, setLazyState] = useState({
         first: 0,
@@ -44,6 +47,7 @@ const OrderTableComponent: React.FC = () => {
             pageSize={lazyState.pageSize}
             onPage={onPage}
             onView={(orderId) => navigate(`/orders/${orderId}`)}
+            showUserColumn={currentUser?.role === RoleEnum.ADMIN}
         />
     );
 };
