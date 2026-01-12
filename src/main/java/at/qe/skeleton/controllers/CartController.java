@@ -5,13 +5,13 @@ import at.qe.skeleton.mappers.CartItemMapper;
 import at.qe.skeleton.model.CartItem;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.CartService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -96,13 +96,13 @@ public class CartController {
         int newQuantity = quantity;
         if (add) {
             Collection<CartItem> items = cartService.getCartItems(user);
-            CartItem item = items.stream().filter(c -> c.getUser() == user && (c.getProduct()
-                                                                                .getId() != null && c.getProduct()
-                                                                                                     .getId()
-                                                                                                     .equals(productId)))
-                                 .findFirst().orElseThrow(EntityNotFoundException::new);
+            Optional<CartItem> item = items.stream()
+                                           .filter(c -> !(c.getUser() == user && (c.getProduct().getId() != null && c.getProduct().getId().equals(productId))))
+                                           .findFirst();
 
-            newQuantity += item.getQuantity();
+            if (item.isPresent()) {
+                newQuantity += item.get().getQuantity();
+            }
         }
 
         cartService.saveCartItem(user, productId, newQuantity);
