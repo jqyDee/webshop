@@ -13,15 +13,15 @@ const OrderTableComponent: React.FC = () => {
         pageId: 0,
     });
 
-    const { data, isLoading, isError } = useQuery(
-        getOrdersOptions({
+    const { data, isLoading, isError } = useQuery({
+        ...getOrdersOptions({
             query: {
                 pageId: lazyState.pageId,
                 pageSize: lazyState.pageSize,
-                sort: { sort: ['createdDate,desc'] },
+                sort: { sort: ['createdDate,desc'] }, // default: newest orders first
             },
-        })
-    );
+        }),
+    });
 
     const onPage = (event: any) => {
         setLazyState({

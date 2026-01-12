@@ -80,6 +80,7 @@ public class WebSecurityConfig {
                             .requestMatchers("/authentication/**").permitAll()
                             .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
                             .requestMatchers("/api/**").authenticated()
+                            .requestMatchers("/api/orders/**").hasAnyAuthority("USER")
                             .anyRequest().authenticated()
                     )
                     // Add the token authentication filter before the UsernamePasswordAuthenticationFilter
