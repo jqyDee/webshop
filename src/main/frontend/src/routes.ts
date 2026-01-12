@@ -8,7 +8,7 @@ import ManageUsers from "./views/ManageUsers";
 import Login from "./views/Login";
 import Logout from "./views/Logout";
 import {ROUTES} from "./utilities/routes.paths";
-import Product from "./views/Product.tsx";
+import ProductDetails from "./views/ProductDetails.tsx";
 
 /**
  * Define the routes of the application.
@@ -33,6 +33,6 @@ export const LogoutsRoute = {
 }
 export const ProductRoute = {
     url: ROUTES.PRODUCT,
-    component: Product
+    component: ProductDetails
 }
 
