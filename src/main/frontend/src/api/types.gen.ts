@@ -59,7 +59,6 @@ export type ProductDto = {
     price: number;
     stock: number;
     discount: number;
-    discountedPrice?: number;
     shortDescription?: string;
     description?: string;
     rating?: number;
@@ -143,7 +142,7 @@ export type CartItemDto = {
     id?: number;
     product: ProductDto;
     user: UserxDto;
-    quantity?: number;
+    quantity: number;
 };
 
 export enum RoleEnum {
@@ -399,58 +398,6 @@ export type AddAllToShoppingCartResponses = {
     200: unknown;
 };
 
-export type DeleteProductFromShoppingCartData = {
-    body?: never;
-    path: {
-        productId: number;
-    };
-    query?: never;
-    url: '/api/cart/{productId}';
-};
-
-export type DeleteProductFromShoppingCartResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type UpdateProductInShoppingCartData = {
-    body?: never;
-    path: {
-        productId: number;
-    };
-    query: {
-        quantity: number;
-    };
-    url: '/api/cart/{productId}';
-};
-
-export type UpdateProductInShoppingCartResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type AddProductToShoppingCartData = {
-    body?: never;
-    path: {
-        productId: number;
-    };
-    query: {
-        quantity: number;
-    };
-    url: '/api/cart/{productId}';
-};
-
-export type AddProductToShoppingCartResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
 export type CreateUserData = {
     body: UserxUpdateDto;
     path?: never;
@@ -513,6 +460,41 @@ export type UpdateOrderData = {
 };
 
 export type UpdateOrderResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type DeleteProductFromShoppingCartData = {
+    body?: never;
+    path: {
+        productId: number;
+    };
+    query?: never;
+    url: '/api/cart/{productId}';
+};
+
+export type DeleteProductFromShoppingCartResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type UpdateProductInShoppingCartData = {
+    body?: never;
+    path: {
+        productId: number;
+    };
+    query: {
+        quantity: number;
+        add: boolean;
+    };
+    url: '/api/cart/{productId}';
+};
+
+export type UpdateProductInShoppingCartResponses = {
     /**
      * OK
      */
