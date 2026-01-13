@@ -152,6 +152,7 @@ const ProductDetailsComponent: React.FC = () => {
     const hasDiscount = product.discount > 0;
     const discountedPrice = 9999;
     const canEdit = currentUser && (isAdmin || isManager);
+    const cannotPutIntoCart = isAdmin || isManager;
 
     return (
         <div className="border-none">
@@ -216,7 +217,7 @@ const ProductDetailsComponent: React.FC = () => {
                             label="Add to Cart"
                             icon="pi pi-shopping-cart"
                             className="p-button-lg xl:w-15rem md:w-10rem w-full"
-                            disabled={product.stock === 0}
+                            disabled={product.stock === 0 || cannotPutIntoCart}
                             onClick={() => updateCartItem(product, 1)}
                         />
                     </div>
