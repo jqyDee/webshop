@@ -29,8 +29,11 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
 
     const getStatusSeverity = (status: string) => {
         switch (status?.toUpperCase()) {
-            case 'COMPLETED': return 'success';
+            case 'DELIVERED': return 'success';
             case 'PENDING': return 'warning';
+            case 'PENDING_PAYMENT': return 'warning';
+            case 'PROCESSING': return 'warning';
+            case 'SHIPPED': return 'warning';
             case 'CANCELLED': return 'danger';
             default: return 'info';
         }
