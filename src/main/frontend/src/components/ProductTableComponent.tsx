@@ -68,11 +68,8 @@ const ProductTableComponent = () => {
             query: {
                 pageId: lazyState.pageId,
                 pageSize: lazyState.pageSize,
-                sort: {
-                    sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`]
-                },
-
-                filter: filters,
+                sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`],
+                ...filters,
             }
         }),
     });

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { DataViewPageEvent } from "primereact/dataview";
 import OrderListComponent from "./OrderListComponent";
-import { getOrdersOptions } from "../api/@tanstack/react-query.gen";
+import {getOrdersOptions} from "../api/@tanstack/react-query.gen";
 import { useUser } from "../Contexts/authenticatedUserContext.tsx";
 import { RoleEnum } from "../api";
 import {Button} from "primereact/button";
@@ -11,6 +11,9 @@ import {Button} from "primereact/button";
 const OrderTableComponent: React.FC = () => {
     const navigate = useNavigate();
     const { currentUser } = useUser();
+
+    const [sortField] = useState<string>('createdDate');
+    const [sortOrder] = useState<number>(1);
 
     const [lazyState, setLazyState] = useState({
         first: 0,
@@ -23,8 +26,8 @@ const OrderTableComponent: React.FC = () => {
             query: {
                 pageId: lazyState.pageId,
                 pageSize: lazyState.pageSize,
-                sort: { sort: ['createdDate,desc'] },
-            },
+                sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`] as any,
+            }
         }),
     });
 
