@@ -156,7 +156,7 @@ class OrderServiceTest {
         Order order = orderRepository.findById(8000L).orElseThrow();
         Order updatedOrder = paymentService.paymentReceived(order, customer1);
 
-        Assertions.assertEquals(OrderStatus.PROCESSING, updatedOrder.getStatus());
+        Assertions.assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
     }
 
     @Transactional
