@@ -6,5 +6,5 @@ public record CartItemDTO(
         Integer id,
         @NotNull ProductDTO product,
         @NotNull UserxDTO user,
-        int quantity
+        @NotNull int quantity
 ) {}

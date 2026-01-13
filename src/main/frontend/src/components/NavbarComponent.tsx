@@ -13,12 +13,14 @@ import { RoleEnum } from "../api";
 import { Avatar } from "primereact/avatar";
 import { ROUTES } from "../utilities/routes.paths.ts";
 import { Button } from "primereact/button";
+import {useCart} from "../Contexts/cartContext.tsx";
 
 /**
  * Navbar component.
  */
 const NavbarComponent: React.FC = () => {
     const {currentUser: user} = useUser();
+    const {cartItems} = useCart();
     const userMenuRef = useRef<TieredMenu>(null);
 
     const filterMenu = React.useCallback((items: MenuItemConfig[]): MenuItemConfig[] => {
@@ -78,6 +80,7 @@ const NavbarComponent: React.FC = () => {
 
     const endContent = () => (
         <div className="flex align-items-center gap-3 pr-3">
+            <Avatar icon="pi pi-shopping-cart" onClick={(_) => console.log(cartItems)}/>
             {user ? (
                 <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => userMenuRef.current?.toggle(e)}>
                     <div className="flex flex-column align-items-end">
