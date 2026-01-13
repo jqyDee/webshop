@@ -48,6 +48,7 @@ const ReviewListComponent: React.FC<ReviewListComponentProps> = (props) => {
     const itemTemplate = (review: ReviewDto, index: number) => {
         const isAuthor = currentUser && review.author && currentUser.username === review.author.username;
         const canDelete = isAdmin || isAuthor;
+        const reviewIsManagerOrAdmin = review.author?.role === 'MANAGER' || review.author?.role === 'ADMIN';
 
         return (
             <div className="col-12" key={review.id}>
@@ -56,7 +57,12 @@ const ReviewListComponent: React.FC<ReviewListComponentProps> = (props) => {
                         <Avatar icon="pi pi-user" shape="circle" size="large" />
                         <div className="flex flex-column">
                             <span className="font-bold text-900">{review.author?.username}</span>
-                            <small className="text-500">
+                            { reviewIsManagerOrAdmin &&
+                                <small className="text" style={{color: 'var(--green-700)'}}>
+                                    {review.author?.role}
+                                </small>
+                            }
+                            <small className="text-500" >
                                 {review.createdDate ? new Date(review.createdDate).toLocaleDateString() : 'Recently'}
                             </small>
                         </div>
