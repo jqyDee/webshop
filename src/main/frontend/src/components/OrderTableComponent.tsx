@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { DataViewPageEvent } from "primereact/dataview";
 import OrderListComponent from "./OrderListComponent";
 import { getOrdersOptions } from "../api/@tanstack/react-query.gen";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
-import {RoleEnum} from "../api";
+import { useUser } from "../Contexts/authenticatedUserContext.tsx";
+import { RoleEnum } from "../api";
+import {Button} from "primereact/button";
 
 const OrderTableComponent: React.FC = () => {
     const navigate = useNavigate();
@@ -21,12 +23,13 @@ const OrderTableComponent: React.FC = () => {
             query: {
                 pageId: lazyState.pageId,
                 pageSize: lazyState.pageSize,
-                sort: { sort: ['createdDate,desc'] }, // default: newest orders first
+                sort: { sort: ['createdDate,desc'] },
             },
         }),
     });
 
-    const onPage = (event: any) => {
+    // Explicitly typed event
+    const onPage = (event: DataViewPageEvent) => {
         setLazyState({
             first: event.first,
             pageSize: event.rows,
@@ -35,7 +38,12 @@ const OrderTableComponent: React.FC = () => {
     };
 
     if (isError) {
-        return <p className="text-center mt-5">Failed to load orders.</p>;
+        return (
+            <div className="p-5 text-center border-round surface-card border-1 border-red-200">
+                <p className="text-red-500 font-bold">Failed to load orders.</p>
+                <Button label="Retry" className="p-button-text" onClick={() => window.location.reload()} />
+            </div>
+        );
     }
 
     return (

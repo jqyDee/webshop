@@ -1,6 +1,7 @@
-import React from "react";
-import { DataView, DataViewPageEvent } from "primereact/dataview";
+import React, { useState } from "react";
+import { DataView, DataViewLayoutOptions, DataViewPageEvent } from "primereact/dataview";
 import { Button } from "primereact/button";
+import { Tag } from "primereact/tag";
 import { OrderDto } from "../api";
 
 interface OrderListComponentProps {
@@ -24,37 +25,82 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
                                                                    onView,
                                                                    showUserColumn,
                                                                }) => {
+    const [layout, setLayout] = useState<'list' | 'grid'>('list');
 
-    const itemTemplate = (order: OrderDto) => (
-        <div className="order-card p-4 border-1 surface-border border-round mb-3 flex justify-content-between">
-            <div>
-                <strong>Order #{order.id}</strong>
-                {showUserColumn && <p>User: {order.user.id}</p>}
-                <p>Status: {order.status}</p>
-                <p>Total: {order.sum} €</p>
-                {order.createdDate && (
-                    <p>Date: {new Date(order.createdDate).toLocaleDateString()}</p>
-                )}
+    const getStatusSeverity = (status: string) => {
+        switch (status?.toUpperCase()) {
+            case 'COMPLETED': return 'success';
+            case 'PENDING': return 'warning';
+            case 'CANCELLED': return 'danger';
+            default: return 'info';
+        }
+    };
+
+    const listItem = (order: OrderDto) => (
+        <div className="col-12">
+            <div className="flex flex-column md:flex-row align-items-center p-4 gap-4 border-bottom-1 surface-border">
+                <div className="flex-1 flex flex-column gap-2">
+                    <div className="flex align-items-center gap-2">
+                        <span className="font-bold text-xl">Order #{order.id}</span>
+                        <Tag value={order.status} severity={getStatusSeverity(order.status!)} />
+                    </div>
+                    {showUserColumn && <span className="text-500 text-sm">Customer ID: {order.user?.id}</span>}
+                    <div className="text-900 font-semibold">{order.sum} €</div>
+                </div>
+                <div className="flex flex-row md:flex-column align-items-center md:align-items-end gap-2">
+                    <span className="text-500">{new Date(order.createdDate!).toLocaleDateString()}</span>
+                    <Button icon="pi pi-search" label="View" onClick={() => onView(order.id!)} className="p-button-sm" />
+                </div>
             </div>
+        </div>
+    );
 
-            {order.id !== undefined && (
-                <Button label="View details" onClick={() => onView(order.id!)} />
-            )}
+    const gridItem = (order: OrderDto) => (
+        <div className="col-12 sm:col-6 lg:col-4 p-2">
+            <div className="p-4 border-1 surface-border surface-card border-round flex flex-column gap-3">
+                <div className="flex justify-content-between align-items-center">
+                    <span className="font-bold">#{order.id}</span>
+                    <Tag value={order.status} severity={getStatusSeverity(order.status!)} />
+                </div>
+                <div className="flex flex-column align-items-center py-3">
+                    <i className="pi pi-package text-5xl text-primary mb-2"></i>
+                    <div className="text-2xl font-bold">{order.sum} €</div>
+                    <div className="text-500 text-sm">{new Date(order.createdDate!).toLocaleDateString()}</div>
+                </div>
+                <Button icon="pi pi-search" label="View Details" onClick={() => onView(order.id!)} className="w-full" />
+            </div>
+        </div>
+    );
+
+    const itemTemplate = (order: OrderDto, layoutType: 'list' | 'grid') => {
+        if (!order) return null;
+        return layoutType === 'list' ? listItem(order) : gridItem(order);
+    };
+
+    const header = () => (
+        <div className="flex justify-content-between align-items-center">
+            <h4 className="m-0">Order History</h4>
+            <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value as 'list' | 'grid')} />
         </div>
     );
 
     return (
-        <DataView
-            value={orders}
-            loading={loading}
-            itemTemplate={itemTemplate}
-            paginator
-            lazy
-            totalRecords={totalCount}
-            first={first}
-            rows={pageSize}
-            onPage={onPage}
-        />
+        <div className="card">
+            <DataView
+                value={orders}
+                layout={layout}
+                itemTemplate={itemTemplate}
+                paginator
+                rows={pageSize}
+                totalRecords={totalCount}
+                lazy
+                first={first}
+                onPage={onPage}
+                loading={loading}
+                header={header()}
+                emptyMessage="No orders found."
+            />
+        </div>
     );
 };
 
