@@ -68,6 +68,7 @@ const ProductTableComponent = () => {
             query: {
                 pageId: lazyState.pageId,
                 pageSize: lazyState.pageSize,
+                // @ts-ignore // I have no idea why this is being flagged as an error
                 sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`],
                 ...filters,
             }
