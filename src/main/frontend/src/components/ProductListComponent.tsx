@@ -128,6 +128,8 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 <Button
                                     icon="pi pi-plus"
                                     label="Create Product"
+                                    // TODO: add actual dialog
+                                    onClick={() => {console.log("Create a new product!")}}
                                 />
                             }
                             <div className="flex flex-column gap-2" >
