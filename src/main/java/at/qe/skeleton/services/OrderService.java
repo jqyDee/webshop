@@ -26,14 +26,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final AddressRepository addressRepository;
+    private final PaymentService paymentService;
 
     @Autowired
     public OrderService(CartService cartService, OrderRepository orderRepository, ProductService productService,
-                        AddressRepository addressRepository) {
+                        AddressRepository addressRepository, PaymentService paymentService) {
         this.cartService = cartService;
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.addressRepository = addressRepository;
+        this.paymentService = paymentService;
     }
 
     /**
@@ -234,10 +236,10 @@ public class OrderService {
 
         order.setStatus(OrderStatus.PENDING_PAYMENT);
 
-        boolean paymentSuccessful = performStubbedPayment(order);
+        boolean paymentSuccessful = paymentService.performPayment(order);
 
         if (paymentSuccessful) {
-            return paymentReceived(order, user);
+            return paymentService.paymentReceived(order, user);
         }
         return orderRepository.save(order);
     }
@@ -283,46 +285,5 @@ public class OrderService {
         } else {
             address.setUser(user);
         }
-    }
-
-    // TODO: put this in own payment service
-    /**
-     * Perform the payment (STUBBED)
-     *
-     * @param order the order the user just confirmed and wants to pay
-     * @return boolean whether the payment went through or not, in our case always true as payment only stubbed
-     */
-    private boolean performStubbedPayment(Order order) {
-        if (order == null) {
-            throw new IllegalArgumentException("Order is null");
-        }
-
-        System.out.println("Simulate Order payment for Order:  " + order.getId() + " with total amount: " + order.getSum());
-        return true;
-    }
-
-
-    /**
-     * Set order status after payment received
-     *
-     * @param order order to be set to payment received
-     * @param user currently authenticated user
-     * @return the updated order
-     */
-    @Transactional
-    public Order paymentReceived(Order order, Userx user) {
-        if (user == null || order == null) {
-            throw new IllegalArgumentException("User and Order cannot be null");
-        }
-        if (!order.getUser().equals(user)) {
-            throw new AccessDeniedException("You do not have permission to confirm this order");
-        }
-
-        if (!order.getStatus().equals(OrderStatus.PENDING_PAYMENT)) {
-            throw new IllegalStateException("Can't confirm order. Order status is not PENDING_PAYMENT.");
-        }
-
-        order.setStatus(OrderStatus.PROCESSING);
-        return orderRepository.save(order);
     }
 }
