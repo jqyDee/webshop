@@ -34,7 +34,7 @@ public class ProductSpecification {
             if (minRating == null || minRating.equals(0.0)) {
                 return null;
             }
-            return builder.greaterThanOrEqualTo(root.get(Product_.rating), minRating);
+            return builder.greaterThan(root.get(Product_.rating), minRating);
         };
     }
 

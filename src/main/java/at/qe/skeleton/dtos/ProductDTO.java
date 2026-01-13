@@ -11,7 +11,6 @@ public record ProductDTO(
         @NotNull double price,
         @NotNull int stock,
         @NotNull double discount,
-        @NotNull double discountedPrice,
         String shortDescription,
         String description,
         Double rating,

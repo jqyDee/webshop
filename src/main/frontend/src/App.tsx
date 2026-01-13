@@ -16,7 +16,6 @@ import {client as apiClient} from "./api/client.gen.ts";
 import {CartContextProvider} from "./Contexts/cartContext.tsx";
 import MainLayout from "./components/MainLayout.tsx";
 
-// 1. Configure the API client globally to handle Spring-style sorting and filtering
 apiClient.setConfig({
     baseUrl: 'http://localhost:8080',
     querySerializer: (query) => {

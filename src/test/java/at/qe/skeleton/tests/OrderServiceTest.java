@@ -141,7 +141,7 @@ class OrderServiceTest {
 
         orderService.confirmOrder(orderToConfirm, user, deliveryAddress, paymentAddress);
         Order updatedOrder = orderRepository.findById(9000L).orElseThrow();
-        Assertions.assertEquals(OrderStatus.PROCESSING, updatedOrder.getStatus());
+        Assertions.assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
         Assertions.assertEquals(deliveryAddress.getStreet(), updatedOrder.getShippingAddress().getStreet(),
                 "Delivery address should be correct");
         Assertions.assertEquals(paymentAddress.getStreet(), updatedOrder.getPaymentAddress().getStreet(),
@@ -156,7 +156,7 @@ class OrderServiceTest {
         Order order = orderRepository.findById(8000L).orElseThrow();
         Order updatedOrder = paymentService.paymentReceived(order, customer1);
 
-        Assertions.assertEquals(OrderStatus.PROCESSING, updatedOrder.getStatus());
+        Assertions.assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
     }
 
     @Transactional
@@ -174,6 +174,15 @@ class OrderServiceTest {
     @WithMockUser(username = "admin2", authorities = {"ADMIN"})
     public void testGetOrdersAdmin() {
         Page<Order> orders = orderService.getOrders(admin, PageRequest.of(0, 10));
+        Assertions.assertEquals(3, orders.getTotalElements());
+    }
+
+    @Transactional
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "manager", authorities = {"MANAGER"})
+    public void testGetAllOrders() {
+        Page<Order> orders = orderService.getAllOrders(PageRequest.of(0, 10));
         Assertions.assertEquals(3, orders.getTotalElements());
     }
 

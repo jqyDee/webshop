@@ -92,6 +92,7 @@ const NavbarComponent: React.FC = () => {
                         <Avatar
                             icon="pi pi-shopping-cart"
                             className="p-overlay-badge"
+                            // TODO: actual cart page
                             onClick={() => console.log(cartItems)}
                         >
                             {totalCartItems > 0 && (
