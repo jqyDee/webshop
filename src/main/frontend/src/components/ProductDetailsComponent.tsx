@@ -13,8 +13,11 @@ import React, {useRef, useState} from "react";
 import {ProductValidationResult} from "../utilities/productUtilities.ts";
 import {ProductDto} from "../api";
 import {Toast} from "primereact/toast";
+import {useCart} from "../Contexts/cartContext.tsx";
 
 const ProductDetailsComponent: React.FC = () => {
+    const { updateCartItem } = useCart();
+
     const {id} = useParams<{ id: string }>();
     const {currentUser, isManager, isAdmin} = useUser();
     const toast = useRef<Toast | null>(null);
@@ -214,6 +217,7 @@ const ProductDetailsComponent: React.FC = () => {
                             icon="pi pi-shopping-cart"
                             className="p-button-lg xl:w-15rem md:w-10rem w-full"
                             disabled={product.stock === 0}
+                            onClick={() => updateCartItem(product, 1)}
                         />
                     </div>
                 </div>
