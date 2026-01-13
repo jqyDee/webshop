@@ -57,6 +57,7 @@ const App: React.FC = () => {
                             <Route element={<MainLayout/>}>
                                 <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
                                 <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
+                                <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
                                 {/* Protected Routes (authentication required) */}
                                 <Route element={<PrivateRoute/>}>
                                     <Route path={ManageUsersRoute.url}

@@ -79,6 +79,7 @@ public class WebSecurityConfig {
                             .requestMatchers("/h2-console/**").access(devOnly())
                             .requestMatchers("/authentication/**").permitAll()
                             .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
+                            .requestMatchers("/api/product/**").permitAll()
                             .requestMatchers("/api/**").authenticated()
                             .anyRequest().authenticated()
                     )
