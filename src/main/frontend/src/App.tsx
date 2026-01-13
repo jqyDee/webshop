@@ -11,7 +11,6 @@ import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute} from "./rout
 import PrivateRoute from './components/PrivateRoute';
 import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {CartContextProvider} from "./Contexts/cartContext.tsx";
 import MainLayout from "./components/MainLayout.tsx";
 
@@ -29,7 +28,6 @@ const App: React.FC = () => {
         // Wrap the application in the UserProvider, which allows to access the authenticated user
         <UserProvider>
             <QueryClientProvider client={client}>
-                <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                 <CartContextProvider>
                     <Suspense fallback={<div>Loading...</div>}>
                         <BrowserRouter>
