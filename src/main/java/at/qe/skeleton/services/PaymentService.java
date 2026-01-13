@@ -56,6 +56,8 @@ public class PaymentService {
         }
 
         order.setStatus(OrderStatus.PROCESSING);
+        // todo shipping,... all stubed
+        order.setStatus(OrderStatus.DELIVERED);
         return orderRepository.save(order);
     }
 }
