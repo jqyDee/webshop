@@ -50,24 +50,24 @@ const App: React.FC = () => {
             <QueryClientProvider client={client}>
                 <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                 <CartContextProvider>
-                <Suspense fallback={<div>Loading...</div>}>
-                    <BrowserRouter>
-                        <Routes>
-                            <Route element={<MainLayout/>}>
-                                <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
-                                <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
-                                <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
-                                {/* Protected Routes (authentication required) */}
-                                <Route element={<PrivateRoute/>}>
-                                    <Route path={ManageUsersRoute.url}
-                                           Component={ManageUsersRoute.component}/>
-                                    <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <BrowserRouter>
+                            <Routes>
+                                <Route element={<MainLayout/>}>
+                                    <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
+                                    <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
+                                    <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
+                                    {/* Protected Routes (authentication required) */}
+                                    <Route element={<PrivateRoute/>}>
+                                        <Route path={ManageUsersRoute.url}
+                                               Component={ManageUsersRoute.component}/>
+                                        <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                                    </Route>
+                                    {/* end of protected routes */}
                                 </Route>
-                                {/* end of protected routes */}
-                            </Route>
-                        </Routes>
-                    </BrowserRouter>
-                </Suspense>
+                            </Routes>
+                        </BrowserRouter>
+                    </Suspense>
                 </CartContextProvider>
             </QueryClientProvider>
         </UserProvider>
