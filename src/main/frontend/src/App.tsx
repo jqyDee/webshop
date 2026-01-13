@@ -4,6 +4,7 @@
  */
 import './styles/App.css';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
+import "primeflex/primeflex.css"
 import React, {Suspense} from "react";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute} from "./routes";
@@ -12,6 +13,7 @@ import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {CartContextProvider} from "./Contexts/cartContext.tsx";
+import MainLayout from "./components/MainLayout.tsx";
 
 const client = new QueryClient({
     defaultOptions: {
@@ -32,15 +34,17 @@ const App: React.FC = () => {
                     <Suspense fallback={<div>Loading...</div>}>
                         <BrowserRouter>
                             <Routes>
-                                <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
-                                {/* Protected Routes (authentication required) */}
-                                <Route element={<PrivateRoute/>}>
+                                <Route element={<MainLayout/>}>
+                                    <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
                                     <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
-                                    <Route path={ManageUsersRoute.url}
-                                           Component={ManageUsersRoute.component}/>
-                                    <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                                    {/* Protected Routes (authentication required) */}
+                                    <Route element={<PrivateRoute/>}>
+                                        <Route path={ManageUsersRoute.url}
+                                               Component={ManageUsersRoute.component}/>
+                                        <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                                    </Route>
+                                    {/* end of protected routes */}
                                 </Route>
-                                {/* end of protected routes */}
                             </Routes>
                         </BrowserRouter>
                     </Suspense>
