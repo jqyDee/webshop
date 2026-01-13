@@ -169,8 +169,8 @@ public class ManagerControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void testDeleteProduct() throws Exception {
+    @WithMockUser(username = "manager", authorities = {"MANAGER"})
+    public void testDeleteProductExists() throws Exception {
         Long produtctId = 1L;
 
         Product p1 = new Product();
@@ -185,5 +185,48 @@ public class ManagerControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         Mockito.verify(productService).deleteProduct(ArgumentMatchers.eq(p1));
+    }
+
+    @Test
+    @WithMockUser(username = "manager", authorities = {"MANAGER"})
+    public void testDeleteProductDoesNotExist() throws Exception {
+        Long productId = 1L;
+
+        Mockito.when(productService.loadProduct(ArgumentMatchers.eq(productId))).thenReturn(Optional.empty());
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/manager/product/{productId}", productId).
+                        with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "manager", authorities = {"MANAGER"})
+    public void testUpdateProduct() throws Exception {
+        Long productId = 1L;
+
+        Product existingProduct = new Product();
+        existingProduct.setId(productId);
+        existingProduct.setName("mock");
+
+        Product updatedProduct = new Product();
+        updatedProduct.setId(productId);
+        updatedProduct.setName("updated product");
+
+        ProductDTO productUpdateDto = new ProductDTO(1L, "updated product", 10.0, 1, 0.0, null, null, null, null, null, null);
+
+        Mockito.when(productService.loadProduct(productId)).thenReturn(Optional.of(existingProduct));
+        Mockito.when(productService.saveProduct(existingProduct)).thenReturn(updatedProduct);
+
+        Mockito.when(productMapper.mapTo(updatedProduct)).thenReturn(productUpdateDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/api/manager/product/{productId}", productId)
+                    .with(SecurityMockMvcRequestPostProcessors.csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(productUpdateDto)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("updated product"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(10.0));
     }
 }

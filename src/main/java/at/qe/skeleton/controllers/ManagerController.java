@@ -76,7 +76,6 @@ public class ManagerController {
      * @param id the id of the product tb deleted
      * @return {@link ResponseEntity} with status {@code 204 (No Content)} on successful delete, or with status {@code 404 (Not Found)} if no product with this id exists
      */
-
     @DeleteMapping("/product/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         Product existingProduct = productService.loadProduct(id).orElseThrow(EntityNotFoundException::new);
