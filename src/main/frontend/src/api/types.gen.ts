@@ -432,13 +432,11 @@ export type DeleteProductResponses = {
 };
 
 export type UpdateProductData = {
-    body?: never;
+    body: ProductDto;
     path: {
         id: number;
     };
-    query: {
-        productUpdateDTO: ProductDto;
-    };
+    query?: never;
     url: '/api/manager/product/{id}';
 };
 
@@ -450,22 +448,6 @@ export type UpdateProductResponses = {
 };
 
 export type UpdateProductResponse = UpdateProductResponses[keyof UpdateProductResponses];
-
-export type UpdateOrderData = {
-    body?: never;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/manager/order/{id}/cancel';
-};
-
-export type UpdateOrderResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
 
 export type DeleteProductFromShoppingCartData = {
     body?: never;
@@ -654,7 +636,11 @@ export type GetOrdersResponse = GetOrdersResponses[keyof GetOrdersResponses];
 export type GetAllOrdersData = {
     body?: never;
     path?: never;
-    query?: never;
+    query: {
+        pageId?: number;
+        pageSize?: number;
+        sort: Sort;
+    };
     url: '/api/manager/orders';
 };
 

@@ -102,7 +102,7 @@ public class ProductControllerTest {
         product.setStock(10);
 
         Mockito.when(productService.loadProduct(id)).thenReturn(Optional.of(product));
-        Mockito.when(productMapper.mapTo(product)).thenReturn(new ProductDTO(id, name, 100.0, 10, 0.0, null, null, null, null, null, null));
+        Mockito.when(productMapper.mapTo(product)).thenReturn(new ProductDTO(id, name, 100.0, 10, 0.0, 0.0, null, null, null, null, null, null));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/product/{id}", id))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -146,7 +146,7 @@ public class ProductControllerTest {
         Mockito.when(productMapper.mapTo(ArgumentMatchers.any(Product.class)))
                 .thenAnswer(invocation -> {
                     Product product = invocation.getArgument(0);
-                    return new ProductDTO(product.getId(), product.getName(), 0.0, 0, 0.0, null, null, null, null, null, null);
+                    return new ProductDTO(product.getId(), product.getName(), 0.0, 0, 0.0, 0.0, null, null, null, null, null, null);
                 });
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/product/products")
@@ -301,7 +301,7 @@ public class ProductControllerTest {
                 ArgumentMatchers.any()
         )).thenReturn(Optional.of(product));
         Mockito.when(productMapper.mapTo(ArgumentMatchers.any(Product.class))).thenReturn(
-                new ProductDTO(1L, null, 2.0, 10, 0.0, null, null, null, null, null, null));
+                new ProductDTO(1L, null, 2.0, 10, 0.0, 0.0, null, null, null, null, null, null));
 
         String jsonBody = new ObjectMapper().writeValueAsString(reviewCreationRequest);
 
