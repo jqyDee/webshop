@@ -12,6 +12,9 @@ export type MenuItemConfig = {
 export const menuConfig: MenuItemConfig[] = [
     {
         label: 'Home', icon: 'pi pi-home', route: ROUTES.HOME
+    },
+    {
+        label: 'Products', icon: 'pi pi-list', route: ROUTES.PRODUCTS
     }
 ];
 

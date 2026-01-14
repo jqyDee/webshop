@@ -59,6 +59,7 @@ export type ProductDto = {
     price: number;
     stock: number;
     discount: number;
+    discountedPrice: number;
     shortDescription?: string;
     description?: string;
     rating?: number;

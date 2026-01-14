@@ -23,7 +23,7 @@ UPDATE USERX SET CREATE_USER_ID = (SELECT ID FROM USERX WHERE USERNAME = 'elvis'
 -- Add the not null constraint back
 ALTER TABLE USERX ALTER COLUMN CREATE_USER_ID SET NOT NULL;
 
-
+-- Insert products into the PRODUCT table
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
 VALUES (1000, 'Iphone 15', 580.99, 1, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
 
