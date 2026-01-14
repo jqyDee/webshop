@@ -20,7 +20,7 @@ const CartContext = React.createContext<CartContextType | null>(null);
 const CART_STORAGE_KEY = "guest_cart";
 
 export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
-    const { currentUser } = useUser();
+    const { currentUser, isCustomer } = useUser();
     const queryClient = useQueryClient();
 
     // GUEST
@@ -36,9 +36,10 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
     }, [localCart, currentUser]);
 
     // BACKEND QUERIES
+    const hasShoppingCart = currentUser && isCustomer;
     const { data: remoteCart, isLoading: isFetchingRemote } = useQuery({
         ...getShoppingCartOptions(),
-        enabled: !!currentUser, // Only fetch if logged in
+        enabled: !!hasShoppingCart, // Only fetch if logged in and Customer
     });
 
     const updateMutation = useMutation(updateProductInShoppingCartMutation());
