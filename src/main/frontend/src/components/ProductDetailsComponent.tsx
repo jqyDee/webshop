@@ -64,9 +64,9 @@ const ProductDetailsComponent: React.FC = () => {
                 <div className="col-12 md:col-6 px-4 md:text-right md:flex xl:text-right xl:flex flex-column align-items-end">
                     <h1 className="text-4xl font-bold text-900 mb-2">{product.name}</h1>
 
-                    <div className="flex align-items-center gap-2 mb-4">
+                    <div className="flex align-items-center gap-2 mb-2">
                         <Rating value={product.rating || 0} readOnly cancel={false} />
-                        <span className="text-500">({product.rating?.toFixed(1)})</span>
+                        <span className="text-500">({product.rating?.toFixed(1) || 0})</span>
                     </div>
 
                     <hr className="my-4 border-top-1 border-300 w-full" />
@@ -74,13 +74,13 @@ const ProductDetailsComponent: React.FC = () => {
                     <div className="mb-4">
                         {hasDiscount ? (
                             <div className="flex align-items-baseline gap-2">
-                                <span className="text-3xl font-bold text-red-600">${product.discountedPrice.toFixed(2)}</span>
                                 <span className="text-xl text-500 line-through">${product.price.toFixed(2)}</span>
-                                <Tag severity="danger" value={`-${product.discount * 100}%`} />
+                                <span className="text-3xl font-bold text-red-600">${product.discountedPrice.toFixed(2)}</span>
                             </div>
                         ) : (
                             <span className="text-3xl font-bold text-900">${product.price.toFixed(2)}</span>
                         )}
+                        <Tag severity="danger" value={`-${product.discount * 100}% OFF`} />
                     </div>
 
                     <div className="mb-4">

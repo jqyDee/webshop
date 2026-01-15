@@ -173,7 +173,10 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 {product.name}
                             </div>
                             <div className="text-sm text-900">{product.shortDescription}</div>
-                            <Rating value={product.rating} readOnly cancel={false}></Rating>
+                            <div className="flex align-items-center gap-2 mb-4">
+                                <Rating value={product.rating} readOnly cancel={false}></Rating>
+                                <span className="text-500">({product.rating?.toFixed(1) || 0})</span>
+                            </div>
                             <div className="flex align-items-center gap-3">
                                 <Tag value={'Stock: ' + product.stock} severity={getSeverity(product)}></Tag>
                             </div>
@@ -183,13 +186,13 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 {/* Original Price (strikethrough) */}
                                 {product.discountedPrice && product.discount > 0.0 && (
                                     <span className="text-xl text-500 line-through">
-                                        €{product.price}
+                                        €{product.price.toFixed(2)}
                                     </span>
                                 )}
 
                                 {/* Current Price */}
                                 <span className="text-2xl font-semibold text-900">
-                                    €{product.discountedPrice || product.price}
+                                    €{product.discountedPrice.toFixed(2) || product.price.toFixed(2)}
                                 </span>
                             </div>
 
