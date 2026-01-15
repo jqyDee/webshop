@@ -612,17 +612,6 @@ export type GetProductsResponses = {
 
 export type GetProductsResponse = GetProductsResponses[keyof GetProductsResponses];
 
-export type GetOrdersData = {
-    body?: never;
-    path?: never;
-    query: {
-        pageId?: number;
-        pageSize?: number;
-        sort: Sort;
-    };
-    url: '/api/orders';
-};
-
 export type GetOrdersResponses = {
     /**
      * OK

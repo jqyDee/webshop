@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -78,6 +79,20 @@ public class OrderService {
     @PreAuthorize("hasAuthority('MANAGER')")
     public Page<Order> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable);
+    }
+
+    /**
+     * Search for order with id in database.
+     *
+     * @param id id to search in the database
+     * @return order matching the id
+     */
+    public Optional<Order> loadOrder(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
+        return this.orderRepository.findById(id);
     }
 
     /**

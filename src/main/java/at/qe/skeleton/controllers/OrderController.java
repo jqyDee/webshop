@@ -5,6 +5,7 @@ import at.qe.skeleton.mappers.AddressMapper;
 import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.model.Address;
 import at.qe.skeleton.model.Order;
+import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.repositories.OrderRepository;
 import at.qe.skeleton.services.OrderService;
@@ -66,6 +67,20 @@ public class OrderController {
                 orderPage.getContent().stream().map(orderMapper::mapTo).toList()
         );
         return ResponseEntity.ok(pageableListDTO);
+    }
+
+    /**
+     * GET one Order
+     *
+     * @param id the id to search for
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with the order of given id in
+     *         the body, or with status {@code 404} if no such product exists
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
+        Order order = orderService.loadOrder(id).orElseThrow(EntityNotFoundException::new);
+
+        return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 
     /**
