@@ -125,7 +125,6 @@ const ProductDetailsComponent: React.FC = () => {
                     </AccordionTab>
                     <AccordionTab header="Private Details">
                         <p style={{ wordBreak: 'break-all' }}>{JSON.stringify(product)}</p>
-                        <p>{JSON.stringify(product)}</p>
                     </AccordionTab>
                     <AccordionTab
                         header="Customer Reviews"
