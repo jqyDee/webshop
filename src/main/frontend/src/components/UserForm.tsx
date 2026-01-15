@@ -13,6 +13,8 @@ import {Dropdown} from "primereact/dropdown";
 
 interface UserFormProps {
     user: UserxUpdateDto,
+    isRegister: boolean,
+    isNewUser: boolean,
     fieldErrors?: Partial<Record<keyof UserxUpdateDto, string>>,
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
     onRolesChange: (event: { value: string }) => void,
@@ -22,6 +24,8 @@ interface UserFormProps {
 /**
  * Form for creating or editing a user.
  * @param user the user to be edited
+ * @param isRegister if the dialog is for registration
+ * @param isNewUser if the dialog is for new user
  * @param fieldErrors field validation
  * @param onInputChange callback when the input changes
  * @param onRolesChange callback when the role change
@@ -30,6 +34,8 @@ interface UserFormProps {
 const UserForm: React.FC<UserFormProps> =
     ({
         user,
+        isRegister,
+        isNewUser,
         fieldErrors,
         onInputChange,
         onRolesChange,
@@ -92,32 +98,36 @@ const UserForm: React.FC<UserFormProps> =
                         {fieldErrors?.password && <small className="p-error">{fieldErrors.password}</small>}
                     </div>
                     <div className="flex-auto mb-3">
-                        <label htmlFor="role" className="font-bold block">Roles</label>
-                        <Dropdown inputId="role" name="role" value={user.role} onChange={onRolesChange}
-                            options={userRoles} optionLabel="label"
-                            placeholder="Select Roles"
-                            className="w-full md:w-20rem"
-                            invalid={!!fieldErrors?.role}
-                        />
-                        {fieldErrors?.role && <small className="p-error">{fieldErrors.role}</small>}
-                    </div>
-                    <div className="flex-auto mb-3">
                         <label htmlFor="phone" className="font-bold block">Phone</label>
                         <InputMask id="phone" name="phone" mask="+99 999 9999999"
-                            onChange={onInputChange}
-                            placeholder="+43 123 1234567"
-                            autoComplete="off"
-                            value={user.phone ?? ''}>
+                                   onChange={onInputChange}
+                                   placeholder="+43 123 1234567"
+                                   autoComplete="off"
+                                   value={user.phone ?? ''}>
                         </InputMask>
                     </div>
-                    <div className="flex-auto mb-3">
-                        <label htmlFor="enabled" className="font-bold block">Enabled</label>
-                        <Checkbox inputId="enabled" name="enabled"
-                            style={{ float: "right" }}
-                            onChange={onUserEnabledChange}
-                            checked={user.enabled ?? false}>
-                        </Checkbox>
-                    </div>
+                    { (!isRegister && !isNewUser) &&
+                        <div>
+                            <div className="flex-auto mb-3">
+                                <label htmlFor="role" className="font-bold block">Roles</label>
+                                <Dropdown inputId="role" name="role" value={user.role} onChange={onRolesChange}
+                                          options={userRoles} optionLabel="label"
+                                          placeholder="Select Roles"
+                                          className="w-full md:w-20rem"
+                                          invalid={!!fieldErrors?.role}
+                                />
+                                {fieldErrors?.role && <small className="p-error">{fieldErrors.role}</small>}
+                            </div>
+                            <div className="flex-auto mb-3">
+                                <label htmlFor="enabled" className="font-bold block">Enabled</label>
+                                <Checkbox inputId="enabled" name="enabled"
+                                          style={{ float: "right" }}
+                                          onChange={onUserEnabledChange}
+                                          checked={user.enabled ?? false}>
+                                </Checkbox>
+                            </div>
+                        </div>
+                    }
                 </div>
                 </form>
             </div>

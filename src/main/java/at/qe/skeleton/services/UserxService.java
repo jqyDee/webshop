@@ -99,6 +99,20 @@ public class UserxService implements UserDetailsService {
     }
 
     /**
+     * create a new user
+     *
+     * @param user new user to add
+     * @return added user
+     */
+    public Userx createUser(Userx user) {
+        if (user == null) throw new IllegalArgumentException("User is null");
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(UserxRole.CUSTOMER);
+        return userRepository.save(user);
+    }
+
+    /**
      * Deletes the user.
      *
      * @param user the user to delete

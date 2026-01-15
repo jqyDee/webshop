@@ -33,7 +33,7 @@ export type UserxUpdateDto = {
     enabled?: boolean;
     shippingAddress?: AddressDto;
     paymentAddress?: AddressDto;
-    role: RoleEnum;
+    role?: RoleEnum;
 };
 
 export type UserxDto = {
@@ -176,6 +176,22 @@ export type AuthenticateUserResponses = {
 };
 
 export type AuthenticateUserResponse = AuthenticateUserResponses[keyof AuthenticateUserResponses];
+
+export type CreateUserData = {
+    body: UserxUpdateDto;
+    path?: never;
+    query?: never;
+    url: '/authentication/createUser';
+};
+
+export type CreateUserResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 
 export type GetCurrentUserData = {
     body?: never;
@@ -398,22 +414,6 @@ export type AddAllToShoppingCartResponses = {
      */
     200: unknown;
 };
-
-export type CreateUserData = {
-    body: UserxUpdateDto;
-    path?: never;
-    query?: never;
-    url: '/api/admin/createUser';
-};
-
-export type CreateUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 
 export type DeleteProductData = {
     body?: never;

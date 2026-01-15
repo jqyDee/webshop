@@ -16,6 +16,7 @@ interface UserDialogProps {
     visible: boolean;
     user: UserxUpdateDto | null;
     isNewUser: boolean;
+    isRegister: boolean;
     validation: UserxValidationResult;
     onHide: () => void;
     onSubmit: () => void;
@@ -29,6 +30,7 @@ interface UserDialogProps {
  * @param visible whether the dialog is visible
  * @param user the user to be edited
  * @param isNewUser whether the user is new
+ * @param isRegister is a register dialog
  * @param validation field validation information
  * @param onHide callback when the dialog is hidden
  * @param onSubmit callback when the user is submitted
@@ -40,6 +42,7 @@ const UserDialog: React.FC<UserDialogProps> = ({
     visible,
     user,
     isNewUser,
+    isRegister,
     validation,
     onHide,
     onSubmit,
@@ -61,7 +64,7 @@ const UserDialog: React.FC<UserDialogProps> = ({
 
     return (
         <Dialog
-            header={isNewUser ? "Create New User" : "Edit User"}
+            header={isRegister ? "Register" : isNewUser ? "Create New User" : "Edit User"}
             visible={visible}
             style={{ width: '50vw' }}
             onHide={onHide}
@@ -72,6 +75,8 @@ const UserDialog: React.FC<UserDialogProps> = ({
                 <UserForm
                     user={user}
                     fieldErrors={validation.fieldErrors}
+                    isRegister={isRegister}
+                    isNewUser={isNewUser}
                     onInputChange={onInputChange}
                     onRolesChange={onRolesChange}
                     onUserEnabledChange={onUserEnabledChange}

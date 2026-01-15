@@ -27,6 +27,15 @@ export const authenticateUser = <ThrowOnError extends boolean = false>(options: 
     }
 });
 
+export const createUser = <ThrowOnError extends boolean = false>(options: Options<CreateUserData, ThrowOnError>) => (options.client ?? client).post<CreateUserResponses, unknown, ThrowOnError>({
+    url: '/authentication/createUser',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 export const getCurrentUser = <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) => (options?.client ?? client).get<GetCurrentUserResponses, unknown, ThrowOnError>({ url: '/api/users/me', ...options });
 
 export const updateCurrentUser = <ThrowOnError extends boolean = false>(options?: Options<UpdateCurrentUserData, ThrowOnError>) => (options?.client ?? client).patch<UpdateCurrentUserResponses, unknown, ThrowOnError>({ url: '/api/users/me', ...options });
@@ -81,15 +90,6 @@ export const getShoppingCart = <ThrowOnError extends boolean = false>(options?: 
 
 export const addAllToShoppingCart = <ThrowOnError extends boolean = false>(options: Options<AddAllToShoppingCartData, ThrowOnError>) => (options.client ?? client).post<AddAllToShoppingCartResponses, unknown, ThrowOnError>({
     url: '/api/cart',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-export const createUser = <ThrowOnError extends boolean = false>(options: Options<CreateUserData, ThrowOnError>) => (options.client ?? client).post<CreateUserResponses, unknown, ThrowOnError>({
-    url: '/api/admin/createUser',
     ...options,
     headers: {
         'Content-Type': 'application/json',

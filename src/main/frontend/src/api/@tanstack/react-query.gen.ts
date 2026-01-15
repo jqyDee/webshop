@@ -20,6 +20,20 @@ export const authenticateUserMutation = (options?: Partial<Options<AuthenticateU
     return mutationOptions;
 };
 
+export const createUserMutation = (options?: Partial<Options<CreateUserData>>): UseMutationOptions<CreateUserResponse, DefaultError, Options<CreateUserData>> => {
+    const mutationOptions: UseMutationOptions<CreateUserResponse, DefaultError, Options<CreateUserData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createUser({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
         _id: string;
@@ -227,20 +241,6 @@ export const addAllToShoppingCartMutation = (options?: Partial<Options<AddAllToS
     const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<AddAllToShoppingCartData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await addAllToShoppingCart({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const createUserMutation = (options?: Partial<Options<CreateUserData>>): UseMutationOptions<CreateUserResponse, DefaultError, Options<CreateUserData>> => {
-    const mutationOptions: UseMutationOptions<CreateUserResponse, DefaultError, Options<CreateUserData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await createUser({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

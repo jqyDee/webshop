@@ -9,7 +9,6 @@ import at.qe.skeleton.services.UserxService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,18 +71,6 @@ public class AdminController {
         return ResponseEntity.ok(userMapper.mapTo(existingUserx));
     }
 
-    /**
-     * Creates a user if the username is not yet used.
-     *
-     * @param userxUpdateDto the user tb created
-     * @return {@link ResponseEntity} with status {@code 201 (Created)} with the newly created user in the body, or with status {@code 409 (Conflict)} if the username is already in use
-     */
-    @PostMapping("/createUser")
-    public ResponseEntity<UserxDTO> createUser(@Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
-        Userx user = userService.saveUser(userUpdateMapper.mapFrom(userxUpdateDto));
-        return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.mapTo(user));
-    }
-    
     /**
      * Partially updates user of given id.
      * The update is partial because only a select subset of user fields can be modified after create.
