@@ -19,16 +19,15 @@ const client = new QueryClient({
     defaultOptions: {
         queries: {
             staleTime: 1000 * 60 * 5,    // Data is "fresh" for 5 minutes
-            refetchOnWindowFocus: false, // Stop refetching on window click
         },
     },
 });
 
 const App: React.FC = () => {
     return (
-        // Wrap the application in the UserProvider, which allows to access the authenticated user
-        <UserProvider>
-            <QueryClientProvider client={client}>
+        <QueryClientProvider client={client}>
+            {/* Wrap the application in the UserProvider, which allows to access the authenticated user*/}
+            <UserProvider>
                 <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                 <CartContextProvider>
                     <Suspense fallback={<div>Loading...</div>}>
@@ -40,7 +39,7 @@ const App: React.FC = () => {
                                     <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
                                     {/* Protected Routes (authentication required) */}
                                     <Route element={<PrivateRoute/>}>
-                                        <Route path={OrdersRoute.url} Component={OrdersRoute.component} />
+                                        <Route path={OrdersRoute.url} Component={OrdersRoute.component}/>
                                         <Route path={ManageUsersRoute.url}
                                                Component={ManageUsersRoute.component}/>
                                         <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
@@ -51,8 +50,8 @@ const App: React.FC = () => {
                         </BrowserRouter>
                     </Suspense>
                 </CartContextProvider>
-            </QueryClientProvider>
-        </UserProvider>
+            </UserProvider>
+        </QueryClientProvider>
     );
 }
 

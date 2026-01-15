@@ -97,7 +97,6 @@ export type OrderDto = {
 export type OrderItemDto = {
     id?: number;
     product: ProductDto;
-    order: OrderDto;
     name?: string;
     total?: number;
     quantity?: number;
@@ -138,7 +137,7 @@ export type PageableListDtoOrderDto = {
     totalCount: number;
     items?: Array<OrderDto>;
 };
- 
+
 export type CartItemDto = {
     id?: number;
     product: ProductDto;
