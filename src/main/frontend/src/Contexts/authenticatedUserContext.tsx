@@ -6,6 +6,7 @@ import React, {createContext, useCallback, useContext, useEffect, useMemo, useSt
 import {BEARER_TOKEN_LOCAL_STORAGE_KEY} from "../config/config";
 import {jwtDecode, JwtPayload} from "jwt-decode";
 import {authenticateUser, LoginRequestDto, UserxDto, RoleEnum, isAuthenticated} from "../api";
+import {useQueryClient} from "@tanstack/react-query";
 
 /**
  * A context allows us to access the current user from any component in the component tree.
@@ -54,6 +55,8 @@ export function UserProvider({children}: { children: React.ReactNode }) {
        return localStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
     });
 
+    const queryClient = useQueryClient();
+
     // keep tabs/windows in sync on login/logout
     useEffect(() => {
         const handler = (e: StorageEvent) => {
@@ -81,6 +84,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
         localStorage.setItem(BEARER_TOKEN_LOCAL_STORAGE_KEY, bearerToken);
         setToken(bearerToken); // trigger re-render
         setError(null);
+        await queryClient.invalidateQueries();
     }, [setToken, setError]);
 
     /**
@@ -91,6 +95,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
     const logout = useCallback(async () => {
         localStorage.removeItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
         setToken(null);
+        await queryClient.invalidateQueries();
     }, [setToken]);
 
     /**

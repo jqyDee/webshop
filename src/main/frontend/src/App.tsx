@@ -7,7 +7,7 @@ import "primereact/resources/themes/lara-light-cyan/theme.css";
 import "primeflex/primeflex.css"
 import React, {Suspense} from "react";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute, ProductRoute, ProductsRoute} from "./routes";
+import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute, ProductRoute, OrdersRoute, ProductsRoute} from "./routes";
 import PrivateRoute from './components/PrivateRoute';
 import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
@@ -25,9 +25,9 @@ const client = new QueryClient({
 
 const App: React.FC = () => {
     return (
-        // Wrap the application in the UserProvider, which allows to access the authenticated user
-        <UserProvider>
-            <QueryClientProvider client={client}>
+        <QueryClientProvider client={client}>
+            {/* Wrap the application in the UserProvider, which allows to access the authenticated user*/}
+            <UserProvider>
                 <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                 <CartContextProvider>
                     <Suspense fallback={<div>Loading...</div>}>
@@ -40,6 +40,7 @@ const App: React.FC = () => {
                                     <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
                                     {/* Protected Routes (authentication required) */}
                                     <Route element={<PrivateRoute/>}>
+                                        <Route path={OrdersRoute.url} Component={OrdersRoute.component}/>
                                         <Route path={ManageUsersRoute.url}
                                                Component={ManageUsersRoute.component}/>
                                         <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
@@ -50,8 +51,8 @@ const App: React.FC = () => {
                         </BrowserRouter>
                     </Suspense>
                 </CartContextProvider>
-            </QueryClientProvider>
-        </UserProvider>
+            </UserProvider>
+        </QueryClientProvider>
     );
 }
 

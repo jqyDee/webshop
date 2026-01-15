@@ -24,8 +24,12 @@ export const userMenuConfig: MenuItemConfig[] = [
         icon: 'pi pi-lock',
         route: ROUTES.MANAGE_USERS,
         roles: [RoleEnum.ADMIN]
-    },
-    {
+    }, {
+        label: "Orders",
+        icon: 'pi pi-star',
+        route: ROUTES.ORDERS,
+        roles: [RoleEnum.CUSTOMER, RoleEnum.ADMIN],
+    }, {
         label: "Logout",
         icon: "pi pi-sign-out",
         route: ROUTES.LOGOUT,
