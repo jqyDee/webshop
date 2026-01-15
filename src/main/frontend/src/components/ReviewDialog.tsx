@@ -16,6 +16,7 @@ interface ReviewDialogProps {
     onHide: () => void;
     onSubmit: () => void;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement> | InputMaskChangeEvent) => void;
+    submitting: boolean;
 }
 
 const ReviewDialog: React.FC<ReviewDialogProps> = ({
@@ -25,13 +26,14 @@ const ReviewDialog: React.FC<ReviewDialogProps> = ({
     onSubmit,
     onHide,
     onInputChange,
-    validation
+    validation,
+    submitting,
 }) => {
     const {currentUser} = useUser();
 
     const renderFooter = () => (
         <div>
-            <Button label="Create" icon="pi pi-check" onClick={onSubmit} autoFocus />
+            <Button label="Create" icon="pi pi-check" onClick={onSubmit} autoFocus loading={submitting} disabled={submitting} />
         </div>
     );
 

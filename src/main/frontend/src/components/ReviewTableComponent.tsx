@@ -25,6 +25,7 @@ const ReviewTableComponent: React.FC<ReviewTableProps> = (props) => {
     const [createReviewDto, setCreateReviewDto] = useState<ReviewDto | null>(null);
     const [dialogVisible, setDialogVisible] = useState<boolean>(false);
     const [validation, setValidation] = useState<ReviewValidationResult>({valid: true});
+    const [submitting, setSubmitting] = useState<boolean>(false);
 
     // pagination state
     const [lazyState, setLazyState] = useState({
@@ -105,7 +106,10 @@ const ReviewTableComponent: React.FC<ReviewTableProps> = (props) => {
     };
 
     const handleSubmit = async () => {
+        console.log(submitting);
+        setSubmitting(true);
         if (!createReviewDto) return;
+        console.log(submitting);
 
         const validationResult = validateReview(createReviewDto);
         if (!validationResult.valid) {
@@ -133,11 +137,13 @@ const ReviewTableComponent: React.FC<ReviewTableProps> = (props) => {
     };
 
     const showDialog = () => {
+        setSubmitting(false);
         setValidation({valid: true})
         setDialogVisible(true);
     }
 
     const hideDialog = () => {
+        setSubmitting(false);
         setValidation({valid: true})
         setDialogVisible(false);
     };
@@ -174,6 +180,7 @@ const ReviewTableComponent: React.FC<ReviewTableProps> = (props) => {
             />
             <ReviewDialog
                 visible={dialogVisible}
+                submitting={submitting}
                 review={createReviewDto}
                 product={props.product}
                 validation={validation}
