@@ -10,7 +10,7 @@ import {
 
 interface CartContextType {
     cartItems: CartItemDto[],
-    updateCartItem: (product: ProductDto, quantity: number) => Promise<void>,
+    updateCartItem: (product: ProductDto, quantity: number, add?: boolean) => Promise<void>,
     removeFromCart: (productId: number) => Promise<void>,
     isLoading: boolean,
 }
@@ -30,6 +30,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
     });
 
     useEffect(() => {
+        console.log("here2")
         if (!currentUser) {
             localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(localCart));
         }
@@ -48,6 +49,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
 
     // SYNCING
     useEffect(() => {
+        console.log('here')
         if (!currentUser || localCart.length === 0) return;
 
         (async () => {
@@ -110,7 +112,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
         cartItems,
         updateCartItem,
         removeFromCart,
-        isLoading
+        isLoading,
     }), [cartItems, updateCartItem, removeFromCart, isLoading]);
 
     return (
