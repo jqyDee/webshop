@@ -23,6 +23,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 
 @SpringBootTest
 class OrderServiceTest {
@@ -74,7 +76,29 @@ class OrderServiceTest {
         orderRepository.save(order);
 
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(3, orders.getTotalElements());
+        assertEquals(3, orders.getTotalElements());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void testLoadOrder_ExistingIds() {
+
+        Optional<Order> order8000 = orderService.loadOrder(8000L);
+        assertTrue(order8000.isPresent(), "Order should exist");
+        assertEquals(8000L, order8000.get().getId());
+
+        Optional<Order> order7000 = orderService.loadOrder(7000L);
+        assertTrue(order7000.isPresent(), "Order should exist");
+
+        Optional<Order> order9000 = orderService.loadOrder(9000L);
+        assertTrue(order9000.isPresent(), "Order should exist");
+    }
+
+    @Test
+    @WithMockUser(username = "admin")
+    void testLoadOrder_NonExistingId() {
+        Optional<Order> result = orderService.loadOrder(9999L);
+        assertFalse(result.isPresent(), "Order mit ID 9999 sollte nicht existieren");
     }
 
     @Transactional
@@ -88,16 +112,16 @@ class OrderServiceTest {
         Order newOrder = orderService.createOrder(customer1);
 
         Assertions.assertNotNull(newOrder.getId(), "Order should have a generated ID");
-        Assertions.assertEquals(customer1.getId(), newOrder.getUser().getId());
+        assertEquals(customer1.getId(), newOrder.getUser().getId());
 
         double expectedSum = product.getPrice() * 3;
-        Assertions.assertEquals(expectedSum, newOrder.getSum(), "Price msut be calculated correctly");
+        assertEquals(expectedSum, newOrder.getSum(), "Price msut be calculated correctly");
 
         Collection<CartItem> remainingCartItems = cartItemRepository.findAllByUser(customer1);
-        Assertions.assertTrue(remainingCartItems.isEmpty(), "Cart should be cleared after order creation");
+        assertTrue(remainingCartItems.isEmpty(), "Cart should be cleared after order creation");
 
         Product updatedProduct = productRepository.findById(5000L).orElseThrow();
-        Assertions.assertEquals(stockBeforeOrder-3, updatedProduct.getStock(), "Stock should be updated");
+        assertEquals(stockBeforeOrder-3, updatedProduct.getStock(), "Stock should be updated");
     }
 
     @Transactional
@@ -121,12 +145,12 @@ class OrderServiceTest {
         int quantityToReturn = 2;
 
         orderService.cancelOrder(orderToCancel, user);
-        Assertions.assertEquals(OrderStatus.CANCELLED, orderToCancel.getStatus());
+        assertEquals(OrderStatus.CANCELLED, orderToCancel.getStatus());
         Product updatedProduct = productRepository.findById(5000L).orElseThrow();
-        Assertions.assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
+        assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
 
         orderItemRepository.flush();
-        Assertions.assertFalse(orderItemRepository.findById(9000L).isPresent());
+        assertFalse(orderItemRepository.findById(9000L).isPresent());
     }
 
     @Transactional
@@ -141,10 +165,10 @@ class OrderServiceTest {
 
         orderService.confirmOrder(orderToConfirm, user, deliveryAddress, paymentAddress);
         Order updatedOrder = orderRepository.findById(9000L).orElseThrow();
-        Assertions.assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
-        Assertions.assertEquals(deliveryAddress.getStreet(), updatedOrder.getShippingAddress().getStreet(),
+        assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
+        assertEquals(deliveryAddress.getStreet(), updatedOrder.getShippingAddress().getStreet(),
                 "Delivery address should be correct");
-        Assertions.assertEquals(paymentAddress.getStreet(), updatedOrder.getPaymentAddress().getStreet(),
+        assertEquals(paymentAddress.getStreet(), updatedOrder.getPaymentAddress().getStreet(),
                 "Payment address should be correct");
     }
 
@@ -156,7 +180,7 @@ class OrderServiceTest {
         Order order = orderRepository.findById(8000L).orElseThrow();
         Order updatedOrder = paymentService.paymentReceived(order, customer1);
 
-        Assertions.assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
+        assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
     }
 
     @Transactional
@@ -165,7 +189,7 @@ class OrderServiceTest {
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testGetOrdersUser() {
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
-        Assertions.assertEquals(2, orders.getTotalElements());
+        assertEquals(2, orders.getTotalElements());
     }
 
     @Transactional
@@ -174,7 +198,7 @@ class OrderServiceTest {
     @WithMockUser(username = "admin2", authorities = {"ADMIN"})
     public void testGetOrdersAdmin() {
         Page<Order> orders = orderService.getOrders(admin, PageRequest.of(0, 10));
-        Assertions.assertEquals(3, orders.getTotalElements());
+        assertEquals(3, orders.getTotalElements());
     }
 
     @Transactional
@@ -183,7 +207,7 @@ class OrderServiceTest {
     @WithMockUser(username = "manager", authorities = {"MANAGER"})
     public void testGetAllOrders() {
         Page<Order> orders = orderService.getAllOrders(PageRequest.of(0, 10));
-        Assertions.assertEquals(3, orders.getTotalElements());
+        assertEquals(3, orders.getTotalElements());
     }
 
     @Transactional
@@ -252,7 +276,7 @@ class OrderServiceTest {
         orderService.cleanupStaleOrders();
 
         Order updatedOrder = orderRepository.findById(staleOrder.getId()).orElseThrow();
-        Assertions.assertEquals(OrderStatus.CANCELLED, updatedOrder.getStatus(),
+        assertEquals(OrderStatus.CANCELLED, updatedOrder.getStatus(),
                                 "Order older than 30 mins should be cancelled");
     }
 }

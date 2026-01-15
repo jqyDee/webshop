@@ -198,6 +198,37 @@ public class OrderControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testGetOrderById_Success() throws Exception {
+
+        Long orderId = 8000L;
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.DELIVERED);
+
+        OrderDTO orderDto = new OrderDTO(orderId, null, OrderStatus.DELIVERED, null, null, 99.99, null, null);
+
+        Mockito.when(orderService.loadOrder(orderId)).thenReturn(Optional.of(order));
+        Mockito.when(orderMapper.mapTo(order)).thenReturn(orderDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/orders/{id}", orderId))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(orderId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("DELIVERED"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.sum").value(99.99));
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testGetOrderById_NotFound() throws Exception {
+        Long nonExistingId = 9999L;
+        Mockito.when(orderService.loadOrder(nonExistingId)).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/orders/{id}", nonExistingId))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testCreateOrderCartEmpty() throws Exception {
         Order mockOrder = new Order();

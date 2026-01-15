@@ -1,4 +1,3 @@
-import {useParams} from "react-router-dom";
 import {useQuery} from "@tanstack/react-query";
 import {ProgressSpinner} from "primereact/progressspinner";
 import React, {useRef} from "react";
@@ -6,11 +5,15 @@ import {Toast} from "primereact/toast";
 import {Tag} from "primereact/tag";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
+import {getOrderByIdOptions} from "../api/@tanstack/react-query.gen.ts";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "primereact/button";
 
 const OrderDetailsComponent: React.FC = () => {
 
     const {id} = useParams<{ id: string }>();
     const toast = useRef<Toast | null>(null);
+    const navigate = useNavigate();
 
     // QUERY
     const {data: order, isLoading, error} = useQuery(
@@ -20,6 +23,16 @@ const OrderDetailsComponent: React.FC = () => {
     );
 
     // LAYOUT
+    const getStatusSeverity = (status: string) => {
+        switch (status) {
+            case 'DELIVERED': return 'success';
+            case 'PENDING': return 'warning';
+            case 'CANCELLED': return 'danger';
+            case 'SHIPPED': return 'info';
+            default: return null;
+        }
+    };
+
     if (isLoading) return (
         <div className="flex justify-content-center mt-8">
             <ProgressSpinner/>
@@ -33,14 +46,15 @@ const OrderDetailsComponent: React.FC = () => {
     );
 
     return (
-        <div className="surface-card p-4 shadow-2 border-round">
+        <div className="p-2">
+            <Toast ref={toast}/>
             <div className="flex justify-content-between align-items-center mb-5">
-                <h2 className="m-0">Orderdetails #{id}</h2>
+                <h2 className="m-0">Details of Order with id: {id}</h2>
                 <Tag value={order.status} severity={getStatusSeverity(order.status)} />
             </div>
 
-            <DataTable value={order.poducts} responsiveLayout="stack" breakpoint="960px">
-                <Column field="name" header="Productname" fontStyle="bold" />
+            <DataTable value={order.products} className="p-datatable-sm">
+                <Column field="name" header="Productname" />
                 <Column field="quantity" header="Quantity" />
                 <Column
                     header="Price"
@@ -53,7 +67,13 @@ const OrderDetailsComponent: React.FC = () => {
                 />
             </DataTable>
 
-            <div className="flex justify-content-end mt-4">
+            <div className="flex justify-content-between align-items-center mt-6">
+                <Button
+                    label="Go Back"
+                    icon="pi pi-arrow-left"
+                    className="p-button-primary"
+                    onClick={() => navigate('/orders')}
+                />
                 <div className="text-right">
                     <span className="text-xl font-light block mb-2">Gesamtsumme</span>
                     <span className="text-4xl font-bold text-900">{order.sum} €</span>
