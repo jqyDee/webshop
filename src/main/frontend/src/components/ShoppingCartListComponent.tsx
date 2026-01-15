@@ -47,7 +47,7 @@ const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
     );
 
     return (
-        <DataTable value={items} loading={loading} responsiveLayout="scroll">
+        <DataTable value={items} loading={loading}>
             <Column field="product.name" header="Product" />
             <Column header="Price" body={priceTemplate} />
             <Column header="Quantity" body={quantityTemplate} />
