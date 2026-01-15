@@ -14,6 +14,7 @@ import React, {useEffect, useState} from "react";
 import DefaultImage from "../assets/default.jpg"
 import {useCart} from "../Contexts/cartContext.tsx";
 import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 interface ProductListComponentProps {
     products: ProductDto[],
@@ -22,6 +23,7 @@ interface ProductListComponentProps {
     pageSize: number,
     first: number,
     onPage: (event: DataViewPageEvent) => void;
+    openDialog: (editProduct: ProductDto | null) => void;
     filters: ProductFilterDto,
     onFilterChange: (field: keyof ProductFilterDto, value: any) => void;
     onNameChange: (value: string) => void;
@@ -34,6 +36,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
     const { currentUser, isAdmin, isManager } = useUser();
     const { updateCartItem } = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
+    const navigate = useNavigate();
 
     useEffect(() => {
         setSearchTerm(props.filters.name || '');
@@ -128,8 +131,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 <Button
                                     icon="pi pi-plus"
                                     label="Create Product"
-                                    // TODO: add actual dialog
-                                    onClick={() => {console.log("Create a new product!")}}
+                                    onClick={() => props.openDialog(null)}
                                 />
                             }
                             <div className="flex flex-column gap-2" >
@@ -166,7 +168,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                         <div className="flex flex-column align-items-center sm:align-items-start gap-2">
                             <div className="text-2xl font-bold text-900 cursor-pointer hover:underline"
-                                 onClick={() => console.log(`Open product page for id: ${product.id}`)}
+                                 onClick={() => navigate(`/product/${product.id}`)}
                             >
                                 {product.name}
                             </div>
@@ -200,8 +202,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                     <Button
                                         icon="pi pi-pencil"
                                         className="p-button-rounded p-button-danger p-button-text"
-                                        // TODO: add actual dialog
-                                        onClick={() => console.log(`Edit product page for id: ${product.id}`)}
+                                        onClick={() => props.openDialog(product)}
                                     />
                                 }
                                 <Button icon="pi pi-shopping-cart"

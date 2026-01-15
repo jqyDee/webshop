@@ -1,9 +1,10 @@
 import ProductListComponent from "./ProductListComponent.tsx";
 import {useQuery} from "@tanstack/react-query";
 import {getProductsOptions} from "../api/@tanstack/react-query.gen.ts";
-import {useState} from "react";
-import {ProductFilterDto} from "../api";
+import {useRef, useState} from "react";
+import {ProductDto, ProductFilterDto} from "../api";
 import {DataViewPageEvent} from "primereact/dataview";
+import ProductDialogComponent, {ProductDialogHandle} from "./ProductDialogComponent.tsx";
 
 const sortOptions = [
     { label: 'Name: A-Z', value: 'name' },
@@ -13,6 +14,8 @@ const sortOptions = [
 ];
 
 const ProductTableComponent = () => {
+    const dialogRef = useRef<ProductDialogHandle>(null);
+
     // pagination state
     const [lazyState, setLazyState] = useState({
         first: 0,
@@ -63,7 +66,7 @@ const ProductTableComponent = () => {
     }
 
     // query
-    const {data: pageData, isLoading} = useQuery({
+    const {data: pageData, refetch, isLoading} = useQuery({
         ...getProductsOptions({
             query: {
                 pageId: lazyState.pageId,
@@ -71,7 +74,7 @@ const ProductTableComponent = () => {
                 // @ts-ignore // I have no idea why this is being flagged as an error
                 sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`],
                 ...filters,
-            }
+            },
         }),
     });
 
@@ -84,21 +87,29 @@ const ProductTableComponent = () => {
         });
     };
 
+    const handleOpenDialog = (editProduct: ProductDto | null) => {
+        dialogRef.current?.open(editProduct);
+    }
+
     return (
-        <ProductListComponent
-            products={pageData?.items ?? []}
-            totalCount={pageData?.totalCount ?? 0}
-            loading={isLoading}
-            pageSize={lazyState.pageSize}
-            first={lazyState.first}
-            onPage={onPage}
-            filters={filters}
-            onFilterChange={onFilterChange}
-            onNameChange={onNameChange}
-            sortOptions={sortOptions}
-            sortKey={sortKey}
-            onSortChange={onSortChange}
-        />
+        <>
+            <ProductListComponent
+                products={pageData?.items ?? []}
+                totalCount={pageData?.totalCount ?? 0}
+                loading={isLoading}
+                pageSize={lazyState.pageSize}
+                first={lazyState.first}
+                onPage={onPage}
+                openDialog={handleOpenDialog}
+                filters={filters}
+                onFilterChange={onFilterChange}
+                onNameChange={onNameChange}
+                sortOptions={sortOptions}
+                sortKey={sortKey}
+                onSortChange={onSortChange}
+            />
+            <ProductDialogComponent ref={dialogRef} refetch={refetch} />
+        </>
     )
 }
 

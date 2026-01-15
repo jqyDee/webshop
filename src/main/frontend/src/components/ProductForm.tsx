@@ -30,8 +30,6 @@ const ProductForm: React.FC<ProductFormProps> =
      }) => {
         return (
             <div>
-                <h1>{product.name}</h1>
-                {/* create form */}
                 <form>
                     <div className="card p-fluid flex flex-column gap-3">
                         <div className="flex-auto mb-3">
