@@ -3,6 +3,7 @@ import { DataView, DataViewLayoutOptions, DataViewPageEvent } from "primereact/d
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { OrderDto } from "../api";
+import {useUser} from "../Contexts/authenticatedUserContext.tsx";
 
 interface OrderListComponentProps {
     orders: OrderDto[];
@@ -26,6 +27,7 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
                                                                    showUserColumn,
                                                                }) => {
     const [layout, setLayout] = useState<'list' | 'grid'>('list');
+    const {currentUser, isAdmin} = useUser();
 
     const getStatusSeverity = (status: string) => {
         switch (status?.toUpperCase()) {
@@ -82,13 +84,12 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
 
     const header = () => (
         <div className="flex justify-content-between align-items-center">
-            <h4 className="m-0">Order History</h4>
+            <h4 className="m-0">{!isAdmin ? currentUser?.username + "'s" : 'All'} Order History</h4>
             <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value as 'list' | 'grid')} />
         </div>
     );
 
     return (
-        <div className="card">
             <DataView
                 value={orders}
                 layout={layout}
@@ -103,7 +104,6 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
                 header={header()}
                 emptyMessage="No orders found."
             />
-        </div>
     );
 };
 
