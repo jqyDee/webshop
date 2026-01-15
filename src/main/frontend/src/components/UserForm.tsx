@@ -45,11 +45,9 @@ const UserForm: React.FC<UserFormProps> =
 
         return (
             <div>
-                <h1>{user.firstName} {user.lastName}</h1>
-                <h5><span className="p-text-secondary">{user.username}</span></h5>
                 {/* create form */}
                 <form>
-                <div className="card p-fluid flex flex-wrap gap-3">
+                <div className="card p-fluid flex flex-column gap-3">
                     <div className="flex-auto mb-3">
                         <label htmlFor="username" className="font-bold block">Username</label>
                         <InputText id="username" name="username" value={user.username}
