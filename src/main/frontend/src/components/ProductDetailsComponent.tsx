@@ -7,17 +7,29 @@ import {Tag} from "primereact/tag";
 import {Rating} from "primereact/rating";
 import DefaultImage from "../assets/default.jpg"
 import {Accordion, AccordionTab} from "primereact/accordion";
+import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import React, {useRef} from "react";
+import {Toast} from "primereact/toast";
+import {useCart} from "../Contexts/cartContext.tsx";
+import ProductDialogComponent, {ProductDialogHandle} from "./ProductDialogComponent.tsx";
 import ReviewTableComponent from "./ReviewTableComponent.tsx";
 
 const ProductDetailsComponent: React.FC = () => {
-    const {id} = useParams<{ id: string }>();
+    const { updateCartItem } = useCart();
 
-    const {data: product, isLoading, error} = useQuery(
+    const {id} = useParams<{ id: string }>();
+    const {currentUser, isManager, isAdmin} = useUser();
+    const toast = useRef<Toast | null>(null);
+    const dialogRef = useRef<ProductDialogHandle>(null);
+
+    // QUERY
+    const {data: product, isLoading, refetch, error} = useQuery(
         getProductByIdOptions({
             path: {id: Number(id)}
-        })
+        }),
     );
 
+    // LAYOUT
     if (isLoading) return (
         <div className="flex justify-content-center mt-8">
             <ProgressSpinner/>
@@ -31,10 +43,12 @@ const ProductDetailsComponent: React.FC = () => {
     );
 
     const hasDiscount = product.discount > 0;
-    const discountedPrice = 9999;
+    const canEdit = currentUser && (isAdmin || isManager);
+    const cannotPutIntoCart = isAdmin || isManager;
 
     return (
         <div className="border-none">
+            <Toast ref={toast}/>
             <div className="grid">
                 <div className="col-12 md:col-6 flex justify-content-center">
                     <img
@@ -51,20 +65,22 @@ const ProductDetailsComponent: React.FC = () => {
                 <div className="col-12 md:col-6 px-4 md:text-right md:flex xl:text-right xl:flex flex-column align-items-end">
                     <h1 className="text-4xl font-bold text-900 mb-2">{product.name}</h1>
 
-                    <div className="flex align-items-center gap-2 mb-4">
+                    <div className="flex align-items-center gap-2 mb-2">
                         <Rating value={product.rating || 0} readOnly cancel={false} />
-                        <span className="text-500">({product.rating?.toFixed(1)})</span>
+                        <span className="text-500">({product.rating?.toFixed(1) || 0})</span>
                     </div>
 
                     <hr className="my-4 border-top-1 border-300 w-full" />
 
                     <div className="mb-4">
                         {hasDiscount ? (
-                            <div className="flex align-items-baseline gap-2">
-                                <span className="text-3xl font-bold text-red-600">${discountedPrice.toFixed(2)}</span>
-                                <span className="text-xl text-500 line-through">${product.price.toFixed(2)}</span>
-                                <Tag severity="danger" value={`-${product.discount * 100}%`} />
-                            </div>
+                            <>
+                                <div className="flex align-items-baseline gap-2">
+                                    <span className="text-xl text-500 line-through">${product.price.toFixed(2)}</span>
+                                    <span className="text-3xl font-bold text-red-600">${product.discountedPrice.toFixed(2)}</span>
+                                </div>
+                                <Tag severity="danger" value={`-${product.discount * 100}% OFF`} />
+                            </>
                         ) : (
                             <span className="text-3xl font-bold text-900">${product.price.toFixed(2)}</span>
                         )}
@@ -82,12 +98,21 @@ const ProductDetailsComponent: React.FC = () => {
                         {product.shortDescription}
                     </p>
 
-                    <div className="flex flex-column">
+                    <div className="flex flex-column md:flex-row gap-2">
+                        {canEdit &&
+                            <Button
+                                icon="pi pi-pencil"
+                                className="p-button-rounded p-button-danger p-button-text"
+                                label="Edit"
+                                onClick={() => dialogRef.current?.open(product)}
+                            />
+                        }
                         <Button
                             label="Add to Cart"
                             icon="pi pi-shopping-cart"
-                            className="p-button-lg xl:w-15rem md:w-10rem sm:w-full"
-                            disabled={product.stock === 0}
+                            className="p-button-lg xl:w-15rem md:w-10rem w-full"
+                            disabled={product.stock === 0 || cannotPutIntoCart}
+                            onClick={() => updateCartItem(product, 1)}
                         />
                     </div>
                 </div>
@@ -99,6 +124,7 @@ const ProductDetailsComponent: React.FC = () => {
                         <p>{product.description}</p>
                     </AccordionTab>
                     <AccordionTab header="Private Details">
+                        <p style={{ wordBreak: 'break-all' }}>{JSON.stringify(product)}</p>
                         <p>{JSON.stringify(product)}</p>
                     </AccordionTab>
                     <AccordionTab header="Customer Reviews">
@@ -106,6 +132,10 @@ const ProductDetailsComponent: React.FC = () => {
                     </AccordionTab>
                 </Accordion>
             </div>
+            <ProductDialogComponent
+                ref={dialogRef}
+                refetch={refetch}
+            />
         </div>
     );
 }

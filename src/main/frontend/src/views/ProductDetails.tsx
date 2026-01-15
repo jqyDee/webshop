@@ -2,7 +2,7 @@ import React from "react";
 import ProductDetailsComponent from "../components/ProductDetailsComponent.tsx";
 import {Card} from "primereact/card";
 
-class Product extends React.Component {
+class ProductDetails extends React.Component {
     render() {
         return (
             <div className="grid justify-content-center">
@@ -16,4 +16,4 @@ class Product extends React.Component {
     }
 }
 
-export default Product;
+export default ProductDetails;

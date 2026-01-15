@@ -92,7 +92,7 @@ public class CartControllerTest {
 
         Mockito.when(cartItemMapper.mapTo(item)).thenReturn(new CartItemDTO(
                 100,
-                new ProductDTO(1L, "Test Product", 10.0, 5, 0, null, null, null, null, null, null),
+                new ProductDTO(1L, "Test Product", 10.0, 5, 0, 0.0, null, null, null, null, null, null),
                 new UserxDTO(3000L, null, null, null, null, "user2", "Max", "Mustermann", null, null, null, null, true, null),
                 1));
 
@@ -167,20 +167,6 @@ public class CartControllerTest {
     }
 
     @Test
-    void testAddProductToShoppingCart() throws Exception {
-        Userx user = userxService.getUserByUsername("user2");
-        Long productId = 1000L;
-        int quantity = 3;
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/cart/{productId}", productId)
-                                              .param("quantity", String.valueOf(quantity))
-                                              .with(SecurityMockMvcRequestPostProcessors.user(user)))
-               .andExpect(MockMvcResultMatchers.status().isOk());
-
-        Mockito.verify(cartService).saveCartItem(user, productId, quantity);
-    }
-
-    @Test
     void testDeleteProductFromShoppingCart() throws Exception {
         Userx user = userxService.getUserByUsername("user2");
         Long productId = 1000L;
@@ -200,6 +186,7 @@ public class CartControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/cart/{productId}", productId)
                                               .param("quantity", String.valueOf(quantity))
+                                              .param("add", String.valueOf(false))
                                               .with(SecurityMockMvcRequestPostProcessors.user(user)))
                .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -216,6 +203,7 @@ public class CartControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/cart/{productId}", productId)
                                               .param("quantity", "5")
+                                              .param("add", String.valueOf(false))
                                               .with(SecurityMockMvcRequestPostProcessors.user(admin)))
                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }

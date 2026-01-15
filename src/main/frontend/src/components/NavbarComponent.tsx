@@ -3,23 +3,30 @@
  * Architecture" offered by Innsbruck University.
  */
 import React, { useRef } from 'react';
-import { Menubar } from "primereact/menubar";
+import {Menubar} from "primereact/menubar";
+import {useUser} from "../Contexts/authenticatedUserContext";
+import {menuConfig, MenuItemConfig, userMenuConfig} from "../config/menuConfig";
+import {MenuItem} from "primereact/menuitem";
+import {Link} from "react-router-dom";
+import {RoleEnum} from "../api";
 import { TieredMenu } from "primereact/tieredmenu"; // Use TieredMenu for the dropdown
-import { useUser } from "../Contexts/authenticatedUserContext";
-import { menuConfig, userMenuConfig, MenuItemConfig } from "../config/menuConfig";
-import { MenuItem } from "primereact/menuitem";
-import { Link } from "react-router-dom";
-import { RoleEnum } from "../api";
 import { Avatar } from "primereact/avatar";
 import { ROUTES } from "../utilities/routes.paths.ts";
 import { Button } from "primereact/button";
+import {useCart} from "../Contexts/cartContext.tsx";
+import {Badge} from "primereact/badge";
 
 /**
  * Navbar component.
  */
 const NavbarComponent: React.FC = () => {
-    const {currentUser: user} = useUser();
+    const {currentUser: user, isCustomer} = useUser();
+    const {cartItems} = useCart();
     const userMenuRef = useRef<TieredMenu>(null);
+
+    const totalCartItems = React.useMemo(() => {
+        return cartItems.reduce((acc, item) => acc + (item.quantity || 0), 0);
+    }, [cartItems]);
 
     const filterMenu = React.useCallback((items: MenuItemConfig[]): MenuItemConfig[] => {
         const hasRole = (required?: RoleEnum[]) => {
@@ -76,8 +83,30 @@ const NavbarComponent: React.FC = () => {
     const leftModel = React.useMemo(() => buildMenubarModel(filterMenu(menuConfig)), [filterMenu, buildMenubarModel]);
     const rightModel = React.useMemo(() => buildMenubarModel(filterMenu(userMenuConfig)), [filterMenu, buildMenubarModel]);
 
+    const canPutIntoCart = !user || (user && isCustomer);
+
     const endContent = () => (
         <div className="flex align-items-center gap-3 pr-3">
+                <div className="flex align-items-center cursor-pointer p-menuitem-link border-round p-2 transition-colors transition-duration-150">
+                    {canPutIntoCart &&
+                        <Avatar
+                            icon="pi pi-shopping-cart"
+                            className="p-overlay-badge"
+                            // TODO: actual cart page
+                            onClick={() => console.log(cartItems)}
+                        >
+                            {totalCartItems > 0 && (
+                                <Badge value={totalCartItems} severity="danger" className="text-xs" style={{
+                                    transform: 'scale(0.75)',
+                                    transformOrigin: 'top right',
+                                    top: '-8px',
+                                    right: '-8px',
+                                }}/>
+                            )}
+                        </Avatar>
+                    }
+                </div>
+
             {user ? (
                 <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => userMenuRef.current?.toggle(e)}>
                     <div className="flex flex-column align-items-end">

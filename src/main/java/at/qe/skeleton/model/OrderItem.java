@@ -63,8 +63,8 @@ public class OrderItem implements Persistable<Long>, Serializable {
         return total;
     }
 
-    public void setTotal(double price, double discount) {
-        this.total = price*(1-discount);
+    public void setTotal(double discountedPrice) {
+        this.total = discountedPrice;
     }
 
     public int getQuantity() {

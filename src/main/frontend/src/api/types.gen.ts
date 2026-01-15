@@ -54,11 +54,12 @@ export type UserxDto = {
 };
 
 export type ProductDto = {
-    id: number;
+    id?: number;
     name: string;
     price: number;
     stock: number;
     discount: number;
+    discountedPrice: number;
     shortDescription?: string;
     description?: string;
     rating?: number;
@@ -96,7 +97,6 @@ export type OrderDto = {
 export type OrderItemDto = {
     id?: number;
     product: ProductDto;
-    order: OrderDto;
     name?: string;
     total?: number;
     quantity?: number;
@@ -142,7 +142,7 @@ export type CartItemDto = {
     id?: number;
     product: ProductDto;
     user: UserxDto;
-    quantity?: number;
+    quantity: number;
 };
 
 export enum RoleEnum {
@@ -398,58 +398,6 @@ export type AddAllToShoppingCartResponses = {
     200: unknown;
 };
 
-export type DeleteProductFromShoppingCartData = {
-    body?: never;
-    path: {
-        productId: number;
-    };
-    query?: never;
-    url: '/api/cart/{productId}';
-};
-
-export type DeleteProductFromShoppingCartResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type UpdateProductInShoppingCartData = {
-    body?: never;
-    path: {
-        productId: number;
-    };
-    query: {
-        quantity: number;
-    };
-    url: '/api/cart/{productId}';
-};
-
-export type UpdateProductInShoppingCartResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type AddProductToShoppingCartData = {
-    body?: never;
-    path: {
-        productId: number;
-    };
-    query: {
-        quantity: number;
-    };
-    url: '/api/cart/{productId}';
-};
-
-export type AddProductToShoppingCartResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
 export type CreateUserData = {
     body: UserxUpdateDto;
     path?: never;
@@ -483,13 +431,11 @@ export type DeleteProductResponses = {
 };
 
 export type UpdateProductData = {
-    body?: never;
+    body: ProductDto;
     path: {
         id: number;
     };
-    query: {
-        productUpdateDTO: ProductDto;
-    };
+    query?: never;
     url: '/api/manager/product/{id}';
 };
 
@@ -502,16 +448,35 @@ export type UpdateProductResponses = {
 
 export type UpdateProductResponse = UpdateProductResponses[keyof UpdateProductResponses];
 
-export type UpdateOrderData = {
+export type DeleteProductFromShoppingCartData = {
     body?: never;
     path: {
-        id: number;
+        productId: number;
     };
     query?: never;
-    url: '/api/manager/order/{id}/cancel';
+    url: '/api/cart/{productId}';
 };
 
-export type UpdateOrderResponses = {
+export type DeleteProductFromShoppingCartResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type UpdateProductInShoppingCartData = {
+    body?: never;
+    path: {
+        productId: number;
+    };
+    query: {
+        quantity: number;
+        add: boolean;
+    };
+    url: '/api/cart/{productId}';
+};
+
+export type UpdateProductInShoppingCartResponses = {
     /**
      * OK
      */
@@ -670,7 +635,11 @@ export type GetOrdersResponse = GetOrdersResponses[keyof GetOrdersResponses];
 export type GetAllOrdersData = {
     body?: never;
     path?: never;
-    query?: never;
+    query: {
+        pageId?: number;
+        pageSize?: number;
+        sort: Sort;
+    };
     url: '/api/manager/orders';
 };
 

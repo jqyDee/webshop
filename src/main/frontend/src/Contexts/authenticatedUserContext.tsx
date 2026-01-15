@@ -2,10 +2,11 @@
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-import React, {createContext, useContext, useEffect, useMemo, useState} from 'react';
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {BEARER_TOKEN_LOCAL_STORAGE_KEY} from "../config/config";
 import {jwtDecode, JwtPayload} from "jwt-decode";
 import {authenticateUser, LoginRequestDto, UserxDto, RoleEnum, isAuthenticated} from "../api";
+import {useQueryClient} from "@tanstack/react-query";
 
 /**
  * A context allows us to access the current user from any component in the component tree.
@@ -54,6 +55,8 @@ export function UserProvider({children}: { children: React.ReactNode }) {
        return localStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
     });
 
+    const queryClient = useQueryClient();
+
     // keep tabs/windows in sync on login/logout
     useEffect(() => {
         const handler = (e: StorageEvent) => {
@@ -70,7 +73,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
      * Login the user by setting the bearer token in the state and local storage.
      * @param loginDto the login data
      */
-    const login = async (loginDto: LoginRequestDto) : Promise<void> => {
+    const login = useCallback(async (loginDto: LoginRequestDto) : Promise<void> => {
         const { bearerToken } = (await authenticateUser({body: loginDto})).data!;
         if (!bearerToken || bearerToken.length < 10) {
             setError(new Error('Missing or invalid bearer token in response!'));
@@ -81,17 +84,19 @@ export function UserProvider({children}: { children: React.ReactNode }) {
         localStorage.setItem(BEARER_TOKEN_LOCAL_STORAGE_KEY, bearerToken);
         setToken(bearerToken); // trigger re-render
         setError(null);
-    };
+        await queryClient.invalidateQueries();
+    }, [setToken, setError]);
 
     /**
      * Logout the current user by removing the bearer token from the state and local storage. Note
      * that this does not actually invalidate the token on the server side. It only removes the
      * token from the client side.
      */
-    const logout = async () => {
+    const logout = useCallback(async () => {
         localStorage.removeItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
         setToken(null);
-    };
+        await queryClient.invalidateQueries();
+    }, [setToken]);
 
     /**
      * Get the current user by decoding the bearer token stored in the local storage.
@@ -120,7 +125,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
         }
     }, [token]);
 
-    const userIsAuthenticated = async (): Promise<boolean> => {
+    const userIsAuthenticated = useCallback(async (): Promise<boolean> => {
         if (!token) {
             return false;
         }
@@ -146,25 +151,20 @@ export function UserProvider({children}: { children: React.ReactNode }) {
             void logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
             return false;
         }
-    };
+    }, [token, logout, setError]);
 
     const role = currentUser?.role;
     const isAdmin = role === RoleEnum.ADMIN;
     const isManager = role === RoleEnum.MANAGER;
     const isCustomer = role === RoleEnum.CUSTOMER;
 
+    const userValue = useMemo(() => ({
+        currentUser, login, logout, error, isAdmin, isManager, isCustomer, userIsAuthenticated
+    }), [currentUser, login, logout, error, isAdmin, isManager, isCustomer, userIsAuthenticated]);
+
     return (
         <UserContext.Provider
-            value={{
-                currentUser,
-                login,
-                logout,
-                error,
-                isAdmin,
-                isManager,
-                isCustomer: isCustomer,
-                userIsAuthenticated
-            }}
+            value={userValue}
         >
             {children}
         </UserContext.Provider>
