@@ -67,7 +67,6 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
 
     public void setPrice(double price) {
         this.price = price;
-        setDiscountedPrice(discount);
     }
 
     public double getPrice() {
@@ -93,6 +92,7 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     public double getDiscount() {
         return discount;
     }
+
 
     @PostLoad
     @PrePersist

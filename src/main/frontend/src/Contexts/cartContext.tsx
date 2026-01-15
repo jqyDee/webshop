@@ -4,13 +4,13 @@ import {useUser} from "./authenticatedUserContext.tsx";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
     addAllToShoppingCartMutation,
-    addProductToShoppingCartMutation, deleteProductFromShoppingCartMutation,
-    getShoppingCartOptions, getShoppingCartQueryKey
+    deleteProductFromShoppingCartMutation,
+    getShoppingCartOptions, getShoppingCartQueryKey, updateProductInShoppingCartMutation
 } from "../api/@tanstack/react-query.gen.ts";
 
 interface CartContextType {
     cartItems: CartItemDto[],
-    addToCart: (product: ProductDto, quantity: number) => Promise<void>,
+    updateCartItem: (product: ProductDto, quantity: number) => Promise<void>,
     removeFromCart: (productId: number) => Promise<void>,
     isLoading: boolean,
 }
@@ -20,7 +20,7 @@ const CartContext = React.createContext<CartContextType | null>(null);
 const CART_STORAGE_KEY = "guest_cart";
 
 export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
-    const { currentUser } = useUser();
+    const { currentUser, isCustomer } = useUser();
     const queryClient = useQueryClient();
 
     // GUEST
@@ -36,40 +36,47 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
     }, [localCart, currentUser]);
 
     // BACKEND QUERIES
+    const hasShoppingCart = currentUser && isCustomer;
     const { data: remoteCart, isLoading: isFetchingRemote } = useQuery({
         ...getShoppingCartOptions(),
-        enabled: !!currentUser, // Only fetch if logged in
+        enabled: !!hasShoppingCart, // Only fetch if logged in and Customer
     });
 
-    const addMutation = useMutation(addProductToShoppingCartMutation());
+    const updateMutation = useMutation(updateProductInShoppingCartMutation());
     const syncMutation = useMutation(addAllToShoppingCartMutation());
     const removeMutation = useMutation(deleteProductFromShoppingCartMutation());
 
     // SYNCING
     useEffect(() => {
-        const syncCart = async () => {
-            if (currentUser && localCart.length > 0) {
-                // Backend expects a Map<Long, Integer> (productId: quantity)
+        if (!currentUser || localCart.length === 0) return;
+
+        (async () => {
+            try {
+                // backend expects map
                 const body: Record<string, number> = {};
                 localCart.forEach(item => {
                     body[item.product.id.toString()] = item.quantity || 1;
                 });
 
                 await syncMutation.mutateAsync({ body });
-                setLocalCart([]); // Clear guest cart
+
+                // cleanup cart
+                setLocalCart([]);
                 localStorage.removeItem(CART_STORAGE_KEY);
+
                 await queryClient.invalidateQueries({queryKey: getShoppingCartQueryKey()});
+            } catch (error) {
+                console.error("Failed to sync cart: ", error);
             }
-        };
-        syncCart();
-    }, [currentUser]);
+        })();
+    }, [currentUser, setLocalCart]);
 
     // ACTIONS
-    const addToCart = useCallback(async (product: ProductDto, quantity: number) => {
+    const updateCartItem = useCallback(async (product: ProductDto, quantity: number, add: boolean = true) => {
         if (currentUser) {
-            await addMutation.mutateAsync({
+            await updateMutation.mutateAsync({
                 path: { productId: product.id },
-                query: { quantity }
+                query: { quantity, add }
             });
             await queryClient.invalidateQueries({queryKey: getShoppingCartQueryKey()});
         } else {
@@ -78,14 +85,14 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
                 if (existing) {
                     return prev.map(item =>
                         item.product.id === product.id
-                            ? { ...item, quantity: (item.quantity || 0) + quantity }
+                            ? { ...item, quantity: item.quantity + quantity }
                             : item
                     );
                 }
                 return [...prev, { product, quantity, user: {} as any }];
             });
         }
-    }, [currentUser, addMutation, queryClient]);
+    }, [currentUser, updateMutation, queryClient, setLocalCart]);
 
     const removeFromCart = useCallback(async (productId: number) => {
         if (currentUser) {
@@ -94,17 +101,17 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
         } else {
             setLocalCart(prev => prev.filter(item => item.product.id !== productId));
         }
-    }, [currentUser, addMutation, queryClient]);
+    }, [currentUser, updateMutation, queryClient, setLocalCart]);
 
     const cartItems = currentUser ? (remoteCart ?? []) : localCart;
     const isLoading = isFetchingRemote;
 
     const cartValues = useMemo(() => ({
         cartItems,
-        addToCart,
+        updateCartItem,
         removeFromCart,
         isLoading
-    }), [cartItems, addToCart, removeFromCart, isLoading]);
+    }), [cartItems, updateCartItem, removeFromCart, isLoading]);
 
     return (
         <CartContext.Provider value={cartValues}>

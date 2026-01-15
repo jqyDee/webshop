@@ -13,6 +13,7 @@ import React, {useEffect, useState} from "react";
 
 import DefaultImage from "../assets/default.jpg"
 import {useCart} from "../Contexts/cartContext.tsx";
+import {useUser} from "../Contexts/authenticatedUserContext.tsx";
 
 interface ProductListComponentProps {
     products: ProductDto[],
@@ -30,8 +31,8 @@ interface ProductListComponentProps {
 }
 
 const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
-
-    const { addToCart } = useCart();
+    const { currentUser, isAdmin, isManager } = useUser();
+    const { updateCartItem } = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
 
     useEffect(() => {
@@ -122,22 +123,34 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                         </div>
 
                         {/* Sort Dropdown - Responsive width */}
-                        <div className="flex flex-column gap-2 ml-auto" style={{ minWidth: '200px' }}>
-                            <label className="text-sm font-bold">Sort By</label>
-                            <Dropdown
-                                options={props.sortOptions}
-                                value={props.sortKey}
-                                optionLabel="label"
-                                placeholder="Select Order"
-                                onChange={props.onSortChange}
-                                className="w-full"
-                            />
+                        <div className="flex flex-row align-items-end gap-2 ml-auto" style={{ minWidth: '200px' }}>
+                            {canEdit &&
+                                <Button
+                                    icon="pi pi-plus"
+                                    label="Create Product"
+                                    // TODO: add actual dialog
+                                    onClick={() => {console.log("Create a new product!")}}
+                                />
+                            }
+                            <div className="flex flex-column gap-2" >
+                                <label className="text-sm font-bold">Sort By</label>
+                                <Dropdown
+                                    options={props.sortOptions}
+                                    value={props.sortKey}
+                                    optionLabel="label"
+                                    placeholder="Select Order"
+                                    onChange={props.onSortChange}
+                                    className="w-full"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         );
     };
+
+    const canEdit = currentUser && (isAdmin || isManager);
 
     const itemTemplate = (product: ProductDto, index: number) => {
         return (
@@ -168,13 +181,13 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 {/* Original Price (strikethrough) */}
                                 {product.discountedPrice && product.discount > 0.0 && (
                                     <span className="text-xl text-500 line-through">
-                                        ${product.price}
+                                        €{product.price}
                                     </span>
                                 )}
 
                                 {/* Current Price */}
                                 <span className="text-2xl font-semibold text-900">
-                                    ${product.discountedPrice || product.price}
+                                    €{product.discountedPrice || product.price}
                                 </span>
                             </div>
 
@@ -182,14 +195,23 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                             {product.discount > 0.0 && (
                                 <Tag severity="danger" value={`${product.discount * 100}% OFF`} />
                             )}
-                            <Button icon="pi pi-shopping-cart"
-                                    className="p-button-rounded"
-                                    disabled={product.stock === 0}
-                                    onClick={() => {
-                                        addToCart(product, 1);
-                                    }}
-                            >
-                            </Button>
+                            <div className="flex flex-row gap-2">
+                                {canEdit &&
+                                    <Button
+                                        icon="pi pi-pencil"
+                                        className="p-button-rounded p-button-danger p-button-text"
+                                        // TODO: add actual dialog
+                                        onClick={() => console.log(`Edit product page for id: ${product.id}`)}
+                                    />
+                                }
+                                <Button icon="pi pi-shopping-cart"
+                                        className="p-button-rounded ml-auto"
+                                        disabled={product.stock === 0 || (isAdmin || isManager)}
+                                        onClick={() => {
+                                            updateCartItem(product, 1);
+                                        }}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

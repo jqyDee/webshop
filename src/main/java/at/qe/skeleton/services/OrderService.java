@@ -75,6 +75,11 @@ public class OrderService {
         return orderRepository.findAll(pageable);
     }
 
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public Page<Order> getAllOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable);
+    }
+
     /**
      * Create an order with all products. Also delete all cartItems after Order was created
      * successfully
