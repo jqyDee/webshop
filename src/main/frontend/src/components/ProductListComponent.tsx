@@ -14,6 +14,7 @@ import React, {useEffect, useState} from "react";
 import DefaultImage from "../assets/default.jpg"
 import {useCart} from "../Contexts/cartContext.tsx";
 import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 interface ProductListComponentProps {
     products: ProductDto[],
@@ -22,6 +23,7 @@ interface ProductListComponentProps {
     pageSize: number,
     first: number,
     onPage: (event: DataViewPageEvent) => void;
+    openDialog: (editProduct: ProductDto | null) => void;
     filters: ProductFilterDto,
     onFilterChange: (field: keyof ProductFilterDto, value: any) => void;
     onNameChange: (value: string) => void;
@@ -34,6 +36,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
     const { currentUser, isAdmin, isManager } = useUser();
     const { updateCartItem } = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
+    const navigate = useNavigate();
 
     useEffect(() => {
         setSearchTerm(props.filters.name || '');
@@ -128,8 +131,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 <Button
                                     icon="pi pi-plus"
                                     label="Create Product"
-                                    // TODO: add actual dialog
-                                    onClick={() => {console.log("Create a new product!")}}
+                                    onClick={() => props.openDialog(null)}
                                 />
                             }
                             <div className="flex flex-column gap-2" >
@@ -166,12 +168,15 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                     <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                         <div className="flex flex-column align-items-center sm:align-items-start gap-2">
                             <div className="text-2xl font-bold text-900 cursor-pointer hover:underline"
-                                 onClick={() => console.log(`Open product page for id: ${product.id}`)}
+                                 onClick={() => navigate(`/product/${product.id}`)}
                             >
                                 {product.name}
                             </div>
                             <div className="text-sm text-900">{product.shortDescription}</div>
-                            <Rating value={product.rating} readOnly cancel={false}></Rating>
+                            <div className="flex align-items-center gap-2 mb-4">
+                                <Rating value={product.rating} readOnly cancel={false}></Rating>
+                                <span className="text-500">({product.rating?.toFixed(1) || 0})</span>
+                            </div>
                             <div className="flex align-items-center gap-3">
                                 <Tag value={'Stock: ' + product.stock} severity={getSeverity(product)}></Tag>
                             </div>
@@ -181,13 +186,13 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 {/* Original Price (strikethrough) */}
                                 {product.discountedPrice && product.discount > 0.0 && (
                                     <span className="text-xl text-500 line-through">
-                                        €{product.price}
+                                        €{product.price.toFixed(2)}
                                     </span>
                                 )}
 
                                 {/* Current Price */}
                                 <span className="text-2xl font-semibold text-900">
-                                    €{product.discountedPrice || product.price}
+                                    €{product.discountedPrice.toFixed(2) || product.price.toFixed(2)}
                                 </span>
                             </div>
 
@@ -200,8 +205,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                     <Button
                                         icon="pi pi-pencil"
                                         className="p-button-rounded p-button-danger p-button-text"
-                                        // TODO: add actual dialog
-                                        onClick={() => console.log(`Edit product page for id: ${product.id}`)}
+                                        onClick={() => props.openDialog(product)}
                                     />
                                 }
                                 <Button icon="pi pi-shopping-cart"
