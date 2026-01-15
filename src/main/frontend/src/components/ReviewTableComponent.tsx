@@ -62,7 +62,7 @@ const ReviewTableComponent: React.FC<ReviewTableProps> = (props) => {
             query: {
                 pageId: lazyState.pageId,
                 pageSize: lazyState.pageSize,
-                sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`]
+                sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`] as any
             }
         })
     );

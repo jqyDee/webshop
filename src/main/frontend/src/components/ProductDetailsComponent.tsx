@@ -127,8 +127,13 @@ const ProductDetailsComponent: React.FC = () => {
                         <p style={{ wordBreak: 'break-all' }}>{JSON.stringify(product)}</p>
                         <p>{JSON.stringify(product)}</p>
                     </AccordionTab>
-                    <AccordionTab header="Customer Reviews">
-                        <ReviewTableComponent product={product}/>
+                    <AccordionTab
+                        header="Customer Reviews"
+                        pt={{
+                            content: { className: 'p-0' } // This removes padding from the internal content div
+                        }}
+                    >
+                        <ReviewTableComponent product={product} />
                     </AccordionTab>
                 </Accordion>
             </div>
