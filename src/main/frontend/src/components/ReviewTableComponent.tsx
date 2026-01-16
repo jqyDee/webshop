@@ -106,14 +106,13 @@ const ReviewTableComponent: React.FC<ReviewTableProps> = (props) => {
     };
 
     const handleSubmit = async () => {
-        console.log(submitting);
         setSubmitting(true);
         if (!createReviewDto) return;
-        console.log(submitting);
 
         const validationResult = validateReview(createReviewDto);
         if (!validationResult.valid) {
             setValidation(validationResult);
+            setSubmitting(false);
             console.error('Please fill in all required fields');
             return;
         }
