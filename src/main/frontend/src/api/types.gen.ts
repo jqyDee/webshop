@@ -72,7 +72,7 @@ export type ReviewDto = {
     id?: number;
     product?: ProductDto;
     author?: UserxDto;
-    rating?: number;
+    rating: number;
     title: string;
     comment: string;
     createdDate?: string;
