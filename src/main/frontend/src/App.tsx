@@ -7,7 +7,7 @@ import "primereact/resources/themes/lara-light-cyan/theme.css";
 import "primeflex/primeflex.css"
 import React, {Suspense} from "react";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute, ProductsRoute} from "./routes";
+import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute, ProductRoute, OrdersRoute, ProductsRoute} from "./routes";
 import PrivateRoute from './components/PrivateRoute';
 import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
@@ -20,15 +20,14 @@ const client = new QueryClient({
     defaultOptions: {
         queries: {
             staleTime: 1000 * 60 * 5,    // Data is "fresh" for 5 minutes
-            refetchOnWindowFocus: false, // Stop refetching on window click
         },
     },
 });
 
 const App: React.FC = () => {
     return (
-        // Wrap the application in the UserProvider, which allows to access the authenticated user
         <ToastProvider>
+            // Wrap the application in the UserProvider, which allows to access the authenticated user
             <UserProvider>
                 <QueryClientProvider client={client}>
                     <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
@@ -39,9 +38,11 @@ const App: React.FC = () => {
                                     <Route element={<MainLayout/>}>
                                         <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
                                         <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
+                                        <Route path={ProductRoute.url} Component={ProductRoute.component}/>
                                         <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
                                         {/* Protected Routes (authentication required) */}
                                         <Route element={<PrivateRoute/>}>
+                                            <Route path={OrdersRoute.url} Component={OrdersRoute.component}/>
                                             <Route path={ManageUsersRoute.url}
                                                    Component={ManageUsersRoute.component}/>
                                             <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>

@@ -54,7 +54,7 @@ export type UserxDto = {
 };
 
 export type ProductDto = {
-    id: number;
+    id?: number;
     name: string;
     price: number;
     stock: number;
@@ -97,7 +97,6 @@ export type OrderDto = {
 export type OrderItemDto = {
     id?: number;
     product: ProductDto;
-    order: OrderDto;
     name?: string;
     total?: number;
     quantity?: number;
