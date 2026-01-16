@@ -97,7 +97,7 @@ public class CartController {
         if (add) {
             Collection<CartItem> items = cartService.getCartItems(user);
             Optional<CartItem> item = items.stream()
-                                           .filter(c -> !(c.getUser() == user && (c.getProduct().getId() != null && c.getProduct().getId().equals(productId))))
+                                           .filter(c -> (c.getProduct().getId() != null && c.getProduct().getId().equals(productId)))
                                            .findFirst();
 
             if (item.isPresent()) {

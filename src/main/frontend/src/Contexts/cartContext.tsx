@@ -30,7 +30,6 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
     });
 
     useEffect(() => {
-        console.log("here2")
         if (!currentUser) {
             localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(localCart));
         }
@@ -49,7 +48,6 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
 
     // SYNCING
     useEffect(() => {
-        console.log('here')
         if (!currentUser || localCart.length === 0) return;
 
         (async () => {
@@ -91,7 +89,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
                 if (existing) {
                     return prev.map(item =>
                         item.product.id === product.id
-                            ? { ...item, quantity: item.quantity + quantity }
+                            ? { ...item, quantity: item.quantity + quantity}
                             : item
                     );
                 }
@@ -107,7 +105,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
         } else {
             setLocalCart(prev => prev.filter(item => item.product.id !== productId));
         }
-    }, [currentUser, updateMutation, queryClient, setLocalCart]);
+    }, [currentUser, queryClient, setLocalCart]);
 
     const cartItems = currentUser ? (remoteCart ?? []) : localCart;
     const isLoading = isFetchingRemote;

@@ -9,7 +9,7 @@ interface ShoppingCartListComponentProps {
     items: CartItemDto[];
     loading: boolean;
     onQuantityChange: (product: any, qty: number) => void;
-    onRemove: (productId: number) => void;
+    onRemove: (productId: number) => Promise<void>;
 }
 
 const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
@@ -37,14 +37,16 @@ const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
         <strong>€{((item.product.discountedPrice ?? item.product.price) * item.quantity).toFixed(2)}</strong>
     );
 
-    const removeTemplate = (item: CartItemDto) => (
-        <Button
-            icon="pi pi-trash"
-            severity="danger"
-            text
-            onClick={() => onRemove(item.product.id)}
-        />
-    );
+    const removeTemplate = (item: CartItemDto) => {
+        return (
+            <Button
+                icon="pi pi-trash"
+                severity="danger"
+                text
+                onClick={() => {item.product.id ? onRemove(item.product.id) : console.log('error')}}
+            />
+        )
+    };
 
     return (
         <DataTable value={items} loading={loading}>
