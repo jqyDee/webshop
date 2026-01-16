@@ -3,10 +3,7 @@ package at.qe.skeleton.controllers;
 import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.mappers.AddressMapper;
 import at.qe.skeleton.mappers.OrderMapper;
-import at.qe.skeleton.model.Address;
-import at.qe.skeleton.model.Order;
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.OrderRepository;
 import at.qe.skeleton.services.OrderService;
 import jakarta.persistence.EntityNotFoundException;
@@ -58,7 +55,15 @@ public class OrderController {
                 ? PageRequest.of(pageId, pageSize, finalSort)
                 : Pageable.unpaged();
 
-        Page<Order> orderPage = orderService.getOrders(user, pageable);
+        Page<Order> orderPage = Page.empty();
+
+        if (user.getRole() == UserxRole.ADMIN) {
+            orderPage = orderService.getAllOrders(pageable);
+        }
+
+        if (user.getRole() == UserxRole.CUSTOMER) {
+            orderPage = orderService.getOrders(user, pageable);
+        }
         PageableListDTO<OrderDTO> pageableListDTO = new PageableListDTO<>(
                 pageSize,
                 (pageId != null) ? pageId + 1 : null,

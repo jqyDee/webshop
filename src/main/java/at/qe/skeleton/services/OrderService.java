@@ -73,10 +73,10 @@ public class OrderService {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
         }
 
-        return orderRepository.findAll(pageable);
+        return Page.empty(pageable);
     }
 
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('ADMIN')")
     public Page<Order> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable);
     }

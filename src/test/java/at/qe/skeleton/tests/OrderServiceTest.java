@@ -197,7 +197,7 @@ class OrderServiceTest {
     @Test
     @WithMockUser(username = "admin2", authorities = {"ADMIN"})
     public void testGetOrdersAdmin() {
-        Page<Order> orders = orderService.getOrders(admin, PageRequest.of(0, 10));
+        Page<Order> orders = orderService.getAllOrders(PageRequest.of(0, 10));
         assertEquals(3, orders.getTotalElements());
     }
 
