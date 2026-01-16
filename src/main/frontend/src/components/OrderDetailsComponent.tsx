@@ -114,7 +114,7 @@ const OrderDetailsComponent: React.FC = () => {
             <div className="flex justify-content-end align-items-center">
                 <div className="text-right">
                     <span className="text-xl font-light block mb-2">Total</span>
-                    <span className="text-4xl font-bold text-900">{order.sum} €</span>
+                    <span className="text-4xl font-bold text-900">€{order.sum}</span>
                 </div>
             </div>
         </div>
