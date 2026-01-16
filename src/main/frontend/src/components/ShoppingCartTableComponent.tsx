@@ -1,7 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, {useMemo, useState} from "react";
 import ShoppingCartListComponent from "./ShoppingCartListComponent";
-import { useCart } from "../Contexts/cartContext";
+import { useCart } from "../contexts/cartContext";
 import {Button} from "primereact/button";
+import {ROUTES} from "../utilities/routes.paths.ts";
+import {generatePath, useNavigate} from "react-router-dom";
+import {useMutation} from "@tanstack/react-query";
+import {createOrderMutation} from "../api/@tanstack/react-query.gen.ts";
 
 const ShoppingCartTableComponent: React.FC = () => {
     const { cartItems, isLoading, updateCartItem, removeFromCart, removeAllFromCart } = useCart();
@@ -42,7 +46,8 @@ const ShoppingCartTableComponent: React.FC = () => {
                 onRemove={removeFromCart}
             />
             <div className="flex align-items-center">
-                <Button label="Clear all" icon="pi pi-trash" onClick={() => removeAllFromCart()}/>
+                <Button label="Clear all" icon="pi pi-trash" onClick={removeAllFromCart}/>
+                <CreateOrderButton/>
                 <div className="flex flex-column mt-4 text-xl font-bold ml-auto">
                 <span>
                     Total
@@ -53,5 +58,21 @@ const ShoppingCartTableComponent: React.FC = () => {
         </div>
     );
 };
+
+const CreateOrderButton: React.FunctionComponent = () => {
+    const navigate = useNavigate();
+
+    const createOrder = useMutation({
+        ...createOrderMutation(),
+        onSuccess: (order) => {
+            if (!order.id) {
+                return;
+            }
+            navigate(generatePath(ROUTES.ORDER_CREATION, {id: order.id.toString()}));
+        },
+    });
+    return <Button label="order now" icon="pi pi-plus-circle" onClick={() => createOrder.mutate({})}/>;
+
+}
 
 export default ShoppingCartTableComponent;

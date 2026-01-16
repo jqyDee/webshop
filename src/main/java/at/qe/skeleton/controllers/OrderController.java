@@ -106,6 +106,21 @@ public class OrderController {
         return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 
+
+    /**
+     * GET one Order
+     *
+     * @param id the id to search for
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with the order of given id in
+     *         the body, or with status {@code 404} if no such product exists
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
+        Order order = orderService.loadOrder(id).orElseThrow(EntityNotFoundException::new);
+
+        return ResponseEntity.ok(orderMapper.mapTo(order));
+    }
+
     /**
      * POST cancel order
      *

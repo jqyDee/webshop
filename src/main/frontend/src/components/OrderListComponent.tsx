@@ -3,7 +3,7 @@ import { DataView, DataViewLayoutOptions, DataViewPageEvent } from "primereact/d
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { OrderDto } from "../api";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 
 interface OrderListComponentProps {
     orders: OrderDto[];

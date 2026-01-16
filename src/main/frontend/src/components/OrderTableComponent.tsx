@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DataViewPageEvent } from "primereact/dataview";
 import OrderListComponent from "./OrderListComponent";
 import {getOrdersOptions} from "../api/@tanstack/react-query.gen";
-import { useUser } from "../Contexts/authenticatedUserContext.tsx";
+import { useUser } from "../contexts/authenticatedUserContext.tsx";
 import { RoleEnum } from "../api";
 import {Button} from "primereact/button";
 

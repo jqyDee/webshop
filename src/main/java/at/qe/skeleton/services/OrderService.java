@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -116,6 +117,20 @@ public class OrderService {
         // save Order and clear users shopping cart
         cartService.clearCartItems(currentUser);
         return saveOrder(order);
+    }
+
+    /**
+     * Search for order with id in database.
+     *
+     * @param id id to search in the database
+     * @return order matching the id
+     */
+    public Optional<Order> loadOrder(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
+        return this.orderRepository.findById(id);
     }
 
     /**

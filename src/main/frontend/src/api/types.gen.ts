@@ -632,6 +632,24 @@ export type GetOrdersResponses = {
 
 export type GetOrdersResponse = GetOrdersResponses[keyof GetOrdersResponses];
 
+export type GetOrderByIdData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/orders/{id}';
+};
+
+export type GetOrderByIdResponses = {
+    /**
+     * OK
+     */
+    200: OrderDto;
+};
+
+export type GetOrderByIdResponse = GetOrderByIdResponses[keyof GetOrderByIdResponses];
+
 export type GetAllOrdersData = {
     body?: never;
     path?: never;

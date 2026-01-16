@@ -12,6 +12,7 @@ import ProductDetails from "./views/ProductDetails.tsx";
 import Products from "./views/Products.tsx";
 import Orders from "./views/Orders.tsx";
 import ShoppingCart from "./views/ShoppingCart.tsx";
+import OrderCreation from "./views/OrderCreation.tsx";
 
 /**
  * Define the routes of the application.
@@ -52,5 +53,10 @@ export const OrdersRoute = {
 export const ShoppingCartRoute = {
     url: ROUTES.SHOPPING_CART,
     component: ShoppingCart
+}
+
+export const OrderCreationRoute = {
+    url: ROUTES.ORDER_CREATION,
+    component: OrderCreation
 }
 

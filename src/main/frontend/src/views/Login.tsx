@@ -12,7 +12,7 @@ import {Password} from "primereact/password";
 import '../styles/Login.css';
 
 import {useNavigate} from 'react-router-dom';
-import {useUser} from "../Contexts/authenticatedUserContext";
+import {useUser} from "../contexts/authenticatedUserContext";
 
 /**
  * Login component

@@ -7,10 +7,10 @@ import {Tag} from "primereact/tag";
 import {Rating} from "primereact/rating";
 import DefaultImage from "../assets/default.jpg"
 import {Accordion, AccordionTab} from "primereact/accordion";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 import React, {useRef} from "react";
 import {Toast} from "primereact/toast";
-import {useCart} from "../Contexts/cartContext.tsx";
+import {useCart} from "../contexts/cartContext.tsx";
 import ProductDialogComponent, {ProductDialogHandle} from "./ProductDialogComponent.tsx";
 import ReviewTableComponent from "./ReviewTableComponent.tsx";
 

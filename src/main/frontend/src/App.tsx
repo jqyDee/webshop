@@ -15,13 +15,13 @@ import {
     ProductRoute,
     OrdersRoute,
     ProductsRoute,
-    ShoppingCartRoute
+    ShoppingCartRoute, OrderCreationRoute
 } from "./routes";
 import PrivateRoute from './components/PrivateRoute';
-import {UserProvider} from "./Contexts/authenticatedUserContext";
+import {UserProvider} from "./contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
-import {CartContextProvider} from "./Contexts/cartContext.tsx";
+import {CartContextProvider} from "./contexts/cartContext.tsx";
 import MainLayout from "./components/MainLayout.tsx";
 
 const client = new QueryClient({
@@ -50,6 +50,7 @@ const App: React.FC = () => {
                                     <Route path={ShoppingCartRoute.url} Component={ShoppingCartRoute.component}/>
                                     {/* Protected Routes (authentication required) */}
                                     <Route element={<PrivateRoute/>}>
+                                        <Route path={OrderCreationRoute.url} Component={OrderCreationRoute.component}/>
                                         <Route path={OrdersRoute.url} Component={OrdersRoute.component}/>
                                         <Route path={ManageUsersRoute.url}
                                                Component={ManageUsersRoute.component}/>

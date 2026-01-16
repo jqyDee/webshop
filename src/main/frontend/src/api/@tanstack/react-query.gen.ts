@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { addAllToShoppingCart, authenticateUser, cancelOrder, clearShoppingCart, confirmOrder, createCurrentUser, createOrder, createProduct, createReview, createUser, deleteProduct, deleteProductFromShoppingCart, deleteReview, deleteUser, getAllManagers, getAllOrders, getAllUsers, getCurrentUser, getOrders, getProductById, getProducts, getReviews, getShoppingCart, getUser, isAuthenticated, type Options, subscribe, updateCurrentUser, updateProduct, updateProductInShoppingCart, updateSubscription, updateUser } from '../sdk.gen';
-import type { AddAllToShoppingCartData, AuthenticateUserData, AuthenticateUserResponse, CancelOrderData, CancelOrderResponse, ClearShoppingCartData, ConfirmOrderData, ConfirmOrderResponse, CreateCurrentUserData, CreateCurrentUserResponse, CreateOrderData, CreateOrderResponse, CreateProductData, CreateProductResponse, CreateReviewData, CreateReviewResponse, CreateUserData, CreateUserResponse, DeleteProductData, DeleteProductFromShoppingCartData, DeleteReviewData, DeleteUserData, GetAllManagersData, GetAllManagersResponse, GetAllOrdersData, GetAllOrdersResponse, GetAllUsersData, GetAllUsersResponse, GetCurrentUserData, GetCurrentUserResponse, GetOrdersData, GetOrdersResponse, GetProductByIdData, GetProductByIdResponse, GetProductsData, GetProductsResponse, GetReviewsData, GetReviewsResponse, GetShoppingCartData, GetShoppingCartResponse, GetUserData, GetUserResponse, IsAuthenticatedData, IsAuthenticatedResponse, SubscribeData, SubscribeResponse, UpdateCurrentUserData, UpdateCurrentUserResponse, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductResponse, UpdateSubscriptionData, UpdateSubscriptionResponse, UpdateUserData, UpdateUserResponse } from '../types.gen';
+import { addAllToShoppingCart, authenticateUser, cancelOrder, clearShoppingCart, confirmOrder, createCurrentUser, createOrder, createProduct, createReview, createUser, deleteProduct, deleteProductFromShoppingCart, deleteReview, deleteUser, getAllManagers, getAllOrders, getAllUsers, getCurrentUser, getOrderById, getOrders, getProductById, getProducts, getReviews, getShoppingCart, getUser, isAuthenticated, type Options, subscribe, updateCurrentUser, updateProduct, updateProductInShoppingCart, updateSubscription, updateUser } from '../sdk.gen';
+import type { AddAllToShoppingCartData, AuthenticateUserData, AuthenticateUserResponse, CancelOrderData, CancelOrderResponse, ClearShoppingCartData, ConfirmOrderData, ConfirmOrderResponse, CreateCurrentUserData, CreateCurrentUserResponse, CreateOrderData, CreateOrderResponse, CreateProductData, CreateProductResponse, CreateReviewData, CreateReviewResponse, CreateUserData, CreateUserResponse, DeleteProductData, DeleteProductFromShoppingCartData, DeleteReviewData, DeleteUserData, GetAllManagersData, GetAllManagersResponse, GetAllOrdersData, GetAllOrdersResponse, GetAllUsersData, GetAllUsersResponse, GetCurrentUserData, GetCurrentUserResponse, GetOrderByIdData, GetOrderByIdResponse, GetOrdersData, GetOrdersResponse, GetProductByIdData, GetProductByIdResponse, GetProductsData, GetProductsResponse, GetReviewsData, GetReviewsResponse, GetShoppingCartData, GetShoppingCartResponse, GetUserData, GetUserResponse, IsAuthenticatedData, IsAuthenticatedResponse, SubscribeData, SubscribeResponse, UpdateCurrentUserData, UpdateCurrentUserResponse, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductResponse, UpdateSubscriptionData, UpdateSubscriptionResponse, UpdateUserData, UpdateUserResponse } from '../types.gen';
 
 export const authenticateUserMutation = (options?: Partial<Options<AuthenticateUserData>>): UseMutationOptions<AuthenticateUserResponse, DefaultError, Options<AuthenticateUserData>> => {
     const mutationOptions: UseMutationOptions<AuthenticateUserResponse, DefaultError, Options<AuthenticateUserData>> = {
@@ -423,6 +423,21 @@ export const getOrdersOptions = (options: Options<GetOrdersData>) => queryOption
         return data;
     },
     queryKey: getOrdersQueryKey(options)
+});
+
+export const getOrderByIdQueryKey = (options: Options<GetOrderByIdData>) => createQueryKey('getOrderById', options);
+
+export const getOrderByIdOptions = (options: Options<GetOrderByIdData>) => queryOptions<GetOrderByIdResponse, DefaultError, GetOrderByIdResponse, ReturnType<typeof getOrderByIdQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getOrderById({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getOrderByIdQueryKey(options)
 });
 
 export const getAllOrdersQueryKey = (options: Options<GetAllOrdersData>) => createQueryKey('getAllOrders', options);
