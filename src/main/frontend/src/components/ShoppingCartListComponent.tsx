@@ -27,14 +27,17 @@ const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
         <InputNumber
             value={item.quantity}
             min={1}
-            max={item.product.stock}
             onValueChange={(e) => onQuantityChange(item.product, e.value ?? 1)}
             showButtons
         />
     );
 
+    const subtotal = (item: CartItemDto) => {
+        return ((item.product.discountedPrice ?? item.product.price) * item.quantity).toFixed(2);
+    }
+
     const subtotalTemplate = (item: CartItemDto) => (
-        <strong>€{((item.product.discountedPrice ?? item.product.price) * item.quantity).toFixed(2)}</strong>
+        <strong>€{subtotal(item)}</strong>
     );
 
     const removeTemplate = (item: CartItemDto) => {
@@ -49,11 +52,11 @@ const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
     };
 
     return (
-        <DataTable value={items} loading={loading}>
-            <Column field="product.name" header="Product" />
-            <Column header="Price" body={priceTemplate} />
-            <Column header="Quantity" body={quantityTemplate} />
-            <Column header="Subtotal" body={subtotalTemplate} />
+        <DataTable value={items} loading={loading} dataKey="product.id">
+            <Column field="product.name" header="Product" sortable/>
+            <Column field="product.price" header="Price" body={priceTemplate} sortable/>
+            <Column field="quantity" header="Quantity" body={quantityTemplate} sortable/>
+            <Column header="Subtotal" body={subtotalTemplate}/>
             <Column body={removeTemplate} />
         </DataTable>
     );
