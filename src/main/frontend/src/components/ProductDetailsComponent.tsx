@@ -9,7 +9,6 @@ import DefaultImage from "../assets/default.jpg"
 import {Accordion, AccordionTab} from "primereact/accordion";
 import {useUser} from "../Contexts/authenticatedUserContext.tsx";
 import React, {useRef} from "react";
-import {Toast} from "primereact/toast";
 import {useCart} from "../Contexts/cartContext.tsx";
 import ProductDialogComponent, {ProductDialogHandle} from "./ProductDialogComponent.tsx";
 import ReviewTableComponent from "./ReviewTableComponent.tsx";
@@ -19,7 +18,6 @@ const ProductDetailsComponent: React.FC = () => {
 
     const {id} = useParams<{ id: string }>();
     const {currentUser, isManager, isAdmin} = useUser();
-    const toast = useRef<Toast | null>(null);
     const dialogRef = useRef<ProductDialogHandle>(null);
 
     // QUERY
@@ -48,7 +46,6 @@ const ProductDetailsComponent: React.FC = () => {
 
     return (
         <div className="border-none">
-            <Toast ref={toast}/>
             <div className="grid">
                 <div className="col-12 md:col-6 flex justify-content-center">
                     <img
