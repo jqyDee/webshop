@@ -207,7 +207,7 @@ public class UserxServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testExceptionForEmptyUsername() {
-        Assertions.assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             Optional<Userx> adminUser = userService.loadUser(1000L);
             Assertions.assertFalse(adminUser.isEmpty(),
                     "Admin user could not be loaded from test data source");

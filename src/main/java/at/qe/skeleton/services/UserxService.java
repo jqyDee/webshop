@@ -81,8 +81,8 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Userx saveUser(Userx user, String newRawPassword) {
-        if (user == null) {
-            throw new IllegalArgumentException("User is null");
+        if (user == null || user.getUsername() == null) {
+            throw new IllegalArgumentException("User or username is null");
         }
 
         if (user.isNew()) {
