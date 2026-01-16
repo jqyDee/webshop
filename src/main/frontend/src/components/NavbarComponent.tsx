@@ -87,25 +87,23 @@ const NavbarComponent: React.FC = () => {
 
     const endContent = () => (
         <div className="flex align-items-center gap-3 pr-3">
-                <div className="flex align-items-center cursor-pointer p-menuitem-link border-round p-2 transition-colors transition-duration-150">
                     {canPutIntoCart &&
-                        <Avatar
-                            icon="pi pi-shopping-cart"
-                            className="p-overlay-badge"
-                            // TODO: actual cart page
-                            onClick={() => console.log(cartItems)}
-                        >
-                            {totalCartItems > 0 && (
-                                <Badge value={totalCartItems} severity="danger" className="text-xs" style={{
-                                    transform: 'scale(0.75)',
-                                    transformOrigin: 'top right',
-                                    top: '-8px',
-                                    right: '-8px',
-                                }}/>
-                            )}
-                        </Avatar>
+                        <Link to="/shopping-cart">
+                            <Avatar
+                                icon="pi pi-shopping-cart"
+                                className="p-overlay-badge"
+                            >
+                                {totalCartItems > 0 && (
+                                    <Badge value={totalCartItems} severity="danger" className="text-xs" style={{
+                                        transform: 'scale(0.75)',
+                                        transformOrigin: 'top right',
+                                        top: '-8px',
+                                        right: '-8px',
+                                    }}/>
+                                )}
+                            </Avatar>
+                        </Link>
                     }
-                </div>
 
             {user ? (
                 <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => userMenuRef.current?.toggle(e)}>

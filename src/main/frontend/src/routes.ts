@@ -49,8 +49,3 @@ export const OrdersRoute = {
     component: Orders
 }
 
-export const OrderDetailRoute = {
-    url: ROUTES.ORDER,
-    component: OrderDetails
-}
-

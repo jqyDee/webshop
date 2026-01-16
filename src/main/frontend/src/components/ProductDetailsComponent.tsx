@@ -12,6 +12,7 @@ import React, {useRef} from "react";
 import {Toast} from "primereact/toast";
 import {useCart} from "../Contexts/cartContext.tsx";
 import ProductDialogComponent, {ProductDialogHandle} from "./ProductDialogComponent.tsx";
+import ReviewTableComponent from "./ReviewTableComponent.tsx";
 
 const ProductDetailsComponent: React.FC = () => {
     const { updateCartItem } = useCart();
@@ -53,8 +54,8 @@ const ProductDetailsComponent: React.FC = () => {
                     <img
                         src={product.imageUrl || DefaultImage}
                         alt={product.name}
-                        className="shadow-4 w-full"
-                        style={{ maxWidth: '500px', objectFit: 'contain' }}
+                        className="shadow-2 border-round w-full"
+                        style={{ maxWidth: '500px', objectFit: 'cover' }}
                         onError={(e) => {
                             (e.currentTarget.src = DefaultImage);
                         }}
@@ -118,12 +119,20 @@ const ProductDetailsComponent: React.FC = () => {
             </div>
 
             <div className="col-12">
-                <Accordion activeIndex={0}>
+                <Accordion activeIndex={[2]} multiple>
                     <AccordionTab header="Description">
                         <p>{product.description}</p>
                     </AccordionTab>
                     <AccordionTab header="Private Details">
                         <p style={{ wordBreak: 'break-all' }}>{JSON.stringify(product)}</p>
+                    </AccordionTab>
+                    <AccordionTab
+                        header="Customer Reviews"
+                        pt={{
+                            content: { className: 'p-0' } // This removes padding from the internal content div
+                        }}
+                    >
+                        <ReviewTableComponent product={product} />
                     </AccordionTab>
                 </Accordion>
             </div>
