@@ -36,7 +36,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
     const { updateCartItem } = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
     const navigate = useNavigate();
-    const [layout, setLayout] = useState<'list' | 'grid'>('grid');
+    const [layout, setLayout] = useState<'list' | 'grid'>('list');
 
     useEffect(() => {
         setSearchTerm(props.filters.name || '');
@@ -239,12 +239,10 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                 <div className="p-4 card border-round flex flex-column h-full shadow-5">
                     {/* Image Section */}
                     <div className="flex flex-column align-items-center gap-3 py-5">
-                        <img
-                            className="w-9 shadow-2 border-round"
+                        <img className="w-10 sm:w-16rem md:w-20rem xl:w-20rem shadow-2 block xl:block mx-auto border-round"
                             src={product.imageUrl || DefaultImage}
                             alt={product.name}
                             onError={(e) => { (e.currentTarget.src = DefaultImage); }}
-                            style={{ objectFit: 'cover', width: '300px', height: '300px' }}
                         />
                         <div className="text-2xl font-bold text-900 cursor-pointer hover:underline text-center"
                              onClick={() => navigate(`/product/${product.id}`)}>
