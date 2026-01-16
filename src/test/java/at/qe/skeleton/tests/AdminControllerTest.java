@@ -199,7 +199,7 @@ public class AdminControllerTest {
         user.setEnabled(isEnabled);
 
         Mockito.when(userCreateMapper.mapFrom(newUser)).thenReturn(user);
-        Mockito.when(userService.saveUser(user)).thenReturn(user);
+        Mockito.when(userService.saveUser(user, password)).thenReturn(user);
         Mockito.when(userMapper.mapTo(user)).thenReturn(new UserxDTO(id, null, null, null, null, username, firstName, lastName, email, "", null, null, isEnabled, role));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/createUser")

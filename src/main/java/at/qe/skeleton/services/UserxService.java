@@ -80,7 +80,7 @@ public class UserxService implements UserDetailsService {
      * @return the updated user
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Userx saveUser(Userx user) {
+    public Userx saveUser(Userx user, String newRawPassword) {
         if (user == null) {
             throw new IllegalArgumentException("User is null");
         }
@@ -90,11 +90,16 @@ public class UserxService implements UserDetailsService {
                 throw new UsernameDuplicateException(
                         "Username " + user.getUsername() + " not available");
             }
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setPassword(passwordEncoder.encode(newRawPassword));
             user.setCreateUser(authenticatedUserService.getAuthenticatedUser());
         } else {
+            if (newRawPassword != null && !newRawPassword.isEmpty()) {
+                user.setPassword(passwordEncoder.encode(newRawPassword));
+            }
+
             user.setUpdateUser(authenticatedUserService.getAuthenticatedUser());
         }
+
         return userRepository.save(user);
     }
 

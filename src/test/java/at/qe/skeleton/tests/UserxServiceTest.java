@@ -132,7 +132,7 @@ public class UserxServiceTest {
                 "User with id \"" + userId + "\" has a updateDate defined");
 
         toBeSavedUser.setEmail("changed-email@whatever.wherever");
-        userService.saveUser(toBeSavedUser);
+        userService.saveUser(toBeSavedUser, null);
 
         Optional<Userx> freshlyLoadedUserOpt = userService.loadUser(userId);
         Assertions.assertFalse(freshlyLoadedUserOpt.isEmpty(),
@@ -172,7 +172,7 @@ public class UserxServiceTest {
         toBeCreatedUser.setEmail(email);
         toBeCreatedUser.setPhone(phone);
         toBeCreatedUser.setRole(UserxRole.MANAGER);
-        Userx savedUser = userService.saveUser(toBeCreatedUser);
+        Userx savedUser = userService.saveUser(toBeCreatedUser, password);
 
         Optional<Userx> freshlyCreatedUserOpt = userService.loadUser(savedUser.getId());
         Assertions.assertFalse(freshlyCreatedUserOpt.isEmpty(),
@@ -214,7 +214,7 @@ public class UserxServiceTest {
 
             Userx toBeCreatedUser = new Userx();
             toBeCreatedUser.setPassword("passwd");
-            userService.saveUser(toBeCreatedUser);
+            userService.saveUser(toBeCreatedUser, null);
         });
     }
 
@@ -227,7 +227,7 @@ public class UserxServiceTest {
                     "Admin user could not be loaded from test data source");
 
             Userx toBeCreatedUser = new Userx();
-            userService.saveUser(toBeCreatedUser);
+            userService.saveUser(toBeCreatedUser, null);
         });
     }
 
@@ -275,7 +275,7 @@ public class UserxServiceTest {
 
             Assertions.assertEquals(userId, user.getId(),
                     "Call to userService.loadUser returned wrong user");
-            userService.saveUser(user);
+            userService.saveUser(user, null);
         });
     }
 

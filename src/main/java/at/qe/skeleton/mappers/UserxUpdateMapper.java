@@ -33,6 +33,7 @@ public abstract class UserxUpdateMapper extends DTOMapper<Userx, UserxUpdateDTO>
      * function
      */
     @Mapping(target = "id", ignore = true) // Protect the ID from being overwritten
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "createUser", ignore = true)
     @Mapping(target = "updateUser", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
@@ -44,15 +45,11 @@ public abstract class UserxUpdateMapper extends DTOMapper<Userx, UserxUpdateDTO>
      * Mapping for creation
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "createUser", ignore = true)
     @Mapping(target = "updateUser", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "updatedDate", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     public abstract Userx mapFrom(UserxUpdateDTO dto);
-
-    @Override
-    public UserxUpdateDTO mapTo(Userx entity) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }
