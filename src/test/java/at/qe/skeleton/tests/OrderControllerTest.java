@@ -1,5 +1,4 @@
 package at.qe.skeleton.tests;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
@@ -55,9 +54,6 @@ public class OrderControllerTest {
 
     @MockitoSpyBean
     private TokenAuthenticationFilter tokenAuthenticationFilter;
-
-    @MockitoBean
-    private JwtConfig jwtConfig;
 
     @MockitoBean
     private OrderService orderService;
