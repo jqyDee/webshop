@@ -49,9 +49,25 @@ const OrderDetailsComponent: React.FC = () => {
     return (
         <div className="p-2">
             <Toast ref={toast}/>
-            <div className="flex justify-content-between align-items-center mb-5">
-                <h2 className="m-0">Details of Order with id: {id}</h2>
-                <Tag value={order.status} severity={getStatusSeverity(order.status)} />
+
+            <div className="flex align-items-center justify-content-between w-full mb-2">
+                <div className="flex-1 flex justify-content-start">
+                    <Button
+                        icon="pi pi-arrow-left"
+                        className="p-button-text p-button-rounded"
+                        onClick={() => navigate('/orders')}
+                    />
+                </div>
+
+                <div className="flex-grow-0 text-end">
+                    <h2 className="m-0">Order id: {id}</h2>
+                </div>
+
+            </div>
+            {/* 3. Right Section: Flex-1 to match the left section */}
+            <div className="flex flex-column gap-2 mb-4 align-items-end">
+                <span className="text-700 font-bold text-xl">Status</span>
+                <Tag value={order.status} severity={getStatusSeverity(order.status)} className=""/>
             </div>
 
             <DataTable value={order.products} className="p-datatable-sm">
@@ -78,7 +94,7 @@ const OrderDetailsComponent: React.FC = () => {
                 />
             </DataTable>
 
-            <div className="grid mb-5">
+            <div className="grid">
                 <div className="col-12 md:col-6">
                     <AddressComponent
                         title="Shipping Address"
@@ -95,13 +111,7 @@ const OrderDetailsComponent: React.FC = () => {
                 </div>
             </div>
 
-            <div className="flex justify-content-between align-items-center mt-6">
-                <Button
-                    label="Go Back"
-                    icon="pi pi-arrow-left"
-                    className="p-button-primary"
-                    onClick={() => navigate('/orders')}
-                />
+            <div className="flex justify-content-end align-items-center">
                 <div className="text-right">
                     <span className="text-xl font-light block mb-2">Total</span>
                     <span className="text-4xl font-bold text-900">{order.sum} €</span>
