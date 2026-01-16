@@ -7,7 +7,7 @@ import {Menubar} from "primereact/menubar";
 import {useUser} from "../Contexts/authenticatedUserContext";
 import {menuConfig, MenuItemConfig, userMenuConfig} from "../config/menuConfig";
 import {MenuItem} from "primereact/menuitem";
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {RoleEnum} from "../api";
 import { TieredMenu } from "primereact/tieredmenu"; // Use TieredMenu for the dropdown
 import { Avatar } from "primereact/avatar";
@@ -23,8 +23,6 @@ const NavbarComponent: React.FC = () => {
     const {currentUser: user, isCustomer} = useUser();
     const {cartItems} = useCart();
     const userMenuRef = useRef<TieredMenu>(null);
-
-    const navigate = useNavigate();
 
     const totalCartItems = React.useMemo(() => {
         return cartItems.reduce((acc, item) => acc + (item.quantity || 0), 0);
@@ -89,23 +87,23 @@ const NavbarComponent: React.FC = () => {
 
     const endContent = () => (
         <div className="flex align-items-center gap-3 pr-3">
-                <div className="flex align-items-center cursor-pointer p-menuitem-link border-round p-2 transition-colors transition-duration-150" onClick={() => {navigate("/shopping-cart")}}>
                     {canPutIntoCart &&
-                        <Avatar
-                            icon="pi pi-shopping-cart"
-                            className="p-overlay-badge"
-                        >
-                            {totalCartItems > 0 && (
-                                <Badge value={totalCartItems} severity="danger" className="text-xs" style={{
-                                    transform: 'scale(0.75)',
-                                    transformOrigin: 'top right',
-                                    top: '-8px',
-                                    right: '-8px',
-                                }}/>
-                            )}
-                        </Avatar>
+                        <Link to="/shopping-cart">
+                            <Avatar
+                                icon="pi pi-shopping-cart"
+                                className="p-overlay-badge"
+                            >
+                                {totalCartItems > 0 && (
+                                    <Badge value={totalCartItems} severity="danger" className="text-xs" style={{
+                                        transform: 'scale(0.75)',
+                                        transformOrigin: 'top right',
+                                        top: '-8px',
+                                        right: '-8px',
+                                    }}/>
+                                )}
+                            </Avatar>
+                        </Link>
                     }
-                </div>
 
             {user ? (
                 <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => userMenuRef.current?.toggle(e)}>
