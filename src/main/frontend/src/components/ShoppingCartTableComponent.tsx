@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from "react";
 import ShoppingCartListComponent from "./ShoppingCartListComponent";
 import { useCart } from "../Contexts/cartContext";
+import {Button} from "primereact/button";
 
 const ShoppingCartTableComponent: React.FC = () => {
-    const { cartItems, isLoading, updateCartItem, removeFromCart } = useCart();
+    const { cartItems, isLoading, updateCartItem, removeFromCart, removeAllFromCart } = useCart();
 
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -32,7 +33,7 @@ const ShoppingCartTableComponent: React.FC = () => {
     );
 
     return (
-        <div className="card">
+        <div>
             {header}
             <ShoppingCartListComponent
                 items={filteredItems}
@@ -40,8 +41,14 @@ const ShoppingCartTableComponent: React.FC = () => {
                 onQuantityChange={(product, quantity) => updateCartItem(product, quantity, false)}
                 onRemove={removeFromCart}
             />
-            <div className="flex justify-content-end mt-4 text-xl font-bold">
-                Total: €{totalPrice.toFixed(2)}
+            <div className="flex align-items-center">
+                <Button label="Clear all" icon="pi pi-trash" onClick={() => removeAllFromCart()}/>
+                <div className="flex flex-column mt-4 text-xl font-bold ml-auto">
+                <span>
+                    Total
+                </span>
+                    €{totalPrice.toFixed(2)}
+                </div>
             </div>
         </div>
     );
