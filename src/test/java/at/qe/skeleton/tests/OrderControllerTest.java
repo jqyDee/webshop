@@ -1,6 +1,5 @@
 package at.qe.skeleton.tests;
-
-
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
@@ -116,6 +115,11 @@ public class OrderControllerTest {
     @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
     public void testGetOrders() throws Exception {
 
+        Userx mockUser = new Userx();
+        mockUser.setId(100L);
+        mockUser.setRole(UserxRole.CUSTOMER);
+        authenticateUser(mockUser);
+
         Order order2 = new Order();
         order2.setId(2L);
         order2.setStatus(OrderStatus.PENDING);
@@ -131,7 +135,7 @@ public class OrderControllerTest {
         Page<Order> page = new PageImpl<>(orders, pageable, total_count);
 
         Mockito.when(orderService.getOrders(
-                ArgumentMatchers.any(),
+                ArgumentMatchers.eq(mockUser),
                 ArgumentMatchers.any(Pageable.class)
         )).thenReturn(page);
 
