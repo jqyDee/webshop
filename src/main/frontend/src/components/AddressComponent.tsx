@@ -34,11 +34,9 @@ const AddressComponent: React.FC<AddressComponentProps> = ({ title, address, mod
             {mode === 'view' ? (
                 /* VIEW MODE */
                 <div className="text-700 line-height-3">
-                    <p className="m-0 font-bold">{data.street || 'No street provided'}, {data.number || 'No number provided'} </p>
-                    <p className="m-0">
-                        {data.city || 'No city'}, {data.postalCode || 'No zip'}
-                    </p>
-                    <p className="m-0 text-sm uppercase text-500">{data.country}</p>
+                    <p className="m-0">{data.street || 'No street provided'}, {data.number || 'No number provided'} </p>
+                    <p className="m-0">{data.city || 'No city provided'}, {data.postalCode || 'No zip provided'}               </p>
+                    <p className="m-0 uppercase">{data.country || 'No country provided'}</p>
                 </div>
             ) : (
                 /* EDIT MODE */

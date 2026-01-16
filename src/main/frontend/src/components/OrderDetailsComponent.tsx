@@ -55,7 +55,17 @@ const OrderDetailsComponent: React.FC = () => {
             </div>
 
             <DataTable value={order.products} className="p-datatable-sm">
-                <Column field="name" header="Productname" />
+                <Column
+                    header="Productname"
+                    body={(item) => (
+                        <span
+                            className="text-primary font-medium cursor-pointer hover:underline"
+                            onClick={() => navigate(`/product/${item.product.id}`)}
+                        >
+                            {item.name}
+                        </span>
+                    )}
+                />
                 <Column field="quantity" header="Quantity" />
                 <Column
                     header="Price"
