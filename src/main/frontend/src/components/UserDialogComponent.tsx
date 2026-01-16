@@ -21,10 +21,11 @@ export interface UserDialogHandle {
 
 interface UserDialogComponentProps {
     refetch?: (options?: RefetchOptions) => Promise<QueryObserverResult<UserxDto[], Error>>;
+    canSetRole: boolean;
 }
 
 const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProps>(
-    ({refetch}, ref) => {
+    ({refetch, canSetRole}, ref) => {
         const [selectedUser, setSelectedUser] = useState<UserxUpdateDto | null>(null);
         const [isNewUser, setIsNewUser] = useState<boolean>(false);
         const [isRegister, setIsRegister] = useState<boolean>(false);
@@ -237,6 +238,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
                     user={selectedUser}
                     isNewUser={isNewUser}
                     submitting={submitting}
+                    canSetRole={canSetRole}
                     isRegister={isRegister}
                     validation={validation}
                     onHide={hideDialog}

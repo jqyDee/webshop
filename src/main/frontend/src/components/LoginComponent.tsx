@@ -101,7 +101,7 @@ const LoginComponent = () => {
                     </div>
                 </form>
                 {error && <p style={{color: 'red', marginTop: 25}}>{error}</p>}
-                <UserDialogComponent ref={dialogRef} />
+                <UserDialogComponent ref={dialogRef} canSetRole={false}/>
             </div>
         </div>
     );

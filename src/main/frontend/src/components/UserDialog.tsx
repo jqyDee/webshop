@@ -18,6 +18,7 @@ interface UserDialogProps {
     isNewUser: boolean;
     submitting: boolean;
     isRegister: boolean;
+    canSetRole: boolean;
     validation: UserxValidationResult;
     onHide: () => void;
     onSubmit: () => void;
@@ -34,6 +35,7 @@ interface UserDialogProps {
  * @param submitting whether the process is currently submitting
  * @param isRegister is a register dialog
  * @param validation field validation information
+ * @param canSetRole
  * @param onHide callback when the dialog is hidden
  * @param onSubmit callback when the user is submitted
  * @param onInputChange callback when the input changes
@@ -47,6 +49,7 @@ const UserDialog: React.FC<UserDialogProps> = ({
     submitting,
     isRegister,
     validation,
+    canSetRole,
     onHide,
     onSubmit,
     onInputChange,
@@ -79,7 +82,7 @@ const UserDialog: React.FC<UserDialogProps> = ({
                     user={user}
                     fieldErrors={validation.fieldErrors}
                     isRegister={isRegister}
-                    isNewUser={isNewUser}
+                    canSetRole={canSetRole}
                     onInputChange={onInputChange}
                     onRolesChange={onRolesChange}
                     onUserEnabledChange={onUserEnabledChange}

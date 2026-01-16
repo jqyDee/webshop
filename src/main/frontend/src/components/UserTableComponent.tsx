@@ -31,7 +31,7 @@ const UserTable = () => {
             <Button label="Add User" icon="pi pi-plus" className="p-button-raised p-button-rounded"
                     style={{marginBottom: "10px"}} onClick={() => openEditDialog(null)}/>
             <UserListComponent users={users ?? []} loading={isLoading} onEditUser={openEditDialog}/>
-            <UserDialogComponent refetch={refetch} ref={dialogRef}/>
+            <UserDialogComponent refetch={refetch} canSetRole={true} ref={dialogRef}/>
         </Card>
     );
 };

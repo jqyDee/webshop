@@ -14,7 +14,7 @@ import {Dropdown} from "primereact/dropdown";
 interface UserFormProps {
     user: UserxUpdateDto,
     isRegister: boolean,
-    isNewUser: boolean,
+    canSetRole: boolean,
     fieldErrors?: Partial<Record<keyof UserxUpdateDto, string>>,
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
     onRolesChange: (event: { value: string }) => void,
@@ -26,6 +26,7 @@ interface UserFormProps {
  * @param user the user to be edited
  * @param isRegister if the dialog is for registration
  * @param isNewUser if the dialog is for new user
+ * @param canSetRole
  * @param fieldErrors field validation
  * @param onInputChange callback when the input changes
  * @param onRolesChange callback when the role change
@@ -35,7 +36,7 @@ const UserForm: React.FC<UserFormProps> =
     ({
         user,
         isRegister,
-        isNewUser,
+        canSetRole,
         fieldErrors,
         onInputChange,
         onRolesChange,
@@ -104,29 +105,29 @@ const UserForm: React.FC<UserFormProps> =
                                    value={user.phone ?? ''}>
                         </InputMask>
                     </div>
-                    { (!isRegister && !isNewUser) &&
-                        <div>
-                            <div className="flex-auto mb-3">
-                                <label htmlFor="role" className="font-bold block">Roles</label>
-                                <Dropdown inputId="role" name="role" value={user.role} onChange={onRolesChange}
-                                          options={userRoles} optionLabel="label"
-                                          placeholder="Select Roles"
-                                          className="w-full md:w-20rem"
-                                          invalid={!!fieldErrors?.role}
-                                />
-                                {fieldErrors?.role && <small className="p-error">{fieldErrors.role}</small>}
-                            </div>
-                            <div className="flex-auto mb-3">
-                                <label htmlFor="enabled" className="font-bold block">Enabled</label>
-                                <Checkbox inputId="enabled" name="enabled"
-                                          style={{ float: "right" }}
-                                          onChange={onUserEnabledChange}
-                                          checked={user.enabled ?? false}>
-                                </Checkbox>
-                            </div>
+                    {canSetRole &&
+                        <div className="flex-auto mb-3">
+                            <label htmlFor="role" className="font-bold block">Roles</label>
+                            <Dropdown inputId="role" name="role" value={user.role} onChange={onRolesChange}
+                                      options={userRoles} optionLabel="label"
+                                      placeholder="Select Roles"
+                                      className="w-full md:w-20rem"
+                                      invalid={!!fieldErrors?.role}
+                            />
+                            {fieldErrors?.role && <small className="p-error">{fieldErrors.role}</small>}
                         </div>
                     }
-                </div>
+                    { (!isRegister) &&
+                        <div className="flex-auto mb-3">
+                            <label htmlFor="enabled" className="font-bold block mb-1">Enabled</label>
+                            <Checkbox inputId="enabled" name="enabled"
+                                      style={{ float: "left" }}
+                                      onChange={onUserEnabledChange}
+                                      checked={user.enabled ?? false}>
+                            </Checkbox>
+                        </div>
+                    }
+                    </div>
                 </form>
             </div>
         )
