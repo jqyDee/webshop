@@ -8,6 +8,7 @@ import {Column} from "primereact/column";
 import {getOrderByIdOptions} from "../api/@tanstack/react-query.gen.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "primereact/button";
+import AddressComponent from "./AddressComponent.tsx";
 
 const OrderDetailsComponent: React.FC = () => {
 
@@ -62,10 +63,27 @@ const OrderDetailsComponent: React.FC = () => {
                 />
                 <Column
                     field="total"
-                    header="Summe"
+                    header="sum"
                     body={(item) => <span className="font-bold text-primary">{item.total * item.quantity} €</span>}
                 />
             </DataTable>
+
+            <div className="grid mb-5">
+                <div className="col-12 md:col-6">
+                    <AddressComponent
+                        title="Shipping Address"
+                        address={order.shippingAddress}
+                        mode="view"
+                    />
+                </div>
+                <div className="col-12 md:col-6">
+                    <AddressComponent
+                        title="Billing Address"
+                        address={order.paymentAddress}
+                        mode="view"
+                    />
+                </div>
+            </div>
 
             <div className="flex justify-content-between align-items-center mt-6">
                 <Button
@@ -75,7 +93,7 @@ const OrderDetailsComponent: React.FC = () => {
                     onClick={() => navigate('/orders')}
                 />
                 <div className="text-right">
-                    <span className="text-xl font-light block mb-2">Gesamtsumme</span>
+                    <span className="text-xl font-light block mb-2">Total</span>
                     <span className="text-4xl font-bold text-900">{order.sum} €</span>
                 </div>
             </div>
