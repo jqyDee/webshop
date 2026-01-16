@@ -1,8 +1,7 @@
 import {ProductDto, ProductFilterDto} from "../api";
-import {DataView, DataViewPageEvent} from "primereact/dataview";
+import {DataView, DataViewLayoutOptions, DataViewPageEvent} from "primereact/dataview";
 import {Tag} from "primereact/tag";
 import {Rating} from "primereact/rating";
-import {classNames} from "primereact/utils";
 import {Button} from "primereact/button";
 import {Dropdown} from "primereact/dropdown";
 import {InputNumber} from "primereact/inputnumber";
@@ -37,6 +36,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
     const { updateCartItem } = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
     const navigate = useNavigate();
+    const [layout, setLayout] = useState<'list' | 'grid'>('grid');
 
     useEffect(() => {
         setSearchTerm(props.filters.name || '');
@@ -125,7 +125,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                             />
                         </div>
 
-                        {/* Sort Dropdown - Responsive width */}
+                        {/* Sort Dropdown and Layout - Responsive width */}
                         <div className="flex flex-row align-items-end gap-2 ml-auto" style={{ minWidth: '200px' }}>
                             {canEdit &&
                                 <Button
@@ -145,6 +145,16 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                     className="w-full"
                                 />
                             </div>
+                            <div className="hidden md:flex">
+                                <div className="flex flex-column gap-2" >
+                                    <label className="text-sm font-bold">Layout</label>
+                                    <DataViewLayoutOptions
+                                        layout={layout}
+                                        onChange={(e) => setLayout(e.value as 'list' | 'grid')}
+                                        className="w-full"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -154,10 +164,10 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
 
     const canEdit = currentUser && (isAdmin || isManager);
 
-    const itemTemplate = (product: ProductDto, index: number) => {
+    const listItem= (product: ProductDto) => {
         return (
             <div className="col-12" key={product.id}>
-                <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4', { 'border-top-1 surface-border': index !== 0 }) }>
+                <div className="card border-round flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 shadow-5 m-2">
                     <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round"
                          src={product.imageUrl || DefaultImage}
                          alt={product.name}
@@ -223,11 +233,88 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
         );
     };
 
+    const gridItem = (product: ProductDto) => {
+        return (
+            <div className="col-12 sm:col-6 lg:col-12 xl:col-4 p-2" key={product.id}>
+                <div className="p-4 card border-round flex flex-column h-full shadow-5">
+                    {/* Image Section */}
+                    <div className="flex flex-column align-items-center gap-3 py-5">
+                        <img
+                            className="w-9 shadow-2 border-round"
+                            src={product.imageUrl || DefaultImage}
+                            alt={product.name}
+                            onError={(e) => { (e.currentTarget.src = DefaultImage); }}
+                            style={{ objectFit: 'cover', width: '300px', height: '300px' }}
+                        />
+                        <div className="text-2xl font-bold text-900 cursor-pointer hover:underline text-center"
+                             onClick={() => navigate(`/product/${product.id}`)}>
+                            {product.name}
+                        </div>
+                        <div className="flex align-items-center gap-2">
+                            <Rating value={product.rating} readOnly cancel={false}></Rating>
+                            <span className="text-500">({product.rating?.toFixed(1) || 0})</span>
+                        </div>
+                    </div>
+
+                    {/* Description & Tags */}
+                    <div className="flex-1">
+                        <div className="text-sm text-700 mb-3 line-height-3">
+                            {product.shortDescription}
+                        </div>
+                        <div className="flex align-items-center gap-3 mb-4">
+                            <Tag value={'Stock: ' + product.stock} severity={getSeverity(product)}></Tag>
+                        </div>
+                    </div>
+
+                    {/* Footer Section: Price and Buttons */}
+                    <div className="flex align-items-center justify-content-between">
+                        <div className="flex flex-column">
+                            {product.discountedPrice && product.discount > 0.0 && (
+                                <span className="text-sm text-500 line-through">
+                                    €{product.price.toFixed(2)}
+                                </span>
+                            )}
+                            <div className="flex gap-2">
+                                <span className="text-2xl font-semibold text-900">
+                                    €{product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
+                                </span>
+                                {product.discount > 0.0 && (
+                                    <Tag severity="danger" value={`${product.discount * 100}% OFF`} />
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                            {canEdit &&
+                                <Button
+                                    icon="pi pi-pencil"
+                                    className="p-button-rounded p-button-danger p-button-text"
+                                    onClick={() => props.openDialog(product)}
+                                />
+                            }
+                            <Button
+                                icon="pi pi-shopping-cart"
+                                className="p-button-rounded"
+                                disabled={product.stock === 0 || (isAdmin || isManager)}
+                                onClick={() => updateCartItem(product, 1)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const itemTemplate = (product: ProductDto) => {
+        if (!product) return null;
+        return layout === 'list' ? listItem(product) : gridItem(product);
+    }
+
     const listTemplate = (items: ProductDto[]) => {
         if (!items || items.length === 0) return null;
 
-        let list = items.map((product, index) => {
-            return itemTemplate(product, index);
+        let list = items.map((product) => {
+            return itemTemplate(product);
         });
 
         return <div className="grid grid-nogutter">{list}</div>;
@@ -238,7 +325,7 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
             value={props.products}
             listTemplate={listTemplate}
             header={header()}
-            layout="list"
+            layout={layout}
             paginator
             rows={props.pageSize}
             first={props.first}

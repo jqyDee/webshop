@@ -54,8 +54,8 @@ const ProductDetailsComponent: React.FC = () => {
                     <img
                         src={product.imageUrl || DefaultImage}
                         alt={product.name}
-                        className="shadow-4 w-full"
-                        style={{ maxWidth: '500px', objectFit: 'contain' }}
+                        className="shadow-2 border-round w-full"
+                        style={{ maxWidth: '500px', objectFit: 'cover' }}
                         onError={(e) => {
                             (e.currentTarget.src = DefaultImage);
                         }}
