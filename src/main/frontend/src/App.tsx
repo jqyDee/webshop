@@ -35,10 +35,10 @@ const client = new QueryClient({
 
 const App: React.FC = () => {
     return (
-        <ToastProvider>
-            // Wrap the application in the UserProvider, which allows to access the authenticated user
+        <QueryClientProvider client={client}>
+            { /* Wrap the application in the UserProvider, which allows to access the authenticated user */ }
             <UserProvider>
-                <QueryClientProvider client={client}>
+                <ToastProvider>
                     <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
                     <CartContextProvider>
                         <Suspense fallback={<div>Loading...</div>}>
@@ -63,9 +63,9 @@ const App: React.FC = () => {
                             </BrowserRouter>
                         </Suspense>
                     </CartContextProvider>
-                </QueryClientProvider>
+                </ToastProvider>
             </UserProvider>
-        </ToastProvider>
+        </QueryClientProvider>
     );
 }
 
