@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useRef, useState} from "react";
+import React, {forwardRef, useImperativeHandle, useState} from "react";
 import UserDialog from "./UserDialog.tsx";
 import {UserxDto, UserxUpdateDto} from "../api";
 import {
@@ -11,9 +11,9 @@ import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
 import {QueryObserverResult, RefetchOptions, useMutation} from "@tanstack/react-query";
 import {createUserMutation, updateUserMutation} from "../api/@tanstack/react-query.gen.ts";
-import {Toast} from "primereact/toast";
 import {useUser} from "../Contexts/authenticatedUserContext.tsx";
 import {useNavigate} from "react-router-dom";
+import {useGlobalToast} from "../Contexts/toastContext.tsx";
 
 export interface UserDialogHandle {
     open: (user: UserxDto | null, register?: boolean) => void;
@@ -34,13 +34,14 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
         const {login} = useUser();
         const navigate = useNavigate();
 
-        const toast = useRef<Toast | null>(null);
+        const {showToast} = useGlobalToast();
+
 
         const createUser = useMutation({
             ...createUserMutation(),
             onError: (err) => {
                 console.error('Error saving user:', err);
-                toast.current?.show({severity: 'error', summary: 'Error', detail: 'Error saving user', life: 3000});
+                showToast({severity: 'error', summary: 'Error', detail: 'Error saving user', life: 3000});
             },
             onSuccess: async () => {
                 if (refetch) {
@@ -52,7 +53,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
             ...updateUserMutation(),
             onError: (err) => {
                 console.error('Error updating user:', err);
-                toast.current?.show({severity: 'error', summary: 'Error', detail: 'Error updating user', life: 3000});
+                showToast({severity: 'error', summary: 'Error', detail: 'Error updating user', life: 3000});
             },
             onSuccess: async () => {
                 if (refetch) {
@@ -138,6 +139,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
 
                 await createUser.mutateAsync({body: selectedUser});
                 if (isRegister) {
+                    showToast({severity: "success", summary: 'Successfully registered', life: 3000});
                     await login({username: selectedUser.username, password: pw});
                     navigate('/');
                 }
@@ -227,9 +229,9 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
 
             setSelectedUser({...selectedUser, role: role});
         }
+
         return (
             <div>
-                <Toast ref={toast}/>
                 <UserDialog
                     visible={dialogVisible}
                     user={selectedUser}
