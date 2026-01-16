@@ -5,7 +5,6 @@ import { useCart } from "../Contexts/cartContext";
 const ShoppingCartTableComponent: React.FC = () => {
     const { cartItems, isLoading, updateCartItem, removeFromCart } = useCart();
 
-    // Optional: local search/filter like Product component
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredItems = useMemo(() => {
@@ -16,11 +15,10 @@ const ShoppingCartTableComponent: React.FC = () => {
     }, [cartItems, searchTerm]);
 
     const totalPrice = useMemo(() =>
-        filteredItems.reduce((sum, item) =>
+        cartItems.reduce((sum, item) =>
             sum + ((item.product.discountedPrice ?? item.product.price) * item.quantity), 0
         ), [filteredItems]);
 
-    // Optional: header for search/filter, similar to ProductListComponent
     const header = (
         <div className="flex justify-content-between p-3">
             <input
@@ -37,7 +35,7 @@ const ShoppingCartTableComponent: React.FC = () => {
         <div className="card">
             {header}
             <ShoppingCartListComponent
-                items={cartItems}
+                items={filteredItems}
                 loading={isLoading}
                 onQuantityChange={(product, quantity) => updateCartItem(product, quantity, false)}
                 onRemove={removeFromCart}
