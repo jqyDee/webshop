@@ -221,8 +221,8 @@ const ProductListComponent: React.FC<ProductListComponentProps> = (props) => {
                                 <Button icon="pi pi-shopping-cart"
                                         className="p-button-rounded ml-auto"
                                         disabled={product.stock === 0 || (isAdmin || isManager)}
-                                        onClick={() => {
-                                            updateCartItem(product, 1);
+                                        onClick={async () => {
+                                            await updateCartItem(product, 1);
                                         }}
                                 />
                             </div>
