@@ -5,11 +5,13 @@ import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.controllers.AdminController;
 import at.qe.skeleton.dtos.UserxDTO;
+import at.qe.skeleton.dtos.UserxUpdateDTO;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.services.UserxService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
@@ -21,6 +23,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -173,6 +176,39 @@ public class AdminControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/admin/user/1"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    void createUserValidInput() throws Exception {
+        Long id = 1L;
+        String username = "newUser";
+        String password = "password";
+        String firstName = "first";
+        String lastName = "last";
+        String email = "new@example.com";
+        UserxRole role = UserxRole.ADMIN;
+        boolean isEnabled = true;
+
+        UserxUpdateDTO newUser = new UserxUpdateDTO(id, username, password, firstName, lastName, email, "", true, null, null, role);
+        Userx user = new Userx();
+        user.setId(id);
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setEmail(email);
+        user.setEnabled(isEnabled);
+
+        Mockito.when(userCreateMapper.mapFrom(newUser)).thenReturn(user);
+        Mockito.when(userService.saveUser(user)).thenReturn(user);
+        Mockito.when(userMapper.mapTo(user)).thenReturn(new UserxDTO(id, null, null, null, null, username, firstName, lastName, email, "", null, null, isEnabled, role));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/createUser")
+                                              .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                              .contentType(MediaType.APPLICATION_JSON)
+                                              .content(new ObjectMapper().writeValueAsString(newUser)))
+               .andExpect(MockMvcResultMatchers.status().isCreated())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(username));
     }
 
     @Test

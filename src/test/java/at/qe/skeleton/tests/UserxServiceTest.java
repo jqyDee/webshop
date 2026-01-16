@@ -40,8 +40,8 @@ public class UserxServiceTest {
         for (Userx user : userService.getAllUsers()) {
             switch (user.getUsername()) {
                 case "admin", "elvis", "admin2" -> {
-                    Assertions.assertTrue(user.getRole().equals(UserxRole.ADMIN),
-                                          "User \"" + user + "\" does not have role ADMIN");
+                    Assertions.assertEquals(UserxRole.ADMIN, user.getRole(),
+                                            "User \"" + user + "\" does not have role ADMIN");
                     Assertions.assertNotNull(user.getCreateUser(),
                                              "User \"" + user + "\" does not have a createUser defined");
                     Assertions.assertNotNull(user.getCreatedDate(),
@@ -52,8 +52,8 @@ public class UserxServiceTest {
                                           "User \"" + user + "\" has a updateDate defined");
                 }
                 case "user1", "manager" -> {
-                    Assertions.assertTrue(user.getRole().equals(UserxRole.MANAGER),
-                                          "User \"" + user + "\" does not have role MANAGER");
+                    Assertions.assertEquals(UserxRole.MANAGER, user.getRole(),
+                                            "User \"" + user + "\" does not have role MANAGER");
                     Assertions.assertNotNull(user.getCreateUser(),
                                              "User \"" + user + "\" does not have a createUser defined");
                     Assertions.assertNotNull(user.getCreatedDate(),
@@ -64,8 +64,8 @@ public class UserxServiceTest {
                                           "User \"" + user + "\" has a updateDate defined");
                 }
                 case "user2", "jonny" -> {
-                    Assertions.assertTrue(user.getRole().equals(UserxRole.CUSTOMER),
-                                          "User \"" + user + "\" does not have role CUSTOMER");
+                    Assertions.assertEquals(UserxRole.CUSTOMER, user.getRole(),
+                                            "User \"" + user + "\" does not have role CUSTOMER");
                     Assertions.assertNotNull(user.getCreateUser(),
                                              "User \"" + user + "\" does not have a createUser defined");
                     Assertions.assertNotNull(user.getCreatedDate(),
@@ -87,6 +87,9 @@ public class UserxServiceTest {
     public void testDeleteUser() {
         Long deleteUserId = 2000L;
         Optional<Userx> adminUser = userService.loadUser(1000L);
+
+        Assertions.assertEquals(7, userService.getAllUsers().size());
+
         Assertions.assertFalse(adminUser.isEmpty(),
                 "Admin user could not be loaded from test data source");
         Optional<Userx> toBeDeletedUserOpt = userService.loadUser(deleteUserId);
@@ -148,7 +151,7 @@ public class UserxServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void testCreateUser() {
+    public void testCreateUser_save() {
         Optional<Userx> adminUserOpt = userService.loadUser(1000L);
         Assertions.assertFalse(adminUserOpt.isEmpty(),
                 "Admin user could not be loaded from test data source");
@@ -189,10 +192,10 @@ public class UserxServiceTest {
                 "User \"" + username + "\" does not have a the correct email attribute stored being saved");
         Assertions.assertEquals(phone, freshlyCreatedUser.getPhone(),
                 "User \"" + username + "\" does not have a the correct phone attribute stored being saved");
-        Assertions.assertTrue(freshlyCreatedUser.getRole().equals(UserxRole.MANAGER),
-                "User \"" + username + "\" does not have role MANAGER");
-        Assertions.assertFalse(freshlyCreatedUser.getRole().equals(UserxRole.CUSTOMER),
-                "User \"" + username + "\" does have role CUSTOMER");
+        Assertions.assertEquals(UserxRole.MANAGER, freshlyCreatedUser.getRole(),
+                                "User \"" + username + "\" does not have role MANAGER");
+        Assertions.assertNotEquals(UserxRole.CUSTOMER, freshlyCreatedUser.getRole(),
+                                   "User \"" + username + "\" does have role CUSTOMER");
         Assertions.assertNotNull(freshlyCreatedUser.getCreateUser(),
                 "User \"" + username + "\" does not have a createUser defined after being saved");
         Assertions.assertEquals(adminUser, freshlyCreatedUser.getCreateUser(),
@@ -332,5 +335,37 @@ public class UserxServiceTest {
         Assertions.assertNotNull(managers);
         Assertions.assertEquals(2, managers.size());
         Assertions.assertTrue(managers.stream().allMatch(userx -> userx.getRole() == UserxRole.MANAGER));
+    }
+
+    @DirtiesContext
+    @Test
+    public void testCreateUser() {
+        String pw = "passwd";
+
+        Userx user = new Userx();
+        user.setUsername("user");
+        user.setFirstName("First");
+        user.setLastName("Last");
+        user.setEmail("email");
+        user.setPassword(pw);
+        user.setRole(UserxRole.MANAGER);
+
+        Userx createdUser = userService.createUser(user);
+
+        Assertions.assertNotNull(createdUser);
+        Assertions.assertNotNull(createdUser.getUsername());
+        Assertions.assertNotNull(createdUser.getId());
+        Assertions.assertNotNull(createdUser.getFirstName());
+        Assertions.assertNotNull(createdUser.getLastName());
+        Assertions.assertNotNull(createdUser.getEmail());
+        Assertions.assertNotNull(createdUser.getPassword());
+        Assertions.assertNotNull(createdUser.getRole());
+
+        Assertions.assertEquals("user", createdUser.getUsername());
+        Assertions.assertEquals("First", createdUser.getFirstName());
+        Assertions.assertEquals("Last", createdUser.getLastName());
+        Assertions.assertEquals("email", createdUser.getEmail());
+        Assertions.assertEquals(UserxRole.CUSTOMER, createdUser.getRole());
+        Assertions.assertNotEquals(pw, createdUser.getPassword());
     }
 }

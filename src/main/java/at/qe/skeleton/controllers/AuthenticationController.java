@@ -64,7 +64,7 @@ public class AuthenticationController {
      * @param userxUpdateDto the user tb created
      * @return {@link ResponseEntity} with status {@code 201 (Created)} with the newly created user in the body, or with status {@code 409 (Conflict)} if the username is already in use
      */
-    @PostMapping("/createUser")
+    @PostMapping("/register")
     public ResponseEntity<UserxDTO> createUser(@Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
         Userx toCreate = userxUpdateMapper.mapFrom(userxUpdateDto);
         Userx createdUser = userxService.createUser(toCreate);

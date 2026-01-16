@@ -3,13 +3,11 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.dtos.UserxDTO;
-import at.qe.skeleton.dtos.UserxUpdateDTO;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.services.UserxService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
@@ -17,12 +15,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -81,36 +81,40 @@ public class UserxControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    void createUserValidInput() throws Exception {
-        Long id = 1L;
-        String username = "newUser";
-        String password = "password";
-        String firstName = "first";
-        String lastName = "last";
-        String email = "new@example.com";
-        UserxRole role = UserxRole.ADMIN;
-        boolean isEnabled = true;
+    public void testGetCurrentUser_Authenticated() throws Exception {
+        Userx userEntity = new Userx();
+        userEntity.setUsername("testuser");
+        userEntity.setRole(UserxRole.CUSTOMER);
 
-        UserxUpdateDTO newUser = new UserxUpdateDTO(id, username, password, firstName, lastName, email, "", true, null, null, role);
-        Userx user = new Userx();
-        user.setId(id);
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setEmail(email);
-        user.setEnabled(isEnabled);
+        UserxDTO userDTO = new UserxDTO(3000L, null, null, null, null, "testuser", "m", "m", null, null, null, null, true, null);
 
-        Mockito.when(userUpdateMapper.mapFrom(newUser)).thenReturn(user);
-        Mockito.when(userService.saveUser(user)).thenReturn(user);
-        Mockito.when(userMapper.mapTo(user)).thenReturn(new UserxDTO(id, null, null, null, null, username, firstName, lastName, email, "", null, null, isEnabled, role));
+        Mockito.when(userMapper.mapTo(ArgumentMatchers.any(Userx.class))).thenReturn(userDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/createUser")
-                                              .with(SecurityMockMvcRequestPostProcessors.csrf())
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(new ObjectMapper().writeValueAsString(newUser)))
-               .andExpect(MockMvcResultMatchers.status().isCreated())
-               .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
-               .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(username));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/me")
+                                              .with(SecurityMockMvcRequestPostProcessors.user(userEntity))
+                                              .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(MockMvcResultMatchers.status().isOk())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("testuser"));
     }
 
+    @Test
+    public void testIsAuthenticated_Success() throws Exception {
+        UserDetails userDetails = User.withUsername("admin")
+                                      .password("password")
+                                      .authorities("ADMIN")
+                                      .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/authenticated")
+                                              .with(SecurityMockMvcRequestPostProcessors.user(userDetails))
+                                              .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(MockMvcResultMatchers.status().isOk())
+               .andExpect(MockMvcResultMatchers.content().string("User is authenticated: admin"));
+    }
+
+    @Test
+    public void testIsAuthenticated_Unauthenticated() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/authenticated")
+                                              .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
 }
