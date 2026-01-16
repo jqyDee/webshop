@@ -80,13 +80,13 @@ const ProductDetailsComponent: React.FC = () => {
                         {hasDiscount ? (
                             <>
                                 <div className="flex align-items-baseline gap-2">
-                                    <span className="text-xl text-500 line-through">${product.price.toFixed(2)}</span>
-                                    <span className="text-3xl font-bold text-red-600">${product.discountedPrice.toFixed(2)}</span>
+                                    <span className="text-xl text-500 line-through">€{product.price.toFixed(2)}</span>
+                                    <span className="text-3xl font-bold text-red-600">€{product.discountedPrice.toFixed(2)}</span>
                                 </div>
                                 <Tag severity="danger" value={`-${product.discount * 100}% OFF`} />
                             </>
                         ) : (
-                            <span className="text-3xl font-bold text-900">${product.price.toFixed(2)}</span>
+                            <span className="text-3xl font-bold text-900">€{product.price.toFixed(2)}</span>
                         )}
                     </div>
 
