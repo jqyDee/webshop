@@ -43,7 +43,7 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
 
     const listItem = (order: OrderDto) => (
         <div className="col-12">
-            <div className="flex flex-column md:flex-row align-items-center p-4 gap-4 border-bottom-1 surface-border">
+            <div className="card border-round flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 shadow-5 m-2">
                 <div className="flex-1 flex flex-column gap-2">
                     <div className="flex align-items-center gap-2">
                         <span className="font-bold text-xl">Order #{order.id}</span>
@@ -62,7 +62,7 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
 
     const gridItem = (order: OrderDto) => (
         <div className="col-12 sm:col-6 lg:col-4 p-2">
-            <div className="p-4 border-1 surface-border surface-card border-round flex flex-column gap-3">
+            <div className="p-4 card border-round flex flex-column shadow-5">
                 <div className="flex justify-content-between align-items-center">
                     <span className="font-bold">#{order.id}</span>
                     <Tag value={order.status} severity={getStatusSeverity(order.status!)} />
