@@ -85,12 +85,12 @@ const OrderDetailsComponent: React.FC = () => {
                 <Column field="quantity" header="Quantity" />
                 <Column
                     header="Price"
-                    body={(item) => `${(item.total).toFixed(2)} €`}
+                    body={(item) => `€${(item.total).toFixed(2)}`}
                 />
                 <Column
                     field="total"
-                    header="sum"
-                    body={(item) => <span className="font-bold text-primary">{item.total * item.quantity} €</span>}
+                    header="Sum"
+                    body={(item) => <span className="font-bold text-primary">€{item.total * item.quantity}</span>}
                 />
             </DataTable>
 
