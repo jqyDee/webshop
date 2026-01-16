@@ -52,7 +52,6 @@ class OrderServiceTest {
     private Userx customer1;
     private Userx customer2;
     private Userx customer3;
-    private Userx admin;
     @Autowired
     private PaymentService paymentService;
 
@@ -61,7 +60,6 @@ class OrderServiceTest {
         this.customer1 = userxRepository.findFirstByUsername("jonny").orElseThrow();
         this.customer2 = userxRepository.findFirstByUsername("user1").orElseThrow();
         this.customer3 = userxRepository.findFirstByUsername("elvis").orElseThrow();
-        this.admin = userxRepository.findFirstByUsername("admin2").orElseThrow();
     }
 
     @Test
@@ -115,7 +113,7 @@ class OrderServiceTest {
         assertEquals(customer1.getId(), newOrder.getUser().getId());
 
         double expectedSum = product.getPrice() * 3;
-        assertEquals(expectedSum, newOrder.getSum(), "Price msut be calculated correctly");
+        assertEquals(expectedSum, newOrder.getSum(), "Price must be calculated correctly");
 
         Collection<CartItem> remainingCartItems = cartItemRepository.findAllByUser(customer1);
         assertTrue(remainingCartItems.isEmpty(), "Cart should be cleared after order creation");
