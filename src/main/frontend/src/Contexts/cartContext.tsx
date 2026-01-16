@@ -57,7 +57,9 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
                 // backend expects map
                 const body: Record<string, number> = {};
                 localCart.forEach(item => {
-                    body[item.product.id.toString()] = item.quantity || 1;
+                    if (item.product.id){
+                        body[item.product.id.toString()] = item.quantity || 1;
+                    }
                 });
 
                 await syncMutation.mutateAsync({ body });
@@ -75,6 +77,8 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
 
     // ACTIONS
     const updateCartItem = useCallback(async (product: ProductDto, quantity: number, add: boolean = true) => {
+        if (!product.id) return;
+
         if (currentUser) {
             await updateMutation.mutateAsync({
                 path: { productId: product.id },

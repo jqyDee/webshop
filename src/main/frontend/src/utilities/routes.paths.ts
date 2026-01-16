@@ -5,4 +5,6 @@ export const ROUTES = {
     SHOPPING_CART: '/shopping-cart',
     LOGIN: '/login',
     LOGOUT: '/logout',
+    ORDERS: '/orders',
+    PRODUCT: '/product/:id',
 } as const;
