@@ -30,6 +30,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
         const [isRegister, setIsRegister] = useState<boolean>(false);
         const [dialogVisible, setDialogVisible] = useState<boolean>(false);
         const [validation, setValidation] = useState<UserxValidationResult>({valid: true});
+        const [submitting, setSubmitting] = useState<boolean>(false);
         const {login} = useUser();
         const navigate = useNavigate();
 
@@ -62,7 +63,6 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
 
         useImperativeHandle(ref, () => ({
             open: (openUser, register) => {
-                console.log(openUser);
                 if (register) {
                     openRegisterDialog();
                 }
@@ -118,12 +118,14 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
          * Handle the submit event for the user dialog.
          */
         const handleSubmit = async () => {
+            setSubmitting(true);
             if (!selectedUser) return;
 
             const validationResult = validateUser(selectedUser, {requirePassword: isNewUser});
             if (!validationResult.valid) {
                 // Display an error eventMessage or handle the validation error
                 setValidation(validationResult);
+                setSubmitting(false);
                 console.error('Please fill in all required fields.');
                 return;
             }
@@ -151,6 +153,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
          * @param user
          */
         const openEditDialog = (user: UserxDto) => {
+            setSubmitting(false);
             setSelectedUser(fromUserxDtoToUserxUpdateDto(user));
             setValidation({valid: true});
             setIsNewUser(false);
@@ -161,6 +164,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
          * Open the dialog for creating a new user.
          */
         const openNewUserDialog = () => {
+            setSubmitting(false);
             setSelectedUser(emptyUserxUpdateDto);
             setValidation({valid: true});
             showDialog()
@@ -230,6 +234,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
                     visible={dialogVisible}
                     user={selectedUser}
                     isNewUser={isNewUser}
+                    submitting={submitting}
                     isRegister={isRegister}
                     validation={validation}
                     onHide={hideDialog}
