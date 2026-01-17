@@ -63,6 +63,10 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Optional<Userx> loadUser(Long id) {
+        return loadUserProtected(id);
+    }
+
+    protected Optional<Userx> loadUserProtected(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Id is null");
         }

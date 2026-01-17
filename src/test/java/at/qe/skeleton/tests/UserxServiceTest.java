@@ -1,10 +1,13 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.UserxService;
+import jakarta.persistence.EntityNotFoundException;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +18,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Some very basic tests for {@link UserxService}.
@@ -332,5 +337,34 @@ public class UserxServiceTest {
         Assertions.assertNotNull(managers);
         Assertions.assertEquals(2, managers.size());
         Assertions.assertTrue(managers.stream().allMatch(userx -> userx.getRole() == UserxRole.MANAGER));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testAddNotifyOption() {
+        Userx user2 = userService.loadUser(6000L).orElseThrow();
+        Assertions.assertTrue(user2.getNotifyOptions().isEmpty());
+        user2.addNotifyOption(NotificationType.EMAIL);
+        userService.saveUser(user2);
+        Userx updatedUser = userService.loadUser(3000L).orElseThrow();
+        Assertions.assertTrue(updatedUser.getNotifyOptions().contains(NotificationType.EMAIL));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testRemoveNotifyOption() {
+        Userx user2 = userService.loadUser(3000L).orElseThrow();
+        user2.removeNotifyOption(NotificationType.EMAIL);
+        userService.saveUser(user2);
+        Userx updatedUser = userService.loadUser(3000L).orElseThrow();
+        Assertions.assertFalse(updatedUser.getNotifyOptions().contains(NotificationType.EMAIL));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testGetNotifyOptions() {
+        Userx user2 = userService.loadUser(3000L).orElseThrow(EntityNotFoundException::new);
+        Set<NotificationType> expectedOptions = Sets.newHashSet(List.of(NotificationType.EMAIL, NotificationType.SMS));
+        Assertions.assertEquals(expectedOptions, user2.getNotifyOptions());
     }
 }

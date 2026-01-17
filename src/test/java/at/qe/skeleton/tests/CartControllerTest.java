@@ -93,7 +93,7 @@ public class CartControllerTest {
         Mockito.when(cartItemMapper.mapTo(item)).thenReturn(new CartItemDTO(
                 100,
                 new ProductDTO(1L, "Test Product", 10.0, 5, 0, 0.0, null, null, null, null, null, null),
-                new UserxDTO(3000L, null, null, null, null, "user2", "Max", "Mustermann", null, null, null, null, true, null),
+                new UserxDTO(3000L, null, null, null, null, "user2", "Max", "Mustermann", null, null, null, null, true, null, null),
                 1));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/cart")

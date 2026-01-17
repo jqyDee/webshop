@@ -34,6 +34,7 @@ export type UserxUpdateDto = {
     shippingAddress?: AddressDto;
     paymentAddress?: AddressDto;
     role: RoleEnum;
+    notifyOptions?: Array<ItemsEnum>;
 };
 
 export type UserxDto = {
@@ -51,6 +52,7 @@ export type UserxDto = {
     paymentAddress?: AddressDto;
     enabled: boolean;
     role: RoleEnum;
+    notifyOptions?: Array<ItemsEnum>;
 };
 
 export type ProductDto = {
@@ -149,6 +151,11 @@ export enum RoleEnum {
     ADMIN = 'ADMIN',
     MANAGER = 'MANAGER',
     CUSTOMER = 'CUSTOMER'
+}
+
+export enum ItemsEnum {
+    EMAIL = 'EMAIL',
+    SMS = 'SMS'
 }
 
 export enum StatusEnum {
