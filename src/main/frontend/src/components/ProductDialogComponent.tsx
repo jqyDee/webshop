@@ -1,5 +1,5 @@
 import ProductDialog from "./ProductDialog.tsx";
-import {forwardRef, useImperativeHandle, useRef, useState} from "react";
+import {forwardRef, useImperativeHandle, useState} from "react";
 import {emptyProductDto, ProductValidationResult} from "../utilities/productUtilities.ts";
 import {ProductDto} from "../api";
 import {QueryObserverResult, RefetchOptions, useMutation, useQueryClient} from "@tanstack/react-query";
@@ -9,8 +9,8 @@ import {
     updateProductMutation
 } from "../api/@tanstack/react-query.gen.ts";
 import {useLocation, useNavigate} from "react-router-dom";
-import {Toast} from "primereact/toast";
 import {ProductsRoute} from "../routes.ts";
+import {useGlobalToast} from "../Contexts/toastContext.tsx";
 
 export interface ProductDialogHandle {
     open: (openProduct: ProductDto | null) => void;
@@ -22,7 +22,7 @@ interface ProductDialogComponentProps {
 
 const ProductDialogComponent = forwardRef<ProductDialogHandle, ProductDialogComponentProps>(
     ({ refetch }, ref) => {
-        const toast = useRef<Toast | null>(null);
+        const {showToast} = useGlobalToast();
         const navigate = useNavigate();
 
         const [dialogVisible, setDialogVisible] = useState<boolean>(false);
@@ -136,7 +136,7 @@ const ProductDialogComponent = forwardRef<ProductDialogHandle, ProductDialogComp
                 hideDialog()
             } catch (error) {
                 console.error('Something went wrong updating product', error);
-                toast.current?.show({severity: 'error', summary: 'Something went wrong updating product.', life: 3000});
+                showToast({severity: 'error', summary: 'Something went wrong updating product.', life: 3000});
             }
         }
 
@@ -167,7 +167,7 @@ const ProductDialogComponent = forwardRef<ProductDialogHandle, ProductDialogComp
                     hideDialog();
                 } catch (error) {
                     console.error('Something went wrong deleting product', error);
-                    toast.current?.show({severity: 'error', summary: 'Something went wrong deleting product.', life: 3000});
+                    showToast({severity: 'error', summary: 'Something went wrong deleting product.', life: 3000});
                 }
             }
         }
