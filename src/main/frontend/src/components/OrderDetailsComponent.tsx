@@ -78,7 +78,7 @@ const OrderDetailsComponent: React.FC = () => {
                             className="text-primary font-medium cursor-pointer hover:underline"
                             onClick={() => navigate(`/product/${item.product.id}`)}
                         >
-                            {item.name}
+                            {item.product.name}
                         </span>
                     )}
                 />
