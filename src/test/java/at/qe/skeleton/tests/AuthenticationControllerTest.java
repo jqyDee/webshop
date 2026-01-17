@@ -105,7 +105,7 @@ public class AuthenticationControllerTest {
         user.setEnabled(isEnabled);
 
         Mockito.when(userUpdateMapper.mapFrom(newUser)).thenReturn(user);
-        Mockito.when(userService.createUser(user)).thenReturn(user);
+        Mockito.when(userService.createUser(user, password)).thenReturn(user);
         Mockito.when(userMapper.mapTo(user)).thenReturn(
                 new UserxDTO(id, null, null, null, null, username, firstName, lastName, email, "",
                              null, null, isEnabled, role));

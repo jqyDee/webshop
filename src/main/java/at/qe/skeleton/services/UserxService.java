@@ -154,10 +154,10 @@ public class UserxService implements UserDetailsService {
      * @param user new user to add
      * @return added user
      */
-    public Userx createUser(Userx user) {
+    public Userx createUser(Userx user, String rawPassword) {
         if (user == null) throw new IllegalArgumentException("User is null");
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(rawPassword));
         user.setRole(UserxRole.CUSTOMER);
         return userRepository.save(user);
     }

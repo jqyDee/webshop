@@ -160,21 +160,21 @@ export enum StatusEnum {
     CANCELLED = 'CANCELLED'
 }
 
-export type CreateUserData = {
+export type RegisterData = {
     body: UserxUpdateDto;
     path?: never;
     query?: never;
     url: '/authentication/register';
 };
 
-export type CreateUserResponses = {
+export type RegisterResponses = {
     /**
      * OK
      */
     200: UserxDto;
 };
 
-export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
 
 export type AuthenticateUserData = {
     body: LoginRequestDto;
@@ -366,21 +366,21 @@ export type AddAllToShoppingCartResponses = {
     200: unknown;
 };
 
-export type CreateUser1Data = {
+export type CreateUserData = {
     body: UserxUpdateDto;
     path?: never;
     query?: never;
     url: '/api/admin/createUser';
 };
 
-export type CreateUser1Responses = {
+export type CreateUserResponses = {
     /**
      * OK
      */
     200: UserxDto;
 };
 
-export type CreateUser1Response = CreateUser1Responses[keyof CreateUser1Responses];
+export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 
 export type GetCurrentUserData = {
     body?: never;

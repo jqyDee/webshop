@@ -10,7 +10,7 @@ import {
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
 import {QueryObserverResult, RefetchOptions, useMutation} from "@tanstack/react-query";
-import {createUserMutation, updateUserMutation} from "../api/@tanstack/react-query.gen.ts";
+import {createUserMutation, registerMutation, updateUserMutation} from "../api/@tanstack/react-query.gen.ts";
 import {useUser} from "../Contexts/authenticatedUserContext.tsx";
 import {useNavigate} from "react-router-dom";
 import {useGlobalToast} from "../Contexts/toastContext.tsx";
@@ -50,6 +50,7 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
                 }
             }
         });
+
         const updateUser = useMutation({
             ...updateUserMutation(),
             onError: (err) => {
@@ -62,6 +63,17 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
                 }
             }
         });
+
+        const registerUser = useMutation({
+            ...registerMutation(),
+            onError: (err) => {
+                console.error('Error updating user:', err);
+                showToast({severity: 'error', summary: 'Error', detail: 'Error updating user', life: 3000});
+            },
+            onSuccess: async () => {
+                showToast({severity: "success", summary: 'Successfully registered', life: 3000});
+            }
+        })
 
         useImperativeHandle(ref, () => ({
             open: (openUser, register) => {
@@ -134,16 +146,19 @@ const UserDialogComponent = forwardRef<UserDialogHandle, UserDialogComponentProp
 
             setValidation({valid: true});
 
-            if (isNewUser) {
+            if (isRegister) {
+                console.log('here')
                 // This has to be there, see validation
                 const pw = selectedUser.password!;
 
+                await registerUser.mutateAsync({body: selectedUser});
+
+                await login({username: selectedUser.username, password: pw});
+                navigate('/');
+
+            } else if (isNewUser) {
                 await createUser.mutateAsync({body: selectedUser});
-                if (isRegister) {
-                    showToast({severity: "success", summary: 'Successfully registered', life: 3000});
-                    await login({username: selectedUser.username, password: pw});
-                    navigate('/');
-                }
+
             } else {
                 // id cant be undefined because the user isnt new
                 await updateUser.mutateAsync({body: selectedUser, path: {id: selectedUser.id!}});

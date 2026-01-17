@@ -350,7 +350,7 @@ public class UserxServiceTest {
         user.setPassword(pw);
         user.setRole(UserxRole.MANAGER);
 
-        Userx createdUser = userService.createUser(user);
+        Userx createdUser = userService.createUser(user, pw);
 
         Assertions.assertNotNull(createdUser);
         Assertions.assertNotNull(createdUser.getUsername());
