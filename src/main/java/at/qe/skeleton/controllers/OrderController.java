@@ -48,7 +48,7 @@ public class OrderController {
      *         the specified page with the specified filters and sorting
      */
     @GetMapping("")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<PageableListDTO<OrderDTO>> getOrders(
             @RequestParam(required = false) Integer pageId,
             @RequestParam(required = false) Integer pageSize,
