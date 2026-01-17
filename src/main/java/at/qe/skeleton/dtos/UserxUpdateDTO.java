@@ -1,8 +1,8 @@
 package at.qe.skeleton.dtos;
 
+import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.UserxRole;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
@@ -25,5 +25,6 @@ public record UserxUpdateDTO(
     boolean enabled,
     AddressDTO shippingAddress,
     AddressDTO paymentAddress,
-    @NotNull UserxRole role
+    @NotNull UserxRole role,
+    Set<NotificationType> notifyOptions
 ) {}
