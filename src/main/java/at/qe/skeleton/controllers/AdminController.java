@@ -130,6 +130,12 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+
+    /**
+     * Get all Orders.
+     *
+     *@return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
+     */
     @GetMapping("/orders")
     public ResponseEntity<PageableListDTO<OrderDTO>> getAllOrders(
             @RequestParam(required = false) Integer pageId,
