@@ -1,17 +1,15 @@
 import React from 'react';
 import { InputText } from 'primereact/inputtext';
 import { AddressDto } from "../api";
-import { Button } from 'primereact/button';
 
 interface AddressComponentProps {
     title: string;
     address?: AddressDto;
     mode: 'view' | 'edit';
     onChange?: (updatedAddress: AddressDto) => void;
-    onCancel?: () => void;
 }
 
-const AddressComponent: React.FC<AddressComponentProps> = ({ title, address, mode, onChange, onCancel }) => {
+const AddressComponent: React.FC<AddressComponentProps> = ({ title, address, mode, onChange }) => {
 
     const data = address || {
         street: '',
@@ -109,21 +107,6 @@ const AddressComponent: React.FC<AddressComponentProps> = ({ title, address, mod
                             value={data.country}
                             onChange={(e) => handleChange('country', e.target.value)}
                         />
-                    </div>
-                    <div className="flex flex-column gap-4 mt-3">
-
-                        {/* ACTION BUTTONS */}
-                        <div className="flex justify-content-end gap-2 mt-2">
-                            {onCancel && (
-                                <Button
-                                    type="button"
-                                    label="Cancel"
-                                    icon="pi pi-times"
-                                    className="p-button-text p-button-secondary"
-                                    onClick={onCancel}
-                                />
-                            )}
-                        </div>
                     </div>
                 </div>
             )}
