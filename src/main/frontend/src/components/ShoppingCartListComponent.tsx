@@ -62,14 +62,41 @@ const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
     };
 
     return (
-        <DataTable value={items} loading={loading} dataKey="product.id">
-            <Column field="product.name" header="Product" sortable/>
-            <Column field="product.price" header="Price" body={priceTemplate} sortable/>
-            <Column field="quantity" header="Quantity" body={quantityTemplate} sortable/>
-            <Column header="Subtotal" body={subtotalTemplate}/>
-            <Column body={removeTemplate} />
-        </DataTable>
-    );
+        <DataTable
+            value={items}
+            loading={loading}
+            dataKey="product.id"
+        >
+            <Column
+                field="product.name"
+                header="Product"
+                sortable
+                headerClassName="w-10rem"
+            />
+            <Column
+                field="product.price"
+                header="Price"
+                body={priceTemplate}
+                sortable
+                headerClassName="w-10rem"
+            />
+            <Column
+                field="quantity"
+                header="Quantity"
+                body={quantityTemplate}
+                sortable
+                headerClassName="w-8rem"
+            />
+            <Column
+                header="Subtotal"
+                body={subtotalTemplate}
+                headerClassName="w-10rem"
+            />
+            <Column
+                body={removeTemplate}
+                headerClassName="w-2rem"
+            />
+        </DataTable>    );
 };
 
 export default ShoppingCartListComponent;
