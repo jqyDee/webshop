@@ -4,7 +4,7 @@ import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
 import React from "react";
 import { CartItemDto } from "../api";
-import {useGlobalToast} from "../Contexts/toastContext.tsx";
+import {useGlobalToast} from "../contexts/toastContext.tsx";
 
 interface ShoppingCartListComponentProps {
     items: CartItemDto[];

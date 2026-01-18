@@ -3,7 +3,7 @@
  * Architecture" offered by Innsbruck University.
  */
 import LoginComponent from "../components/LoginComponent.tsx";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 import {useNavigate} from "react-router-dom";
 
 /**

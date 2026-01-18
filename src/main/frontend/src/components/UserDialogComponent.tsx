@@ -11,9 +11,9 @@ import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
 import {QueryObserverResult, RefetchOptions, useMutation} from "@tanstack/react-query";
 import {createUserMutation, registerMutation, updateUserMutation} from "../api/@tanstack/react-query.gen.ts";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 import {useNavigate} from "react-router-dom";
-import {useGlobalToast} from "../Contexts/toastContext.tsx";
+import {useGlobalToast} from "../contexts/toastContext.tsx";
 
 export interface UserDialogHandle {
     open: (user: UserxDto | null, register?: boolean) => void;

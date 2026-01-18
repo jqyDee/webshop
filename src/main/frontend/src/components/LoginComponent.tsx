@@ -1,5 +1,5 @@
 import {useRef, useState} from "react";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 import {useNavigate} from "react-router-dom";
 import {FloatLabel} from "primereact/floatlabel";
 import {InputText} from "primereact/inputtext";
