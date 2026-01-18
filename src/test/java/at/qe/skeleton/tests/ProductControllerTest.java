@@ -400,7 +400,7 @@ public class ProductControllerTest {
         Long productId = 1L;
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
-                        .param("inDiscount", "true")
+                        .param("discount", "true")
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 

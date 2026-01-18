@@ -13,6 +13,7 @@ import java.util.Map;
 public abstract class ProductMapper extends DTOMapper<Product, ProductDTO> {
     @Mapping(target = "subscriptions", source = "subscriptions")
     public abstract ProductDTO mapTo(Product entity, Map<ProductEventType, Boolean> subscriptions);
+    @Mapping(target = "subscriptions", ignore = true)
     public abstract ProductDTO mapTo(Product entity);
     @Mapping(target = "reviews", ignore = true)
     public abstract Product mapFrom(ProductDTO dto);
