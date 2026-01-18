@@ -4,7 +4,7 @@ import {Toast} from "primereact/toast";
 import {Tag} from "primereact/tag";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
-import {getOrderByIdOptions} from "../api/@tanstack/react-query.gen.ts";
+import {getOrderByIdOptions, cancelOrderMutation} from "../api/@tanstack/react-query.gen.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "primereact/button";
 import AddressComponent from "./AddressComponent.tsx";
@@ -17,33 +17,25 @@ const OrderDetailsComponent: React.FC = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    const cancelMutation = useMutation({
-        mutationFn: async (orderId: number) => {
-            const response = await fetch(`/api/orders/${orderId}/cancel`, {
-                method: 'POST',
-            });
-            if (!response.ok) throw new Error('Failed to cancel order');
-            return response;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getOrderByIdOptions({ path: { id: Number(id) } }).queryKey });
+    const cancelMutation = useMutation(cancelOrderMutation());
 
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Cancelled',
-                detail: 'The order has been successfully cancelled.',
-                life: 3000
-            });
-        },
-        onError: () => {
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Could not cancel the order. Please try again.',
-                life: 3000
-            });
-        }
-    });
+    const onCancel = (orderId: number) => {
+        cancelMutation.mutate({
+            path: {orderId: orderId}
+        }, {
+            onSuccess: () => {
+                // Invalidate the query to refresh the UI
+                queryClient.invalidateQueries({
+                    queryKey: getOrderByIdOptions({ path: { id: orderId } }).queryKey
+                });
+                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Order Cancelled' });
+            },
+            onError: (error) => {
+                console.error("Cancel failed:", error);
+                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to cancel' });
+            }
+        });
+    };
 
     const {data: order, isLoading, error} = useQuery(
         getOrderByIdOptions({
@@ -73,10 +65,6 @@ const OrderDetailsComponent: React.FC = () => {
             Order not found.
         </div>
     );
-
-    const onCancel = (orderId: number) => {
-        cancelMutation.mutate(orderId);
-    };
 
     return (
         <div className="p-2">
@@ -155,7 +143,7 @@ const OrderDetailsComponent: React.FC = () => {
                     icon="pi pi-times"
                     label="Cancel Order"
                     onClick={() => onCancel(order.id!)}
-                    loading={cancelMutation.isPending} // Show a spinner on the button while working
+                    loading={cancelMutation.isPending}
                     className="p-button-danger p-button-sm w-auto mt-2"
                 />
             )}
