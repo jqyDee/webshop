@@ -76,7 +76,7 @@ public class OrderService {
         return Page.empty(pageable);
     }
 
-    @PreAuthorize("hasAuthority('MANAGER') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'ADMIN')")
     public Page<Order> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable);
     }
