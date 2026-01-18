@@ -8,8 +8,8 @@ import ProductDialogComponent, {ProductDialogHandle} from "./ProductDialogCompon
 
 const sortOptions = [
     { label: 'Name: A-Z', value: 'name' },
-    { label: 'Price High to Low', value: '!price' },
-    { label: 'Price Low to High', value: 'price' },
+    { label: 'Price High to Low', value: '!discountedPrice' },
+    { label: 'Price Low to High', value: 'discountedPrice' },
     { label: 'Rating: High to Low', value: '!rating' },
 ];
 
