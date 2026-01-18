@@ -1,4 +1,3 @@
-import {useQuery} from "@tanstack/react-query";
 import {ProgressSpinner} from "primereact/progressspinner";
 import React, {useRef} from "react";
 import {Toast} from "primereact/toast";
@@ -9,14 +8,43 @@ import {getOrderByIdOptions} from "../api/@tanstack/react-query.gen.ts";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "primereact/button";
 import AddressComponent from "./AddressComponent.tsx";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const OrderDetailsComponent: React.FC = () => {
 
     const {id} = useParams<{ id: string }>();
     const toast = useRef<Toast | null>(null);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    // QUERY
+    const cancelMutation = useMutation({
+        mutationFn: async (orderId: number) => {
+            const response = await fetch(`/api/orders/${orderId}/cancel`, {
+                method: 'POST',
+            });
+            if (!response.ok) throw new Error('Failed to cancel order');
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getOrderByIdOptions({ path: { id: Number(id) } }).queryKey });
+
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Cancelled',
+                detail: 'The order has been successfully cancelled.',
+                life: 3000
+            });
+        },
+        onError: () => {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Could not cancel the order. Please try again.',
+                life: 3000
+            });
+        }
+    });
+
     const {data: order, isLoading, error} = useQuery(
         getOrderByIdOptions({
             path: {id: Number(id)}
@@ -45,6 +73,10 @@ const OrderDetailsComponent: React.FC = () => {
             Order not found.
         </div>
     );
+
+    const onCancel = (orderId: number) => {
+        cancelMutation.mutate(orderId);
+    };
 
     return (
         <div className="p-2">
@@ -117,6 +149,16 @@ const OrderDetailsComponent: React.FC = () => {
                     <span className="text-4xl font-bold text-900">€{order.sum}</span>
                 </div>
             </div>
+
+            {(order.status === 'PENDING' || order.status === 'PENDING_PAYMENT' || order.status === 'PAID' || order.status === 'PROCESSING') && (
+                <Button
+                    icon="pi pi-times"
+                    label="Cancel Order"
+                    onClick={() => onCancel(order.id!)}
+                    loading={cancelMutation.isPending} // Show a spinner on the button while working
+                    className="p-button-danger w-full mt-4"
+                />
+            )}
         </div>
     );
 }

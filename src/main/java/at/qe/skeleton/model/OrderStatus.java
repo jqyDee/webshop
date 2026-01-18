@@ -6,17 +6,18 @@ import java.util.Collection;
 public enum OrderStatus {
     PENDING,
     PENDING_PAYMENT,
+    PAID,
     PROCESSING,
     SHIPPED,
     DELIVERED,
     CANCELLED;
 
     public boolean isCancellable() {
-        return this.ordinal() <= PENDING_PAYMENT.ordinal();
+        return this.ordinal() <= PAID.ordinal();
     }
 
     static public Collection<OrderStatus> getStaleOrderStatuses() {
         return Arrays.stream(OrderStatus.values())
-                     .filter(orderStatus -> orderStatus.ordinal() < PROCESSING.ordinal()).toList();
+                     .filter(orderStatus -> orderStatus.ordinal() < PAID.ordinal()).toList();
     }
 }

@@ -52,7 +52,7 @@ public class OrderController {
     public ResponseEntity<PageableListDTO<OrderDTO>> getOrders(
             @RequestParam(required = false) Integer pageId,
             @RequestParam(required = false) Integer pageSize,
-            @SortDefault(sort = "createdDate", direction = Sort.Direction.ASC) Sort sort,
+            @SortDefault(sort = "createdDate", direction = Sort.Direction.DESC) Sort sort,
             @AuthenticationPrincipal Userx user) {
         Sort finalSort = (sort != null) ? sort : Sort.unsorted();
 

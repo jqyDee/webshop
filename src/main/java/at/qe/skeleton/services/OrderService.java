@@ -196,7 +196,11 @@ public class OrderService {
 
         if (!order.getStatus().isCancellable()) {
             throw new IllegalStateException(
-                    "Can't cancel order. Order status is not <= PENDING_PAYMENT.");
+                    "Can't cancel order. Order status is not <= PAID.");
+        }
+
+        if (OrderStatus.PAID.equals(order.getStatus())) {
+            paymentService.reversePayment(order);
         }
 
         order.setStatus(OrderStatus.CANCELLED);
