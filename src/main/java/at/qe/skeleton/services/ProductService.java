@@ -1,6 +1,7 @@
 package at.qe.skeleton.services;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
+import at.qe.skeleton.events.ProductEvent;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductRepository;
 import at.qe.skeleton.specifications.ProductSpecification;
@@ -8,6 +9,7 @@ import at.qe.skeleton.repositories.ReviewRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,13 +31,16 @@ import java.util.Set;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     public ProductService(
             ProductRepository productRepository,
-            ReviewRepository reviewRepository) {
+            ReviewRepository reviewRepository,
+            ApplicationEventPublisher applicationEventPublisher) {
         this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -91,8 +96,12 @@ public class ProductService {
             return this.productRepository.save(product);
         }
 
-        // TODO: Discount handling / back in stock handling (ProductSubscriptions)
-        return this.productRepository.save(product);
+        Product oldProduct = loadProduct(product.getId()).orElseThrow(EntityNotFoundException::new);
+        Product savedProduct =  this.productRepository.save(product);
+
+        publishProductEvents(oldProduct, savedProduct);
+
+        return savedProduct;
     }
 
     /**
@@ -107,9 +116,6 @@ public class ProductService {
         }
 
         this.productRepository.delete(product);
-
-        // TODO: ProductSubscriptions that match the product have to be deleted if the product gets
-        //       deleted.
     }
 
     /**
@@ -160,6 +166,9 @@ public class ProductService {
         }
 
         this.productRepository.releaseStock(orderItem.getProduct().getId(), orderItem.getQuantity());
+        Product product = orderItem.getProduct();
+        Product updatedProduct = loadProduct(product.getId()).orElseThrow(EntityNotFoundException::new);
+        publishProductEvents(product, updatedProduct);
     }
 
     /**
@@ -270,5 +279,17 @@ public class ProductService {
                                           .orElse(0.0);
 
         product.setRating(calculatedAverage);
+    }
+
+    private void publishProductEvents(Product oldProduct, Product updatedProduct) {
+        boolean isBackInStock = oldProduct.getStock() == 0 && updatedProduct.getStock() > 0;
+        boolean isDiscounted = oldProduct.getDiscount() < updatedProduct.getDiscount();
+
+        if (isBackInStock) {
+            applicationEventPublisher.publishEvent(new ProductEvent(updatedProduct.getId(), ProductEventType.BACK_IN_STOCK));
+        }
+        if (isDiscounted) {
+            applicationEventPublisher.publishEvent(new ProductEvent(updatedProduct.getId(), ProductEventType.FOR_SALE));
+        }
     }
 }

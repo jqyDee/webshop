@@ -7,9 +7,12 @@ import at.qe.skeleton.dtos.ReviewDTO;
 import at.qe.skeleton.mappers.ProductMapper;
 import at.qe.skeleton.mappers.ReviewMapper;
 import at.qe.skeleton.model.Product;
+import at.qe.skeleton.model.ProductEventType;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.repositories.ProductSubscriptionRepository;
 import at.qe.skeleton.services.ProductService;
+import at.qe.skeleton.services.ProductSubscriptionService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -31,33 +36,38 @@ public class ProductController {
     private final ProductService productService;
     private final ProductMapper productMapper;
     private final ReviewMapper reviewMapper;
+    private final ProductSubscriptionService productSubscriptionService;
+    private final ProductSubscriptionRepository productSubscriptionRepository;
 
     @Autowired
     public ProductController(ProductService productService, ProductMapper productMapper,
-                             ReviewMapper reviewMapper) {
+                             ReviewMapper reviewMapper, ProductSubscriptionService productSubscriptionService, ProductSubscriptionRepository productSubscriptionRepository) {
         this.productService = productService;
         this.productMapper = productMapper;
         this.reviewMapper = reviewMapper;
+        this.productSubscriptionService = productSubscriptionService;
+        this.productSubscriptionRepository = productSubscriptionRepository;
     }
 
     /**
      * GET all products / products for a pageable list component. Filtering and Sorting can be
      * applied as well
      *
-     * @param pageId id of page (0 indexed) or null
+     * @param pageId   id of page (0 indexed) or null
      * @param pageSize size of page or null
-     * @param sort how the output should be sorted
-     * @param filter filterDTO for the products or null
+     * @param sort     how the output should be sorted
+     * @param filter   filterDTO for the products or null
      * @return {@link ResponseEntity} with status {@code 200 (OK)} with a collection of products on
-     *         the specified page with the specified filters and sorting
+     * the specified page with the specified filters and sorting
      */
     @GetMapping("/products")
     public ResponseEntity<PageableListDTO<ProductDTO>> getProducts(
+            @AuthenticationPrincipal Userx user,
             @RequestParam(required = false) Integer pageId,
             @RequestParam(required = false) Integer pageSize,
             @SortDefault(sort = "name", direction = Sort.Direction.ASC) Sort sort,
             @ModelAttribute ProductFilterDTO filter
-            ) {
+    ) {
 
         Page<Product> productPage = productService.getProducts(pageId, pageSize, sort, filter);
 
@@ -66,10 +76,28 @@ public class ProductController {
                 (pageId != null) ? pageId + 1 : null,
                 productPage.getTotalPages(),
                 productPage.getTotalElements(),
-                productPage.getContent().stream().map(productMapper::mapTo).toList()
+                productPage.getContent().stream().map((p) -> productMapper.mapTo(p, getSubscriptions(user, p))).toList()
         );
 
         return ResponseEntity.ok(pageableListDTO);
+    }
+
+    private Map<ProductEventType, Boolean> getSubscriptions(Userx user, Product product) {
+        // init map with no subscriptions as a anonymous user would also have no subscriptions
+        Map<ProductEventType, Boolean> subscriptions = new HashMap<>();
+        subscriptions.put(ProductEventType.BACK_IN_STOCK, false);
+        subscriptions.put(ProductEventType.FOR_SALE, false);
+        if (user == null) {
+            return subscriptions;
+        }
+        productSubscriptionRepository
+                .findByProductIdAndUser(product.getId(), user)
+                .ifPresent(
+                        subscription -> subscription
+                                .getNotifyOn()
+                                .forEach(notify -> subscriptions.put(notify, true))
+                );
+        return subscriptions;
     }
 
     /**
@@ -77,24 +105,26 @@ public class ProductController {
      *
      * @param id the id to search for
      * @return {@link ResponseEntity} with status {@code 200 (OK)} with the product of given id in
-     *         the body, or with status {@code 404} if no such product exists
+     * the body, or with status {@code 404} if no such product exists
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@AuthenticationPrincipal Userx user, @PathVariable Long id) {
         Product product = productService.loadProduct(id).orElseThrow(EntityNotFoundException::new);
 
-        return ResponseEntity.ok(productMapper.mapTo(product));
+        Map<ProductEventType, Boolean> subscriptions = getSubscriptions(user, product);
+        ProductDTO p = productMapper.mapTo(product, subscriptions);
+        return ResponseEntity.ok(p);
     }
 
     /**
      * GET reviews for a specific product
      *
-     * @param id product id to get the reviews from
-     * @param pageId id of page (0 indexed) or null
+     * @param id       product id to get the reviews from
+     * @param pageId   id of page (0 indexed) or null
      * @param pageSize size of page or null
-     * @param sort how the output should be sorted
+     * @param sort     how the output should be sorted
      * @return {@link ResponseEntity} with status {@code 200 (ok)} with a collection of reviews on
-     *         the specific page with the specific sorting
+     * the specific page with the specific sorting
      */
     @GetMapping("/{id}/reviews")
     public ResponseEntity<PageableListDTO<ReviewDTO>> getReviews(@PathVariable Long id,
@@ -119,21 +149,21 @@ public class ProductController {
      * POST create a new review for a product
      * Note: returning product as rating changes as well
      *
-     * @param id product id to create the review at
+     * @param id        product id to create the review at
      * @param reviewDto the review DTO of the to be created review
-     * @param user the current user
+     * @param user      the current user
      * @return the updated product
      */
     @PostMapping("/{id}/createReview")
     public ResponseEntity<ProductDTO> createReview(@PathVariable Long id,
-                                                  @Valid @RequestBody ReviewDTO reviewDto,
-                                                  @AuthenticationPrincipal Userx user) {
+                                                   @Valid @RequestBody ReviewDTO reviewDto,
+                                                   @AuthenticationPrincipal Userx user) {
         Optional<Product> product;
 
         product = productService.addReview(id, reviewMapper.mapFrom(reviewDto), user);
 
         return product.map(value -> ResponseEntity.ok(productMapper.mapTo(value)))
-                      .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
 
     }
 
@@ -141,8 +171,8 @@ public class ProductController {
      * DELETE a review from a product
      *
      * @param productId product id to delete the review at
-     * @param reviewId review id which should be deleted
-     * @param user current user
+     * @param reviewId  review id which should be deleted
+     * @param user      current user
      * @return {@code 200 (ok)} or {@code 403 (FORBIDDEN)} when access denied
      */
     @DeleteMapping("/{productId}/review/{reviewId}")
@@ -155,16 +185,52 @@ public class ProductController {
     }
 
     @PostMapping("/{id}/subscribe")
-    public ResponseEntity<String> subscribe(@PathVariable Long id,
-                                            @RequestParam(required = false) boolean inStock,
-                                            @RequestParam(required = false) boolean discount) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ResponseEntity<Void> subscribe(
+            @AuthenticationPrincipal Userx user,
+            @PathVariable Long id,
+            @RequestParam(required = false) boolean inStock,
+            @RequestParam(required = false) boolean discount) {
+        // treat it as subscribe all if no args supplied
+        if (!inStock && !discount) {
+            productSubscriptionService.addProductSubscription(user, id, ProductEventType.BACK_IN_STOCK);
+            productSubscriptionService.addProductSubscription(user, id, ProductEventType.FOR_SALE);
+        }
+        if (inStock) {
+            productSubscriptionService.addProductSubscription(user, id, ProductEventType.BACK_IN_STOCK);
+        }
+        if (discount) {
+            productSubscriptionService.addProductSubscription(user, id, ProductEventType.FOR_SALE);
+        }
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/subscribe")
-    public ResponseEntity<String> updateSubscription(@PathVariable Long id,
-                                                     @RequestParam(required = false) boolean inStock,
-                                                     @RequestParam(required = false) boolean discount) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ResponseEntity<Void> updateSubscription(
+            @AuthenticationPrincipal Userx user,
+            @PathVariable Long id,
+            @RequestParam(required = false) boolean inStock,
+            @RequestParam(required = false) boolean discount) {
+        if (!inStock && !discount) {
+            productSubscriptionService.deleteProductSubscription(user, id);
+            return ResponseEntity.ok().build();
+        }
+
+        if (inStock) {
+            productSubscriptionService.addProductSubscription(user, id, ProductEventType.BACK_IN_STOCK);
+        } else {
+            productSubscriptionService.removeProductSubscriptionEvent(user, id, ProductEventType.BACK_IN_STOCK);
+        }
+        if (discount) {
+            productSubscriptionService.addProductSubscription(user, id, ProductEventType.FOR_SALE);
+        } else {
+            productSubscriptionService.removeProductSubscriptionEvent(user, id, ProductEventType.FOR_SALE);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}/unsubscribe")
+    public ResponseEntity<Void> unsubscribe(@AuthenticationPrincipal Userx user, @PathVariable Long id) {
+        productSubscriptionService.deleteProductSubscription(user, id);
+        return ResponseEntity.ok().build();
     }
 }
