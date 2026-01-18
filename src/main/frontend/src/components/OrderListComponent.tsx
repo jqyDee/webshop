@@ -3,6 +3,8 @@ import { DataView, DataViewLayoutOptions, DataViewPageEvent } from "primereact/d
 import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { OrderDto } from "../api";
+import {Link} from "react-router-dom";
+import {OrderDetailRoute} from "../routes.ts";
 import {useUser} from "../contexts/authenticatedUserContext.tsx";
 
 interface OrderListComponentProps {
@@ -46,7 +48,7 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
             <div className="card border-round flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 shadow-5 m-2">
                 <div className="flex-1 flex flex-column gap-2">
                     <div className="flex align-items-center gap-2">
-                        <span className="font-bold text-xl">Order #{order.id}</span>
+                        <Link className="nostyle no-underline font-bold text-xl text-color hover:underline" to={OrderDetailRoute.url.replace(':id', order.id!.toString())}>Order #{order.id}</Link>
                         <Tag value={order.status} severity={getStatusSeverity(order.status!)} />
                     </div>
                     {showUserColumn && <span className="text-500 text-sm">Customer ID: {order.user?.id}</span>}
@@ -64,7 +66,7 @@ const OrderListComponent: React.FC<OrderListComponentProps> = ({
         <div className="col-12 sm:col-6 lg:col-4 p-2">
             <div className="p-4 card border-round flex flex-column shadow-5">
                 <div className="flex justify-content-between align-items-center">
-                    <span className="font-bold">#{order.id}</span>
+                    <Link className="nostyle no-underline font-bold text-xl text-color hover:underline" to={OrderDetailRoute.url.replace(':id', order.id!.toString())}>Order #{order.id}</Link>
                     <Tag value={order.status} severity={getStatusSeverity(order.status!)} />
                 </div>
                 <div className="flex flex-column align-items-center py-3">

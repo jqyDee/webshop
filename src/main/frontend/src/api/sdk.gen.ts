@@ -137,9 +137,9 @@ export const getOrders = <ThrowOnError extends boolean = false>(options: Options
 
 export const getOrderById = <ThrowOnError extends boolean = false>(options: Options<GetOrderByIdData, ThrowOnError>) => (options.client ?? client).get<GetOrderByIdResponses, unknown, ThrowOnError>({ url: '/api/orders/{id}', ...options });
 
-export const getAllOrders = <ThrowOnError extends boolean = false>(options: Options<GetAllOrdersData, ThrowOnError>) => (options.client ?? client).get<GetAllOrdersResponses, unknown, ThrowOnError>({ url: '/api/manager/orders', ...options });
-
 export const getAllUsers = <ThrowOnError extends boolean = false>(options?: Options<GetAllUsersData, ThrowOnError>) => (options?.client ?? client).get<GetAllUsersResponses, unknown, ThrowOnError>({ url: '/api/admin/users', ...options });
+
+export const getAllOrders = <ThrowOnError extends boolean = false>(options: Options<GetAllOrdersData, ThrowOnError>) => (options.client ?? client).get<GetAllOrdersResponses, unknown, ThrowOnError>({ url: '/api/admin/orders', ...options });
 
 export const getAllManagers = <ThrowOnError extends boolean = false>(options?: Options<GetAllManagersData, ThrowOnError>) => (options?.client ?? client).get<GetAllManagersResponses, unknown, ThrowOnError>({ url: '/api/admin/managers', ...options });
 

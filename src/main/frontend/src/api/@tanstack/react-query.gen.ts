@@ -440,21 +440,6 @@ export const getOrderByIdOptions = (options: Options<GetOrderByIdData>) => query
     queryKey: getOrderByIdQueryKey(options)
 });
 
-export const getAllOrdersQueryKey = (options: Options<GetAllOrdersData>) => createQueryKey('getAllOrders', options);
-
-export const getAllOrdersOptions = (options: Options<GetAllOrdersData>) => queryOptions<GetAllOrdersResponse, DefaultError, GetAllOrdersResponse, ReturnType<typeof getAllOrdersQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await getAllOrders({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: getAllOrdersQueryKey(options)
-});
-
 export const getAllUsersQueryKey = (options?: Options<GetAllUsersData>) => createQueryKey('getAllUsers', options);
 
 export const getAllUsersOptions = (options?: Options<GetAllUsersData>) => queryOptions<GetAllUsersResponse, DefaultError, GetAllUsersResponse, ReturnType<typeof getAllUsersQueryKey>>({
@@ -468,6 +453,21 @@ export const getAllUsersOptions = (options?: Options<GetAllUsersData>) => queryO
         return data;
     },
     queryKey: getAllUsersQueryKey(options)
+});
+
+export const getAllOrdersQueryKey = (options: Options<GetAllOrdersData>) => createQueryKey('getAllOrders', options);
+
+export const getAllOrdersOptions = (options: Options<GetAllOrdersData>) => queryOptions<GetAllOrdersResponse, DefaultError, GetAllOrdersResponse, ReturnType<typeof getAllOrdersQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getAllOrders({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getAllOrdersQueryKey(options)
 });
 
 export const getAllManagersQueryKey = (options?: Options<GetAllManagersData>) => createQueryKey('getAllManagers', options);

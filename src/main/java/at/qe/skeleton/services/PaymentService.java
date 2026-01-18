@@ -55,9 +55,18 @@ public class PaymentService {
             throw new IllegalStateException("Can't confirm order. Order status is not PENDING_PAYMENT.");
         }
 
-        order.setStatus(OrderStatus.PROCESSING);
+        order.setStatus(OrderStatus.PAID);
         // todo shipping,... all stubed
         order.setStatus(OrderStatus.DELIVERED);
         return orderRepository.save(order);
+
     }
+
+    public void reversePayment(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException("Order is null");
+        }
+        System.out.println("Payment reversed");
+    }
+
 }

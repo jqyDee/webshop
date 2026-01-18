@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { DataViewPageEvent } from "primereact/dataview";
 import OrderListComponent from "./OrderListComponent";
-import {getOrdersOptions} from "../api/@tanstack/react-query.gen";
 import { useUser } from "../contexts/authenticatedUserContext.tsx";
+import {getOrdersOptions, getAllOrdersOptions} from "../api/@tanstack/react-query.gen";
 import { RoleEnum } from "../api";
 import {Button} from "primereact/button";
 
 const OrderTableComponent: React.FC = () => {
     const navigate = useNavigate();
     const { currentUser } = useUser();
+    const isAdmin = currentUser?.role === RoleEnum.ADMIN;
 
     const [sortField] = useState<string>('createdDate');
     const [sortOrder] = useState<number>(1);
@@ -21,17 +22,20 @@ const OrderTableComponent: React.FC = () => {
         pageId: 0,
     });
 
-    const { data, isLoading, isError } = useQuery({
-        ...getOrdersOptions({
-            query: {
-                pageId: lazyState.pageId,
-                pageSize: lazyState.pageSize,
-                sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`] as any,
-            }
-        }),
-    });
+    const queryParams = {
+        query: {
+            pageId: lazyState.pageId,
+            pageSize: lazyState.pageSize,
+            sort: [`${sortField},${sortOrder === 1 ? 'asc' : 'desc'}`] as any,
+        }
+    };
 
-    // Explicitly typed event
+    const queryOptions = isAdmin
+        ? getAllOrdersOptions(queryParams)
+        : getOrdersOptions(queryParams);
+
+    const { data, isLoading, isError } = useQuery(queryOptions);
+
     const onPage = (event: DataViewPageEvent) => {
         setLazyState({
             first: event.first,
