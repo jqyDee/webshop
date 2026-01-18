@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -72,12 +73,26 @@ public class OrderService {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
         }
 
+        return Page.empty(pageable);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Page<Order> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable);
     }
 
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public Page<Order> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    /**
+     * Search for order with id in database.
+     *
+     * @param id id to search in the database
+     * @return order matching the id
+     */
+    public Optional<Order> loadOrder(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
+        return this.orderRepository.findById(id);
     }
 
     /**
@@ -181,14 +196,17 @@ public class OrderService {
 
         if (!order.getStatus().isCancellable()) {
             throw new IllegalStateException(
-                    "Can't cancel order. Order status is not <= PENDING_PAYMENT.");
+                    "Can't cancel order. Order status is not <= PAID.");
+        }
+
+        if (OrderStatus.PAID.equals(order.getStatus())) {
+            paymentService.reversePayment(order);
         }
 
         order.setStatus(OrderStatus.CANCELLED);
         for (OrderItem orderItem : order.getProducts()) {
             productService.releaseStock(orderItem);
         }
-        order.getProducts().clear();
         orderRepository.save(order);
     }
 

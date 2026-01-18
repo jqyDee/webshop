@@ -91,7 +91,7 @@ export const CartContextProvider: React.FC<{ children: React.ReactNode }> = ({ch
                 if (existing) {
                     return prev.map(item =>
                         item.product.id === product.id
-                            ? { ...item, quantity: item.quantity + quantity}
+                            ? { ...item, quantity: add ? item.quantity + quantity : quantity}
                             : item
                     );
                 }

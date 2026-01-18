@@ -4,15 +4,6 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:8080' | (string & {});
 };
 
-export type LoginRequestDto = {
-    username: string;
-    password: string;
-};
-
-export type LoginResponseDto = {
-    bearerToken: string;
-};
-
 export type AddressDto = {
     id?: number;
     street: string;
@@ -33,7 +24,7 @@ export type UserxUpdateDto = {
     enabled?: boolean;
     shippingAddress?: AddressDto;
     paymentAddress?: AddressDto;
-    role: RoleEnum;
+    role?: RoleEnum;
     notifyOptions?: Array<ItemsEnum>;
 };
 
@@ -53,6 +44,15 @@ export type UserxDto = {
     enabled: boolean;
     role: RoleEnum;
     notifyOptions?: Array<ItemsEnum>;
+};
+
+export type LoginRequestDto = {
+    username: string;
+    password: string;
+};
+
+export type LoginResponseDto = {
+    bearerToken: string;
 };
 
 export type ProductDto = {
@@ -161,11 +161,28 @@ export enum ItemsEnum {
 export enum StatusEnum {
     PENDING = 'PENDING',
     PENDING_PAYMENT = 'PENDING_PAYMENT',
+    PAID = 'PAID',
     PROCESSING = 'PROCESSING',
     SHIPPED = 'SHIPPED',
     DELIVERED = 'DELIVERED',
     CANCELLED = 'CANCELLED'
 }
+
+export type RegisterData = {
+    body: UserxUpdateDto;
+    path?: never;
+    query?: never;
+    url: '/authentication/register';
+};
+
+export type RegisterResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
 
 export type AuthenticateUserData = {
     body: LoginRequestDto;
@@ -182,54 +199,6 @@ export type AuthenticateUserResponses = {
 };
 
 export type AuthenticateUserResponse = AuthenticateUserResponses[keyof AuthenticateUserResponses];
-
-export type GetCurrentUserData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type GetCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
-
-export type UpdateCurrentUserData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type UpdateCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type UpdateCurrentUserResponse = UpdateCurrentUserResponses[keyof UpdateCurrentUserResponses];
-
-export type CreateCurrentUserData = {
-    body: UserxUpdateDto;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type CreateCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type CreateCurrentUserResponse = CreateCurrentUserResponses[keyof CreateCurrentUserResponses];
 
 export type UpdateSubscriptionData = {
     body?: never;
@@ -420,6 +389,38 @@ export type CreateUserResponses = {
 };
 
 export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
+
+export type GetCurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/users/me';
+};
+
+export type GetCurrentUserResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
+
+export type UpdateCurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/users/me';
+};
+
+export type UpdateCurrentUserResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type UpdateCurrentUserResponse = UpdateCurrentUserResponses[keyof UpdateCurrentUserResponses];
 
 export type DeleteProductData = {
     body?: never;
@@ -639,25 +640,23 @@ export type GetOrdersResponses = {
 
 export type GetOrdersResponse = GetOrdersResponses[keyof GetOrdersResponses];
 
-export type GetAllOrdersData = {
+export type GetOrderByIdData = {
     body?: never;
-    path?: never;
-    query: {
-        pageId?: number;
-        pageSize?: number;
-        sort: Sort;
+    path: {
+        id: number;
     };
-    url: '/api/manager/orders';
+    query?: never;
+    url: '/api/orders/{id}';
 };
 
-export type GetAllOrdersResponses = {
+export type GetOrderByIdResponses = {
     /**
      * OK
      */
-    200: PageableListDtoOrderDto;
+    200: OrderDto;
 };
 
-export type GetAllOrdersResponse = GetAllOrdersResponses[keyof GetAllOrdersResponses];
+export type GetOrderByIdResponse = GetOrderByIdResponses[keyof GetOrderByIdResponses];
 
 export type GetAllUsersData = {
     body?: never;
@@ -674,6 +673,26 @@ export type GetAllUsersResponses = {
 };
 
 export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
+
+export type GetAllOrdersData = {
+    body?: never;
+    path?: never;
+    query: {
+        pageId?: number;
+        pageSize?: number;
+        sort: Sort;
+    };
+    url: '/api/admin/orders';
+};
+
+export type GetAllOrdersResponses = {
+    /**
+     * OK
+     */
+    200: PageableListDtoOrderDto;
+};
+
+export type GetAllOrdersResponse = GetAllOrdersResponses[keyof GetAllOrdersResponses];
 
 export type GetAllManagersData = {
     body?: never;

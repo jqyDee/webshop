@@ -7,6 +7,7 @@ import at.qe.skeleton.dtos.ProductDTO;
 import at.qe.skeleton.dtos.UserxDTO;
 import at.qe.skeleton.mappers.CartItemMapper;
 import at.qe.skeleton.model.CartItem;
+import at.qe.skeleton.model.Product;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.services.CartService;
 import at.qe.skeleton.services.UserxService;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -178,19 +180,47 @@ public class CartControllerTest {
         Mockito.verify(cartService).removeCartItem(user, productId);
     }
 
+    @DirtiesContext
     @Test
-    void testUpdateProductInShoppingCart() throws Exception {
+    void testUpdateProductInShoppingCartNoAdd() throws Exception {
         Userx user = userxService.getUserByUsername("user2");
         Long productId = 1000L;
         int quantity = 5;
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/cart/{productId}", productId)
                                               .param("quantity", String.valueOf(quantity))
-                                              .param("add", String.valueOf(false))
+                                              .param("add", String.valueOf(true))
                                               .with(SecurityMockMvcRequestPostProcessors.user(user)))
                .andExpect(MockMvcResultMatchers.status().isOk());
 
         Mockito.verify(cartService).saveCartItem(user, productId, quantity);
+    }
+
+    @DirtiesContext
+    @Test
+    void testUpdateProductInShoppingCartAdd() throws Exception {
+        Userx user = userxService.getUserByUsername("user2");
+        Long productId = 1000L;
+        int quantity = 5;
+        int quantity2 = 2;
+
+        Product product = new Product();
+        product.setId(productId);
+
+        CartItem cartItem = new CartItem();
+        cartItem.setProduct(product);
+        cartItem.setQuantity(quantity2);
+        cartItem.setUser(user);
+
+        Mockito.when(cartService.getCartItems(user)).thenReturn(List.of(cartItem));
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/cart/{productId}", productId)
+                                              .param("quantity", String.valueOf(quantity))
+                                              .param("add", String.valueOf(true))
+                                              .with(SecurityMockMvcRequestPostProcessors.user(user)))
+               .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(cartService).saveCartItem(user, productId, quantity + quantity2);
     }
 
     @Test

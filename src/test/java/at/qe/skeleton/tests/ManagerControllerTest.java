@@ -3,12 +3,9 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
-import at.qe.skeleton.dtos.OrderDTO;
 import at.qe.skeleton.dtos.ProductDTO;
 import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.mappers.ProductMapper;
-import at.qe.skeleton.model.Order;
-import at.qe.skeleton.model.OrderStatus;
 import at.qe.skeleton.model.Product;
 import at.qe.skeleton.services.OrderService;
 import at.qe.skeleton.services.ProductService;
@@ -24,10 +21,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -37,7 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -123,49 +115,6 @@ public class ManagerControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.price").value(100.5))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.stock").value(2))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.discount").value(0));
-    }
-
-    @Test
-    @WithMockUser(username = "manager", authorities = {"MANAGER"})
-    public void testGetAllOrders() throws Exception {
-
-        Order testOrder1 = new Order();
-        testOrder1.setId(1L);
-        testOrder1.setStatus(OrderStatus.PROCESSING);
-
-        Order testOrder2 = new Order();
-        testOrder2.setId(2L);
-        testOrder2.setStatus(OrderStatus.PENDING_PAYMENT);
-
-        Order testOrder3 = new Order();
-        testOrder3.setId(3L);
-        testOrder3.setStatus(OrderStatus.DELIVERED);
-
-        List<Order> orders = List.of(testOrder1, testOrder2, testOrder3);
-
-        Pageable pageable = PageRequest.of(0, 3);
-
-        Page<Order> page = new PageImpl<>(orders, pageable, orders.size());
-
-        Mockito.when(orderService.getAllOrders(Mockito.any(Pageable.class))).thenReturn(page);
-
-        Mockito.when(orderMapper.mapTo(Mockito.any(Order.class))).thenAnswer(invocation -> {
-            Order source = invocation.getArgument(0);
-            return new OrderDTO(source.getId(), null, source.getStatus(), null, null, 0.0, null, null);
-        });
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/manager/orders")
-                .param("pageId", "0")
-                .param("pageSize", "3"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pageSize").value(3))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.pageIdAfter").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items[0].id").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items[0].status").value("PROCESSING"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items[1].id").value(2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items[1].status").value("PENDING_PAYMENT"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items[2].id").value(3))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.items[2].status").value("DELIVERED"));
     }
 
     @Test

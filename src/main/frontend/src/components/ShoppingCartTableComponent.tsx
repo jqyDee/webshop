@@ -41,13 +41,13 @@ const ShoppingCartTableComponent: React.FC = () => {
                 onQuantityChange={(product, quantity) => updateCartItem(product, quantity, false)}
                 onRemove={removeFromCart}
             />
-            <div className="flex align-items-center">
-                <Button label="Clear all" icon="pi pi-trash" onClick={() => removeAllFromCart()}/>
-                <div className="flex flex-column mt-4 text-xl font-bold ml-auto">
-                <span>
-                    Total
-                </span>
-                    €{totalPrice.toFixed(2)}
+            <div className="flex align-items-center mt-4">
+                <Button label="Clear all" icon="pi pi-trash" className="p-button-danger" onClick={() => removeAllFromCart()}/>
+                <div className="flex flex-column text-xl font-bold ml-auto mt-0">
+                    <span>
+                        Total
+                    </span>
+                        €{totalPrice.toFixed(2)}
                 </div>
             </div>
         </div>

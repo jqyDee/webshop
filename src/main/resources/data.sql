@@ -1,6 +1,3 @@
--- Drop the not null constraint (you can use ALTER TABLE depending on your database)
-ALTER TABLE USERX ALTER COLUMN CREATE_USER_ID DROP NOT NULL;
-
 -- Insert users into USERX table
 INSERT INTO USERX (ID, ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, USERNAME, CREATE_USER_ID, CREATED_DATE, ROLE)
 VALUES (1000, TRUE, 'Admin', 'Istrator', '{bcrypt}$2b$12$gimw81jnsxtcHMBRe6LVe.NZCPf3G2ugUyKqcYwJRlJuN6ubTXkNS', 'admin', NULL, '2024-01-01 00:00:00', 'ADMIN');
@@ -24,27 +21,24 @@ UPDATE USERX SET CREATE_USER_ID = (SELECT ID FROM USERX WHERE USERNAME = 'admin'
 UPDATE USERX SET CREATE_USER_ID = (SELECT ID FROM USERX WHERE USERNAME = 'elvis') WHERE USERNAME = 'elvis';
 UPDATE USERX SET CREATE_USER_ID = (SELECT ID FROM USERX WHERE USERNAME = 'admin') WHERE USERNAME = 'user3';
 
--- Add the not null constraint back
-ALTER TABLE USERX ALTER COLUMN CREATE_USER_ID SET NOT NULL;
-
 -- Insert products into the PRODUCT table
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (1000, 'Iphone 15', 580.99, 1, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
+VALUES (1000, 'Iphone 15', 580.99, 1, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-hero-geo-230912_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 2.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (2000, 'Iphone 12', 280.99, 9, 0, 'Apple Iphone 12', 'This is an Apple Iphone 12', 'https://www.google.com/', '2024-01-01 00:00:00', 3.0);
+VALUES (2000, 'Iphone 12', 280.99, 9, 0, 'Apple Iphone 12', 'This is an Apple Iphone 12', 'https://www.apple.com/newsroom/images/product/iphone/geo/apple_iphone-12_2-up_geo_10132020_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 3.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (3000, 'Iphone 14', 480.99, 5, 0.3, 'Apple Iphone 14', 'This is an Apple Iphone 14', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
+VALUES (3000, 'Iphone 14', 480.99, 5, 0.3, 'Apple Iphone 14', 'This is an Apple Iphone 14', 'https://www.apple.com/newsroom/images/product/iphone/geo/Apple-iPhone-14-iPhone-14-Plus-2up-midnight-220907-geo_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 2.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.apple.com/newsroom/images/product/iphone/geo/Apple_iphone13_hero_geo_09142021_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 5.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (5000, 'Iphone 16', 380.99, 4, 0, 'Apple Iphone 10', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+VALUES (5000, 'Iphone 16', 380.99, 4, 0, 'Apple Iphone 16', 'This is an Apple Iphone 16', 'https://www.apple.com/newsroom/images/2024/09/apple-introduces-iphone-16-and-iphone-16-plus/article/geo/Apple-iPhone-16-hero-geo-240909_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 5.0);
 
 INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (6000, 'Iphone 17', 380.99, 4, 0, 'Apple Iphone 9', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+VALUES (6000, 'Iphone 17', 380.99, 4, 0, 'Apple Iphone 17', 'This is an Apple Iphone 17', 'https://www.apple.com/newsroom/images/2025/09/apple-debuts-iphone-17/geo/article/Apple-iPhone-17-hero-250909_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 5.0);
 
 -- Insert Orders for User2
 INSERT INTO ORDERS (ID, USER_ID, STATUS, SUM, CREATED_DATE)
@@ -65,6 +59,12 @@ VALUES (3000, (SELECT ID FROM USERX WHERE USERNAME = 'user2'),'CANCELLED',280.99
 
 INSERT INTO ORDER_ITEM (ID, ORDER_ID, PRODUCT_ID, QUANTITY, NAME, TOTAL)
 VALUES(3000, 3000, 2000, 1, 'Item4', 200);
+
+INSERT INTO ORDERS (ID, USER_ID, STATUS, SUM, CREATED_DATE)
+VALUES (6000, (SELECT ID FROM USERX WHERE USERNAME = 'user2'),'PAID',600,'2026-01-17 18:51:00');
+
+INSERT INTO ORDER_ITEM (ID, ORDER_ID, PRODUCT_ID, QUANTITY, NAME, TOTAL)
+VALUES(4000, 6000, 2000, 3, 'Item4', 200);
 
 -- Insert reviews into the REVIEW table
 -- Reviews for Iphone 15 (ID: 1000) - Avg Rating in Product table is 2.0
@@ -88,6 +88,13 @@ VALUES (5000, 4000, 4000, 5, 'Love it', 'Best phone I have ever owned. Elvis app
 -- Review for Iphone 14 (ID: 3000) - Avg Rating in Product table is 2.0
 INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_DATE)
 VALUES (6000, 3000, 3000, 2, 'Meh', 'I should have bought the 13 or waited for the 15.', '2024-01-25 16:20:00');
+
+
+-- Insert into ADDRESS
+INSERT INTO ADDRESS (ID, STREET, NUMBER, POSTAL_CODE, CITY, COUNTRY, USER_ID)
+VALUES (1000, 'boulevard', '23', '12345', 'Innsbruck', 'Austria', (SELECT ID FROM USERX WHERE USERNAME = 'user2'));
+
+UPDATE ORDERS SET SHIPPING_ADDRESS_ID = 1000, PAYMENT_ADDRESS_ID = 1000 WHERE ID = 1000;
 
 -- Insert into Product_Subscription
 INSERT INTO PRODUCT_SUBSCRIPTION (ID, PRODUCT_ID, USER_ID)

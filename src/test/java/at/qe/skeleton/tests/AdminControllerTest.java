@@ -199,16 +199,16 @@ public class AdminControllerTest {
         user.setEnabled(isEnabled);
 
         Mockito.when(userCreateMapper.mapFrom(newUser)).thenReturn(user);
-        Mockito.when(userService.saveUser(user)).thenReturn(user);
+        Mockito.when(userService.saveUser(user, password)).thenReturn(user);
         Mockito.when(userMapper.mapTo(user)).thenReturn(new UserxDTO(id, null, null, null, null, username, firstName, lastName, email, "", null, null, isEnabled, role, null));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/admin/createUser")
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(newUser)))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(username));
+                                              .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                              .contentType(MediaType.APPLICATION_JSON)
+                                              .content(new ObjectMapper().writeValueAsString(newUser)))
+               .andExpect(MockMvcResultMatchers.status().isCreated())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(username));
     }
 
     @Test
