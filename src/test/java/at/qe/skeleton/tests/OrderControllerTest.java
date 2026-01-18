@@ -1,5 +1,4 @@
 package at.qe.skeleton.tests;
-import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.dtos.*;
@@ -8,7 +7,6 @@ import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.model.*;
-import at.qe.skeleton.repositories.UserxRepository;
 import at.qe.skeleton.services.OrderService;
 import at.qe.skeleton.repositories.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -72,8 +69,6 @@ public class OrderControllerTest {
     private ObjectMapper objectMapper;
     @Autowired
     private UserxMapper userxMapper;
-    @Autowired
-    private UserxRepository userxRepository;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -415,7 +410,7 @@ public class OrderControllerTest {
         );
 
         //mock order exists
-        Mockito.when(orderRepository.findById(100L)).thenReturn(Optional.of(existingOrder));
+        Mockito.when(orderService.loadOrder(100L)).thenReturn(Optional.of(existingOrder));
 
         Mockito.when(orderService.confirmOrder(existingOrder, mockUser, new Address(), new Address()))
                 .thenReturn(confirmedOrder);
@@ -444,7 +439,7 @@ public class OrderControllerTest {
         mockOrder.setUser(owner);
 
         //mock order exists
-        Mockito.when(orderRepository.findById(1L)).thenReturn(Optional.of(mockOrder));
+        Mockito.when(orderService.loadOrder(1L)).thenReturn(Optional.of(mockOrder));
 
         // order doesnt belong to userA
         Mockito.doThrow(new AccessDeniedException("Forbidden"))
@@ -477,6 +472,7 @@ public class OrderControllerTest {
     @Test
     @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
     public void testCancelOrderAccessDenied() throws Exception {
+        Userx user = createMockUser(100L);
 
         Userx owner = new Userx();
         Order mockOrder = new Order();
@@ -484,18 +480,17 @@ public class OrderControllerTest {
         mockOrder.setUser(owner);
 
         //mock order exists
-        Mockito.when(orderRepository.findById(100L)).thenReturn(Optional.of(mockOrder));
+        Mockito.when(orderService.loadOrder(100L)).thenReturn(Optional.of(mockOrder));
 
         // order doesnt belong to userA
         Mockito.doThrow(new AccessDeniedException("Forbidden"))
                 .when(orderService)
-                .confirmOrder(any(),
-                        any(),
-                        any(),
+                .cancelOrder(any(),
                         any());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/100/cancel")
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                .with(SecurityMockMvcRequestPostProcessors.user(user))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
@@ -533,7 +528,7 @@ public class OrderControllerTest {
         );
 
         //mock order exists
-        Mockito.when(orderRepository.findById(100L)).thenReturn(Optional.of(existingOrder));
+        Mockito.when(orderService.loadOrder(100L)).thenReturn(Optional.of(existingOrder));
 
         Mockito.doNothing().when(orderService).cancelOrder(
                 any(Order.class),

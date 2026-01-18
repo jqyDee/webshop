@@ -148,7 +148,6 @@ class OrderServiceTest {
         assertEquals(stockBeforeCancel + quantityToReturn, updatedProduct.getStock());
 
         orderItemRepository.flush();
-        assertFalse(orderItemRepository.findById(9000L).isPresent());
     }
 
     @Transactional

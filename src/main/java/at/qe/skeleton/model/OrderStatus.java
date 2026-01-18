@@ -12,12 +12,16 @@ public enum OrderStatus {
     DELIVERED,
     CANCELLED;
 
+    static public OrderStatus getCancelThreshold() {
+        return PAID;
+    }
+
     public boolean isCancellable() {
-        return this.ordinal() <= PAID.ordinal();
+        return this.ordinal() <= getCancelThreshold().ordinal();
     }
 
     static public Collection<OrderStatus> getStaleOrderStatuses() {
         return Arrays.stream(OrderStatus.values())
-                     .filter(orderStatus -> orderStatus.ordinal() < PAID.ordinal()).toList();
+                     .filter(orderStatus -> orderStatus.ordinal() < getCancelThreshold().ordinal()).toList();
     }
 }

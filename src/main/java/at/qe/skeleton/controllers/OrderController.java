@@ -4,7 +4,6 @@ import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.mappers.AddressMapper;
 import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.model.*;
-import at.qe.skeleton.repositories.OrderRepository;
 import at.qe.skeleton.services.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -25,14 +24,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class OrderController {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
-    private final OrderRepository orderRepository;
     private final AddressMapper addressMapper;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper, OrderRepository orderRepository,
+    public OrderController(OrderService orderService, OrderMapper orderMapper,
                            AddressMapper addressMapper) {
         this.orderService = orderService;
         this.orderMapper = orderMapper;
-        this.orderRepository = orderRepository;
         this.addressMapper = addressMapper;
 
     }
@@ -123,7 +120,7 @@ public class OrderController {
         Address shippingAddress = addressMapper.mapFrom(dto.shippingAddress());
         Address paymentAddress = addressMapper.mapFrom(dto.paymentAddress());
 
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Order order = orderService.loadOrder(orderId).orElseThrow(EntityNotFoundException::new);
         if (!order.getUser().equals(user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to confirm this order");
         }
@@ -144,12 +141,12 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long orderId,
                                                 @AuthenticationPrincipal Userx user) {
-        Order order = orderRepository.findById(orderId)
-                                     .orElseThrow(EntityNotFoundException::new);
-        if (!order.getUser().equals(user)) {
+        Order order = orderService.loadOrder(orderId).orElseThrow(EntityNotFoundException::new);
+        if (!order.getUser().equals(user) && !user.getRole().equals(UserxRole.ADMIN)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to cancel this order");
         }
         orderService.cancelOrder(order, user);
+        order = orderService.loadOrder(orderId).orElseThrow(EntityNotFoundException::new);
         return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 }

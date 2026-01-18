@@ -207,7 +207,6 @@ public class OrderService {
         for (OrderItem orderItem : order.getProducts()) {
             productService.releaseStock(orderItem);
         }
-        order.getProducts().clear();
         orderRepository.save(order);
     }
 
