@@ -43,6 +43,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -566,4 +567,30 @@ public class OrderControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
+
+    @Test
+    @WithMockUser(username = "userA", authorities = {"CUSTOMER"})
+    public void testCancelOrderIllegalState() throws Exception {
+        Userx user = new Userx();
+        user.setId(1L);
+        user.setRole(UserxRole.CUSTOMER);
+
+        Order mockOrder = new Order();
+        mockOrder.setId(100L);
+        mockOrder.setUser(user);
+        mockOrder.setStatus(OrderStatus.PROCESSING);
+
+        //mock order exists
+        Mockito.when(orderService.loadOrder(100L)).thenReturn(Optional.of(mockOrder));
+
+        Mockito.doThrow(new IllegalStateException())
+               .when(orderService)
+               .cancelOrder(eq(mockOrder), any());
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/100/cancel")
+                                              .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                              .with(SecurityMockMvcRequestPostProcessors.user(user))
+                                              .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(MockMvcResultMatchers.status().isConflict());
+    }
 }
