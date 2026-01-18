@@ -1,11 +1,8 @@
 package at.qe.skeleton.controllers;
 
 import at.qe.skeleton.dtos.UserxDTO;
-import at.qe.skeleton.dtos.UserxUpdateDTO;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.services.UserxService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,17 +20,10 @@ import org.springframework.web.bind.annotation.*;
 public class UserxController {
  
     private final UserxMapper userMapper;
-    private final UserxService userService;
 
     @Autowired
-    public UserxController(UserxMapper userMapper, UserxService userService) {
+    public UserxController(UserxMapper userMapper) {
         this.userMapper = userMapper;
-        this.userService = userService;
-    }
-
-    @PostMapping("/me")
-    public ResponseEntity<UserxDTO> createCurrentUser(@Valid @RequestBody UserxUpdateDTO user) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @PatchMapping("/me")

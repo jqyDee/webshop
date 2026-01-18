@@ -4,15 +4,6 @@ export type ClientOptions = {
     baseUrl: 'http://localhost:8080' | (string & {});
 };
 
-export type LoginRequestDto = {
-    username: string;
-    password: string;
-};
-
-export type LoginResponseDto = {
-    bearerToken: string;
-};
-
 export type AddressDto = {
     id?: number;
     street: string;
@@ -33,7 +24,7 @@ export type UserxUpdateDto = {
     enabled?: boolean;
     shippingAddress?: AddressDto;
     paymentAddress?: AddressDto;
-    role: RoleEnum;
+    role?: RoleEnum;
 };
 
 export type UserxDto = {
@@ -51,6 +42,15 @@ export type UserxDto = {
     paymentAddress?: AddressDto;
     enabled: boolean;
     role: RoleEnum;
+};
+
+export type LoginRequestDto = {
+    username: string;
+    password: string;
+};
+
+export type LoginResponseDto = {
+    bearerToken: string;
 };
 
 export type ProductDto = {
@@ -160,6 +160,22 @@ export enum StatusEnum {
     CANCELLED = 'CANCELLED'
 }
 
+export type RegisterData = {
+    body: UserxUpdateDto;
+    path?: never;
+    query?: never;
+    url: '/authentication/register';
+};
+
+export type RegisterResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
+
 export type AuthenticateUserData = {
     body: LoginRequestDto;
     path?: never;
@@ -175,54 +191,6 @@ export type AuthenticateUserResponses = {
 };
 
 export type AuthenticateUserResponse = AuthenticateUserResponses[keyof AuthenticateUserResponses];
-
-export type GetCurrentUserData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type GetCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
-
-export type UpdateCurrentUserData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type UpdateCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type UpdateCurrentUserResponse = UpdateCurrentUserResponses[keyof UpdateCurrentUserResponses];
-
-export type CreateCurrentUserData = {
-    body: UserxUpdateDto;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type CreateCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type CreateCurrentUserResponse = CreateCurrentUserResponses[keyof CreateCurrentUserResponses];
 
 export type UpdateSubscriptionData = {
     body?: never;
@@ -413,6 +381,38 @@ export type CreateUserResponses = {
 };
 
 export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
+
+export type GetCurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/users/me';
+};
+
+export type GetCurrentUserResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
+
+export type UpdateCurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/users/me';
+};
+
+export type UpdateCurrentUserResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type UpdateCurrentUserResponse = UpdateCurrentUserResponses[keyof UpdateCurrentUserResponses];
 
 export type DeleteProductData = {
     body?: never;

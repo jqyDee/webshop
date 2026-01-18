@@ -4,6 +4,7 @@ import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
 import React from "react";
 import { CartItemDto } from "../api";
+import {useGlobalToast} from "../Contexts/toastContext.tsx";
 
 interface ShoppingCartListComponentProps {
     items: CartItemDto[];
@@ -22,6 +23,8 @@ const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
     const priceTemplate = (item: CartItemDto) => (
         <span>€{item.product.discountedPrice ?? item.product.price}</span>
     );
+
+    const {showToast} = useGlobalToast();
 
     const quantityTemplate = (item: CartItemDto) => (
         <InputNumber
@@ -46,20 +49,54 @@ const ShoppingCartListComponent: React.FC<ShoppingCartListComponentProps> = ({
                 icon="pi pi-trash"
                 severity="danger"
                 text
-                onClick={() => {item.product.id ? onRemove(item.product.id) : console.log('error')}}
+                onClick={() => {
+                    item.product.id ? onRemove(item.product.id) : showToast({
+                        severity: 'error',
+                        summary: 'Error loading Product',
+                        detail: 'The current product could not be loaded. Please try refreshing the page!',
+                        life: 3000
+                    })
+                }}
             />
         )
     };
 
     return (
-        <DataTable value={items} loading={loading} dataKey="product.id">
-            <Column field="product.name" header="Product" sortable/>
-            <Column field="product.price" header="Price" body={priceTemplate} sortable/>
-            <Column field="quantity" header="Quantity" body={quantityTemplate} sortable/>
-            <Column header="Subtotal" body={subtotalTemplate}/>
-            <Column body={removeTemplate} />
-        </DataTable>
-    );
+        <DataTable
+            value={items}
+            loading={loading}
+            dataKey="product.id"
+        >
+            <Column
+                field="product.name"
+                header="Product"
+                sortable
+                headerClassName="w-10rem"
+            />
+            <Column
+                field="product.price"
+                header="Price"
+                body={priceTemplate}
+                sortable
+                headerClassName="w-10rem"
+            />
+            <Column
+                field="quantity"
+                header="Quantity"
+                body={quantityTemplate}
+                sortable
+                headerClassName="w-8rem"
+            />
+            <Column
+                header="Subtotal"
+                body={subtotalTemplate}
+                headerClassName="w-10rem"
+            />
+            <Column
+                body={removeTemplate}
+                headerClassName="w-2rem"
+            />
+        </DataTable>    );
 };
 
 export default ShoppingCartListComponent;

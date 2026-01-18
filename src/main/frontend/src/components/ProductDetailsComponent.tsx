@@ -7,10 +7,9 @@ import {Tag} from "primereact/tag";
 import {Rating} from "primereact/rating";
 import DefaultImage from "../assets/default.jpg"
 import {Accordion, AccordionTab} from "primereact/accordion";
-import {useUser} from "../contexts/authenticatedUserContext.tsx";
+import {useUser} from "../Contexts/authenticatedUserContext.tsx";
 import React, {useRef} from "react";
-import {Toast} from "primereact/toast";
-import {useCart} from "../contexts/cartContext.tsx";
+import {useCart} from "../Contexts/cartContext.tsx";
 import ProductDialogComponent, {ProductDialogHandle} from "./ProductDialogComponent.tsx";
 import ReviewTableComponent from "./ReviewTableComponent.tsx";
 
@@ -19,7 +18,6 @@ const ProductDetailsComponent: React.FC = () => {
 
     const {id} = useParams<{ id: string }>();
     const {currentUser, isManager, isAdmin} = useUser();
-    const toast = useRef<Toast | null>(null);
     const dialogRef = useRef<ProductDialogHandle>(null);
 
     // QUERY
@@ -48,18 +46,24 @@ const ProductDetailsComponent: React.FC = () => {
 
     return (
         <div className="border-none">
-            <Toast ref={toast}/>
             <div className="grid">
-                <div className="col-12 md:col-6 flex justify-content-center">
-                    <img
-                        src={product.imageUrl || DefaultImage}
-                        alt={product.name}
-                        className="shadow-2 border-round w-full"
-                        style={{ maxWidth: '500px', objectFit: 'cover' }}
-                        onError={(e) => {
-                            (e.currentTarget.src = DefaultImage);
-                        }}
-                    />
+                <div className="col-12 md:col-6 flex justify-content-center align-items-center">
+                    <div className="inline-block relative shadow-2 border-round overflow-hidden">
+                        <img
+                            src={product.imageUrl || DefaultImage}
+                            alt={product.name}
+                            className="block h-auto"
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '500px',
+                                width: 'auto',
+                                objectFit: 'contain'
+                            }}
+                            onError={(e) => {
+                                (e.currentTarget.src = DefaultImage);
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <div className="col-12 md:col-6 px-4 md:text-right md:flex xl:text-right xl:flex flex-column align-items-end">
@@ -76,13 +80,13 @@ const ProductDetailsComponent: React.FC = () => {
                         {hasDiscount ? (
                             <>
                                 <div className="flex align-items-baseline gap-2">
-                                    <span className="text-xl text-500 line-through">${product.price.toFixed(2)}</span>
-                                    <span className="text-3xl font-bold text-red-600">${product.discountedPrice.toFixed(2)}</span>
+                                    <span className="text-xl text-500 line-through">€{product.price.toFixed(2)}</span>
+                                    <span className="text-3xl font-bold text-red-600">€{product.discountedPrice.toFixed(2)}</span>
                                 </div>
                                 <Tag severity="danger" value={`-${product.discount * 100}% OFF`} />
                             </>
                         ) : (
-                            <span className="text-3xl font-bold text-900">${product.price.toFixed(2)}</span>
+                            <span className="text-3xl font-bold text-900">€{product.price.toFixed(2)}</span>
                         )}
                     </div>
 

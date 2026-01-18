@@ -88,7 +88,7 @@ const NavbarComponent: React.FC = () => {
     const endContent = () => (
         <div className="flex align-items-center gap-3 pr-3">
                     {canPutIntoCart &&
-                        <Link to="/shopping-cart">
+                        <Link to="/shopping-cart" className="no-underline text-color">
                             <Avatar
                                 icon="pi pi-shopping-cart"
                                 className="p-overlay-badge"

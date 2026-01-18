@@ -16,6 +16,9 @@ interface UserDialogProps {
     visible: boolean;
     user: UserxUpdateDto | null;
     isNewUser: boolean;
+    submitting: boolean;
+    isRegister: boolean;
+    canSetRole: boolean;
     validation: UserxValidationResult;
     onHide: () => void;
     onSubmit: () => void;
@@ -29,7 +32,10 @@ interface UserDialogProps {
  * @param visible whether the dialog is visible
  * @param user the user to be edited
  * @param isNewUser whether the user is new
+ * @param submitting whether the process is currently submitting
+ * @param isRegister is a register dialog
  * @param validation field validation information
+ * @param canSetRole
  * @param onHide callback when the dialog is hidden
  * @param onSubmit callback when the user is submitted
  * @param onInputChange callback when the input changes
@@ -40,7 +46,10 @@ const UserDialog: React.FC<UserDialogProps> = ({
     visible,
     user,
     isNewUser,
+    submitting,
+    isRegister,
     validation,
+    canSetRole,
     onHide,
     onSubmit,
     onInputChange,
@@ -55,13 +64,13 @@ const UserDialog: React.FC<UserDialogProps> = ({
         <div>
             <Button label="Cancel" icon="pi pi-times" onClick={onHide} className="p-button-text" />
             <Button label={isNewUser ? "Create" : "Save"} icon="pi pi-check" onClick={onSubmit}
-                autoFocus />
+                autoFocus loading={submitting} disabled={submitting}/>
         </div>
     );
 
     return (
         <Dialog
-            header={isNewUser ? "Create New User" : "Edit User"}
+            header={isRegister ? "Register" : isNewUser ? "Create New User" : "Edit User"}
             visible={visible}
             style={{ width: '50vw' }}
             onHide={onHide}
@@ -72,6 +81,8 @@ const UserDialog: React.FC<UserDialogProps> = ({
                 <UserForm
                     user={user}
                     fieldErrors={validation.fieldErrors}
+                    isRegister={isRegister}
+                    canSetRole={canSetRole}
                     onInputChange={onInputChange}
                     onRolesChange={onRolesChange}
                     onUserEnabledChange={onUserEnabledChange}

@@ -15,14 +15,15 @@ import {
     ProductRoute,
     OrdersRoute,
     ProductsRoute,
-    ShoppingCartRoute, OrderCreationRoute
+    ShoppingCartRoute
 } from "./routes";
 import PrivateRoute from './components/PrivateRoute';
-import {UserProvider} from "./contexts/authenticatedUserContext";
+import {UserProvider} from "./Contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
-import {CartContextProvider} from "./contexts/cartContext.tsx";
+import {CartContextProvider} from "./Contexts/cartContext.tsx";
 import MainLayout from "./components/MainLayout.tsx";
+import {ToastProvider} from "./Contexts/toastContext.tsx";
 
 const client = new QueryClient({
     defaultOptions: {
@@ -35,33 +36,34 @@ const client = new QueryClient({
 const App: React.FC = () => {
     return (
         <QueryClientProvider client={client}>
-            {/* Wrap the application in the UserProvider, which allows to access the authenticated user*/}
+            { /* Wrap the application in the UserProvider, which allows to access the authenticated user */ }
             <UserProvider>
-                <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
-                <CartContextProvider>
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <BrowserRouter>
-                            <Routes>
-                                <Route element={<MainLayout/>}>
-                                    <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
-                                    <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
-                                    <Route path={ProductRoute.url} Component={ProductRoute.component}/>
-                                    <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
-                                    <Route path={ShoppingCartRoute.url} Component={ShoppingCartRoute.component}/>
-                                    {/* Protected Routes (authentication required) */}
-                                    <Route element={<PrivateRoute/>}>
-                                        <Route path={OrderCreationRoute.url} Component={OrderCreationRoute.component}/>
-                                        <Route path={OrdersRoute.url} Component={OrdersRoute.component}/>
-                                        <Route path={ManageUsersRoute.url}
-                                               Component={ManageUsersRoute.component}/>
-                                        <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                <ToastProvider>
+                    <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
+                    <CartContextProvider>
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <BrowserRouter>
+                                <Routes>
+                                    <Route element={<MainLayout/>}>
+                                        <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
+                                        <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
+                                        <Route path={ProductRoute.url} Component={ProductRoute.component}/>
+                                        <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
+                                        <Route path={ShoppingCartRoute.url} Component={ShoppingCartRoute.component}/>
+                                        {/* Protected Routes (authentication required) */}
+                                        <Route element={<PrivateRoute/>}>
+                                            <Route path={OrdersRoute.url} Component={OrdersRoute.component}/>
+                                            <Route path={ManageUsersRoute.url}
+                                                   Component={ManageUsersRoute.component}/>
+                                            <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                                        </Route>
+                                        {/* end of protected routes */}
                                     </Route>
-                                    {/* end of protected routes */}
-                                </Route>
-                            </Routes>
-                        </BrowserRouter>
-                    </Suspense>
-                </CartContextProvider>
+                                </Routes>
+                            </BrowserRouter>
+                        </Suspense>
+                    </CartContextProvider>
+                </ToastProvider>
             </UserProvider>
         </QueryClientProvider>
     );
