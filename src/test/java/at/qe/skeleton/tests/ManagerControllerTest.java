@@ -99,7 +99,7 @@ public class ManagerControllerTest {
     @WithMockUser(username = "manager", authorities = {"MANAGER"})
     public void testCreateProduct() throws Exception {
         ProductDTO mockProductDTO = new ProductDTO(
-                1L, "mock", 100.5, 2, 0, 0.0, null, null, null, null, null, null
+                1L, "mock", 100.5, 2, 0, 0.0, null, null, null, null, null, null, null
         );
 
         Product mockProduct = new Product();
@@ -212,7 +212,7 @@ public class ManagerControllerTest {
         updatedProduct.setId(productId);
         updatedProduct.setName("updated product");
 
-        ProductDTO productUpdateDto = new ProductDTO(1L, "updated product", 10.0, 1, 0.0, 0.0, null, null, null, null, null, null);
+        ProductDTO productUpdateDto = new ProductDTO(1L, "updated product", 10.0, 1, 0.0, 0.0, null, null, null, null, null, null, null);
 
         Mockito.when(productService.loadProduct(productId)).thenReturn(Optional.of(existingProduct));
         Mockito.when(productService.saveProduct(existingProduct)).thenReturn(updatedProduct);

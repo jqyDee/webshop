@@ -88,3 +88,12 @@ VALUES (5000, 4000, 4000, 5, 'Love it', 'Best phone I have ever owned. Elvis app
 -- Review for Iphone 14 (ID: 3000) - Avg Rating in Product table is 2.0
 INSERT INTO REVIEW (ID, PRODUCT_ID, AUTHOR_ID, RATING, TITLE, COMMENT, CREATED_DATE)
 VALUES (6000, 3000, 3000, 2, 'Meh', 'I should have bought the 13 or waited for the 15.', '2024-01-25 16:20:00');
+
+-- Insert into Product_Subscription
+INSERT INTO PRODUCT_SUBSCRIPTION (ID, PRODUCT_ID, USER_ID)
+VALUES (1000, 1000, 3000);
+
+-- Insert into Product_Subscription_Notify_On
+INSERT INTO PRODUCT_SUBSCRIPTION_NOTIFY_ON (PRODUCT_SUBSCRIPTION_ID, EVENT_TYPE)
+VALUES (1000, 'BACK_IN_STOCK'),
+       (1000, 'FOR_SALE');

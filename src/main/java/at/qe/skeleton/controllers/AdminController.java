@@ -5,6 +5,7 @@ import at.qe.skeleton.dtos.UserxUpdateDTO;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.services.ProductSubscriptionService;
 import at.qe.skeleton.services.UserxService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -27,13 +28,15 @@ public class AdminController {
     private final UserxUpdateMapper userUpdateMapper;
     private final UserxMapper userMapper;
     private final UserxService userService;
+    private final ProductSubscriptionService productSubscriptionService;
 
     @Autowired
     public AdminController(UserxMapper userMapper, UserxService userService,
-                           UserxUpdateMapper userCreateMapper) {
+                           UserxUpdateMapper userCreateMapper, ProductSubscriptionService productSubscriptionService) {
         this.userUpdateMapper = userCreateMapper;
         this.userMapper = userMapper;
         this.userService = userService;
+        this.productSubscriptionService = productSubscriptionService;
     }
 
     /**
@@ -113,5 +116,12 @@ public class AdminController {
 
         userService.deleteUser(existingUserx);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/user/{id}/unsubscribe/{productId}")
+    public ResponseEntity<Void> deleteUserProductSubscription(@PathVariable Long id, @PathVariable Long productId) {
+        Userx forUser = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
+        productSubscriptionService.deleteProductSubscription(forUser, productId);
+        return ResponseEntity.ok().build();
     }
 }
