@@ -154,6 +154,7 @@ export enum RoleEnum {
 export enum StatusEnum {
     PENDING = 'PENDING',
     PENDING_PAYMENT = 'PENDING_PAYMENT',
+    PAID = 'PAID',
     PROCESSING = 'PROCESSING',
     SHIPPED = 'SHIPPED',
     DELIVERED = 'DELIVERED',
@@ -632,25 +633,23 @@ export type GetOrdersResponses = {
 
 export type GetOrdersResponse = GetOrdersResponses[keyof GetOrdersResponses];
 
-export type GetAllOrdersData = {
+export type GetOrderByIdData = {
     body?: never;
-    path?: never;
-    query: {
-        pageId?: number;
-        pageSize?: number;
-        sort: Sort;
+    path: {
+        id: number;
     };
-    url: '/api/manager/orders';
+    query?: never;
+    url: '/api/orders/{id}';
 };
 
-export type GetAllOrdersResponses = {
+export type GetOrderByIdResponses = {
     /**
      * OK
      */
-    200: PageableListDtoOrderDto;
+    200: OrderDto;
 };
 
-export type GetAllOrdersResponse = GetAllOrdersResponses[keyof GetAllOrdersResponses];
+export type GetOrderByIdResponse = GetOrderByIdResponses[keyof GetOrderByIdResponses];
 
 export type GetAllUsersData = {
     body?: never;
@@ -667,6 +666,26 @@ export type GetAllUsersResponses = {
 };
 
 export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
+
+export type GetAllOrdersData = {
+    body?: never;
+    path?: never;
+    query: {
+        pageId?: number;
+        pageSize?: number;
+        sort: Sort;
+    };
+    url: '/api/admin/orders';
+};
+
+export type GetAllOrdersResponses = {
+    /**
+     * OK
+     */
+    200: PageableListDtoOrderDto;
+};
+
+export type GetAllOrdersResponse = GetAllOrdersResponses[keyof GetAllOrdersResponses];
 
 export type GetAllManagersData = {
     body?: never;

@@ -1,14 +1,25 @@
 package at.qe.skeleton.controllers;
 
+import at.qe.skeleton.dtos.OrderDTO;
+import at.qe.skeleton.dtos.PageableListDTO;
 import at.qe.skeleton.dtos.UserxDTO;
 import at.qe.skeleton.dtos.UserxUpdateDTO;
+import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
+import at.qe.skeleton.model.Order;
 import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.services.OrderService;
 import at.qe.skeleton.services.UserxService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +38,17 @@ public class AdminController {
     private final UserxUpdateMapper userUpdateMapper;
     private final UserxMapper userMapper;
     private final UserxService userService;
+    private final OrderService orderService;
+    private final OrderMapper orderMapper;
 
     @Autowired
     public AdminController(UserxMapper userMapper, UserxService userService,
-                           UserxUpdateMapper userCreateMapper) {
+                           UserxUpdateMapper userCreateMapper, OrderService orderService, OrderMapper orderMapper) {
         this.userUpdateMapper = userCreateMapper;
         this.userMapper = userMapper;
         this.userService = userService;
+        this.orderService = orderService;
+        this.orderMapper = orderMapper;
     }
 
     /**
@@ -113,5 +128,37 @@ public class AdminController {
 
         userService.deleteUser(existingUserx);
         return ResponseEntity.noContent().build();
+    }
+
+
+    /**
+     * Get all Orders.
+     *
+     *@return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
+     */
+    @GetMapping("/orders")
+    public ResponseEntity<PageableListDTO<OrderDTO>> getAllOrders(
+            @RequestParam(required = false) Integer pageId,
+            @RequestParam(required = false) Integer pageSize,
+            @SortDefault(sort = "createdDate", direction = Sort.Direction.ASC) Sort sort
+    ) {
+
+        Sort finalSort = (sort != null) ? sort : Sort.unsorted();
+
+        Pageable pageable = (pageId != null && pageSize != null && pageSize > 0)
+                ? PageRequest.of(pageId, pageSize, finalSort)
+                : Pageable.unpaged();
+
+        Page<Order> orderPage = orderService.getAllOrders(pageable);
+
+        PageableListDTO<OrderDTO> pageableListDTO = new PageableListDTO<>(
+                pageSize,
+                (pageId != null) ? pageId + 1 : null,
+                orderPage.getTotalPages(),
+                orderPage.getTotalElements(),
+                orderPage.getContent().stream().map(orderMapper::mapTo).toList()
+        );
+
+        return ResponseEntity.ok(pageableListDTO);
     }
 }

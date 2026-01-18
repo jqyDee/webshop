@@ -11,6 +11,7 @@ import {ROUTES} from "./utilities/routes.paths";
 import ProductDetails from "./views/ProductDetails.tsx";
 import Products from "./views/Products.tsx";
 import Orders from "./views/Orders.tsx";
+import OrderDetails from "./views/OrderDetails.tsx";
 import ShoppingCart from "./views/ShoppingCart.tsx";
 
 /**
@@ -54,3 +55,7 @@ export const ShoppingCartRoute = {
     component: ShoppingCart
 }
 
+export const OrderDetailRoute = {
+    url: ROUTES.ORDER,
+    component: OrderDetails
+}
