@@ -9,6 +9,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "primereact/button";
 import AddressComponent from "./AddressComponent.tsx";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { RoleEnum } from "../api";
+import { useUser } from "../Contexts/authenticatedUserContext.tsx";
 
 const OrderDetailsComponent: React.FC = () => {
 
@@ -16,6 +18,9 @@ const OrderDetailsComponent: React.FC = () => {
     const toast = useRef<Toast | null>(null);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+
+    const { currentUser } = useUser();
+    const isAdmin = currentUser?.role === RoleEnum.ADMIN;
 
     const cancelMutation = useMutation(cancelOrderMutation());
 
@@ -70,26 +75,37 @@ const OrderDetailsComponent: React.FC = () => {
         <div className="p-2">
             <Toast ref={toast}/>
 
-            <div className="flex align-items-center justify-content-between w-full mb-2">
-                <div className="flex-1 flex justify-content-start">
-                    <Button
-                        icon="pi pi-arrow-left"
-                        className="p-button-text p-button-rounded"
-                        onClick={() => navigate('/orders')}
-                    />
-                </div>
-
-                <div className="flex-grow-0 text-end">
-                    <h2 className="m-0">Order id: {id}</h2>
-                </div>
-
-            </div>
-            {/* 3. Right Section: Flex-1 to match the left section */}
-            <div className="flex flex-column gap-2 mb-4 align-items-end">
-                <span className="text-700 font-bold text-xl">Status</span>
-                <Tag value={order.status} severity={getStatusSeverity(order.status)} className=""/>
+            {/* Header Row: Back Button and Title */}
+            <div className="flex align-items-center gap-3 mb-4">
+                <Button
+                    icon="pi pi-arrow-left"
+                    className="p-button-text p-button-rounded"
+                    onClick={() => navigate('/orders')}
+                />
+                <h2 className="m-0">Order #{id}</h2>
             </div>
 
+            {/* Info Row: Customer (Admin Only) and Status */}
+            <div className="flex justify-content-between align-items-start mb-4">
+                <div className="flex gap-4">
+                    {isAdmin && order.user && (
+                        <div className="flex flex-column gap-1">
+                            <span className="text-500 font-bold text-xs uppercase">Customer</span>
+                            <div className="flex align-items-center text-900 font-medium">
+                                <i className="pi pi-user mr-2 text-primary"></i>
+                                {order.user.firstName} {order.user.lastName}
+                                <span className="text-500 ml-2 text-sm">({order.user.username})</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Right Side: Status Tag */}
+                <div className="flex flex-column gap-1 align-items-end">
+                    <span className="text-500 font-bold text-xs uppercase">Status</span>
+                    <Tag value={order.status} severity={getStatusSeverity(order.status)} />
+                </div>
+            </div>
             <DataTable value={order.products} className="p-datatable-sm">
                 <Column
                     header="Productname"
@@ -138,7 +154,7 @@ const OrderDetailsComponent: React.FC = () => {
                 </div>
             </div>
 
-            {(order.status === 'PENDING' || order.status === 'PENDING_PAYMENT' || order.status === 'PAID' || order.status === 'PROCESSING') && (
+            {!isAdmin && ['PENDING', 'PENDING_PAYMENT', 'PAID'].includes(order.status) && (
                 <Button
                     icon="pi pi-times"
                     label="Cancel Order"
