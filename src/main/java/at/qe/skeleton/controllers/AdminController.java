@@ -95,10 +95,10 @@ public class AdminController {
      */
     @PostMapping("/createUser")
     public ResponseEntity<UserxDTO> createUser(@Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
-        Userx user = userService.saveUser(userUpdateMapper.mapFrom(userxUpdateDto));
+        Userx user = userService.saveUser(userUpdateMapper.mapFrom(userxUpdateDto), userxUpdateDto.password());
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.mapTo(user));
     }
-    
+
     /**
      * Partially updates user of given id.
      * The update is partial because only a select subset of user fields can be modified after create.
@@ -112,7 +112,7 @@ public class AdminController {
         userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
 
         Userx user = userUpdateMapper.mapFrom(userxUpdateDto, id);
-        Userx savedUser = userService.saveUser(user);
+        Userx savedUser = userService.saveUser(user, userxUpdateDto.password());
         return ResponseEntity.ok(userMapper.mapTo(savedUser));
     }
     
