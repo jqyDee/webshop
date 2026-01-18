@@ -24,13 +24,13 @@ const OrderDetailsComponent: React.FC = () => {
 
     const cancelMutation = useMutation(cancelOrderMutation());
 
-    const onCancel = (orderId: number) => {
-        cancelMutation.mutate({
+    const onCancel = async (orderId: number) => {
+        await cancelMutation.mutateAsync({
             path: {orderId: orderId}
         }, {
-            onSuccess: () => {
+            onSuccess: async () => {
                 // Invalidate the query to refresh the UI
-                queryClient.invalidateQueries({
+                await queryClient.invalidateQueries({
                     queryKey: getOrderByIdOptions({ path: { id: orderId } }).queryKey
                 });
                 toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Order Cancelled' });
