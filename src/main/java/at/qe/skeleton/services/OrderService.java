@@ -134,20 +134,6 @@ public class OrderService {
     }
 
     /**
-     * Search for order with id in database.
-     *
-     * @param id id to search in the database
-     * @return order matching the id
-     */
-    public Optional<Order> loadOrder(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id is null");
-        }
-
-        return this.orderRepository.findById(id);
-    }
-
-    /**
      * Convert CartItems to OrderItems and reserve Stock and
      *
      * @param cartItems The cartItems of the currentUser

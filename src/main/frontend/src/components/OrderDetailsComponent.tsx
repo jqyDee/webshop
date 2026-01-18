@@ -10,7 +10,7 @@ import { Button } from "primereact/button";
 import AddressComponent from "./AddressComponent.tsx";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { RoleEnum } from "../api";
-import { useUser } from "../Contexts/authenticatedUserContext.tsx";
+import { useUser } from "../contexts/authenticatedUserContext.tsx";
 
 const OrderDetailsComponent: React.FC = () => {
 
