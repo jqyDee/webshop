@@ -154,6 +154,7 @@ export enum RoleEnum {
 export enum StatusEnum {
     PENDING = 'PENDING',
     PENDING_PAYMENT = 'PENDING_PAYMENT',
+    PAID = 'PAID',
     PROCESSING = 'PROCESSING',
     SHIPPED = 'SHIPPED',
     DELIVERED = 'DELIVERED',
@@ -685,6 +686,26 @@ export type GetAllUsersResponses = {
 };
 
 export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
+
+export type GetAllOrders1Data = {
+    body?: never;
+    path?: never;
+    query: {
+        pageId?: number;
+        pageSize?: number;
+        sort: Sort;
+    };
+    url: '/api/admin/orders';
+};
+
+export type GetAllOrders1Responses = {
+    /**
+     * OK
+     */
+    200: PageableListDtoOrderDto;
+};
+
+export type GetAllOrders1Response = GetAllOrders1Responses[keyof GetAllOrders1Responses];
 
 export type GetAllManagersData = {
     body?: never;

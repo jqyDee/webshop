@@ -156,7 +156,7 @@ const OrderDetailsComponent: React.FC = () => {
                     label="Cancel Order"
                     onClick={() => onCancel(order.id!)}
                     loading={cancelMutation.isPending} // Show a spinner on the button while working
-                    className="p-button-danger w-full mt-4"
+                    className="p-button-danger p-button-sm w-auto mt-2"
                 />
             )}
         </div>
