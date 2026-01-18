@@ -651,26 +651,6 @@ export type GetOrderByIdResponses = {
 
 export type GetOrderByIdResponse = GetOrderByIdResponses[keyof GetOrderByIdResponses];
 
-export type GetAllOrdersData = {
-    body?: never;
-    path?: never;
-    query: {
-        pageId?: number;
-        pageSize?: number;
-        sort: Sort;
-    };
-    url: '/api/manager/orders';
-};
-
-export type GetAllOrdersResponses = {
-    /**
-     * OK
-     */
-    200: PageableListDtoOrderDto;
-};
-
-export type GetAllOrdersResponse = GetAllOrdersResponses[keyof GetAllOrdersResponses];
-
 export type GetAllUsersData = {
     body?: never;
     path?: never;
@@ -687,7 +667,7 @@ export type GetAllUsersResponses = {
 
 export type GetAllUsersResponse = GetAllUsersResponses[keyof GetAllUsersResponses];
 
-export type GetAllOrders1Data = {
+export type GetAllOrdersData = {
     body?: never;
     path?: never;
     query: {
@@ -698,14 +678,14 @@ export type GetAllOrders1Data = {
     url: '/api/admin/orders';
 };
 
-export type GetAllOrders1Responses = {
+export type GetAllOrdersResponses = {
     /**
      * OK
      */
     200: PageableListDtoOrderDto;
 };
 
-export type GetAllOrders1Response = GetAllOrders1Responses[keyof GetAllOrders1Responses];
+export type GetAllOrdersResponse = GetAllOrdersResponses[keyof GetAllOrdersResponses];
 
 export type GetAllManagersData = {
     body?: never;

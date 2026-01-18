@@ -3,89 +3,27 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { addAllToShoppingCart, authenticateUser, cancelOrder, clearShoppingCart, confirmOrder, createCurrentUser, createOrder, createProduct, createReview, createUser, deleteProduct, deleteProductFromShoppingCart, deleteReview, deleteUser, getAllManagers, getAllOrders, getAllOrders1, getAllUsers, getCurrentUser, getOrderById, getOrders, getProductById, getProducts, getReviews, getShoppingCart, getUser, isAuthenticated, type Options, subscribe, updateCurrentUser, updateProduct, updateProductInShoppingCart, updateSubscription, updateUser } from '../sdk.gen';
-import type { AddAllToShoppingCartData, AuthenticateUserData, AuthenticateUserResponse, CancelOrderData, CancelOrderResponse, ClearShoppingCartData, ConfirmOrderData, ConfirmOrderResponse, CreateCurrentUserData, CreateCurrentUserResponse, CreateOrderData, CreateOrderResponse, CreateProductData, CreateProductResponse, CreateReviewData, CreateReviewResponse, CreateUserData, CreateUserResponse, DeleteProductData, DeleteProductFromShoppingCartData, DeleteReviewData, DeleteUserData, GetAllManagersData, GetAllManagersResponse, GetAllOrders1Data, GetAllOrders1Response, GetAllOrdersData, GetAllOrdersResponse, GetAllUsersData, GetAllUsersResponse, GetCurrentUserData, GetCurrentUserResponse, GetOrderByIdData, GetOrderByIdResponse, GetOrdersData, GetOrdersResponse, GetProductByIdData, GetProductByIdResponse, GetProductsData, GetProductsResponse, GetReviewsData, GetReviewsResponse, GetShoppingCartData, GetShoppingCartResponse, GetUserData, GetUserResponse, IsAuthenticatedData, IsAuthenticatedResponse, SubscribeData, SubscribeResponse, UpdateCurrentUserData, UpdateCurrentUserResponse, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductResponse, UpdateSubscriptionData, UpdateSubscriptionResponse, UpdateUserData, UpdateUserResponse } from '../types.gen';
+import { addAllToShoppingCart, authenticateUser, cancelOrder, clearShoppingCart, confirmOrder, createOrder, createProduct, createReview, createUser, deleteProduct, deleteProductFromShoppingCart, deleteReview, deleteUser, getAllManagers, getAllOrders, getAllUsers, getCurrentUser, getOrderById, getOrders, getProductById, getProducts, getReviews, getShoppingCart, getUser, isAuthenticated, type Options, register, subscribe, updateCurrentUser, updateProduct, updateProductInShoppingCart, updateSubscription, updateUser } from '../sdk.gen';
+import type { AddAllToShoppingCartData, AuthenticateUserData, AuthenticateUserResponse, CancelOrderData, CancelOrderResponse, ClearShoppingCartData, ConfirmOrderData, ConfirmOrderResponse, CreateOrderData, CreateOrderResponse, CreateProductData, CreateProductResponse, CreateReviewData, CreateReviewResponse, CreateUserData, CreateUserResponse, DeleteProductData, DeleteProductFromShoppingCartData, DeleteReviewData, DeleteUserData, GetAllManagersData, GetAllManagersResponse, GetAllOrdersData, GetAllOrdersResponse, GetAllUsersData, GetAllUsersResponse, GetCurrentUserData, GetCurrentUserResponse, GetOrderByIdData, GetOrderByIdResponse, GetOrdersData, GetOrdersResponse, GetProductByIdData, GetProductByIdResponse, GetProductsData, GetProductsResponse, GetReviewsData, GetReviewsResponse, GetShoppingCartData, GetShoppingCartResponse, GetUserData, GetUserResponse, IsAuthenticatedData, IsAuthenticatedResponse, RegisterData, RegisterResponse, SubscribeData, SubscribeResponse, UpdateCurrentUserData, UpdateCurrentUserResponse, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductResponse, UpdateSubscriptionData, UpdateSubscriptionResponse, UpdateUserData, UpdateUserResponse } from '../types.gen';
+
+export const registerMutation = (options?: Partial<Options<RegisterData>>): UseMutationOptions<RegisterResponse, DefaultError, Options<RegisterData>> => {
+    const mutationOptions: UseMutationOptions<RegisterResponse, DefaultError, Options<RegisterData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await register({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const authenticateUserMutation = (options?: Partial<Options<AuthenticateUserData>>): UseMutationOptions<AuthenticateUserResponse, DefaultError, Options<AuthenticateUserData>> => {
     const mutationOptions: UseMutationOptions<AuthenticateUserResponse, DefaultError, Options<AuthenticateUserData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await authenticateUser({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export type QueryKey<TOptions extends Options> = [
-    Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
-        _id: string;
-        _infinite?: boolean;
-        tags?: ReadonlyArray<string>;
-    }
-];
-
-const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions, infinite?: boolean, tags?: ReadonlyArray<string>): [
-    QueryKey<TOptions>[0]
-] => {
-    const params: QueryKey<TOptions>[0] = { _id: id, baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl } as QueryKey<TOptions>[0];
-    if (infinite) {
-        params._infinite = infinite;
-    }
-    if (tags) {
-        params.tags = tags;
-    }
-    if (options?.body) {
-        params.body = options.body;
-    }
-    if (options?.headers) {
-        params.headers = options.headers;
-    }
-    if (options?.path) {
-        params.path = options.path;
-    }
-    if (options?.query) {
-        params.query = options.query;
-    }
-    return [params];
-};
-
-export const getCurrentUserQueryKey = (options?: Options<GetCurrentUserData>) => createQueryKey('getCurrentUser', options);
-
-export const getCurrentUserOptions = (options?: Options<GetCurrentUserData>) => queryOptions<GetCurrentUserResponse, DefaultError, GetCurrentUserResponse, ReturnType<typeof getCurrentUserQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await getCurrentUser({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: getCurrentUserQueryKey(options)
-});
-
-export const updateCurrentUserMutation = (options?: Partial<Options<UpdateCurrentUserData>>): UseMutationOptions<UpdateCurrentUserResponse, DefaultError, Options<UpdateCurrentUserData>> => {
-    const mutationOptions: UseMutationOptions<UpdateCurrentUserResponse, DefaultError, Options<UpdateCurrentUserData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await updateCurrentUser({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const createCurrentUserMutation = (options?: Partial<Options<CreateCurrentUserData>>): UseMutationOptions<CreateCurrentUserResponse, DefaultError, Options<CreateCurrentUserData>> => {
-    const mutationOptions: UseMutationOptions<CreateCurrentUserResponse, DefaultError, Options<CreateCurrentUserData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await createCurrentUser({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -208,6 +146,39 @@ export const clearShoppingCartMutation = (options?: Partial<Options<ClearShoppin
     return mutationOptions;
 };
 
+export type QueryKey<TOptions extends Options> = [
+    Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
+        _id: string;
+        _infinite?: boolean;
+        tags?: ReadonlyArray<string>;
+    }
+];
+
+const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions, infinite?: boolean, tags?: ReadonlyArray<string>): [
+    QueryKey<TOptions>[0]
+] => {
+    const params: QueryKey<TOptions>[0] = { _id: id, baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl } as QueryKey<TOptions>[0];
+    if (infinite) {
+        params._infinite = infinite;
+    }
+    if (tags) {
+        params.tags = tags;
+    }
+    if (options?.body) {
+        params.body = options.body;
+    }
+    if (options?.headers) {
+        params.headers = options.headers;
+    }
+    if (options?.path) {
+        params.path = options.path;
+    }
+    if (options?.query) {
+        params.query = options.query;
+    }
+    return [params];
+};
+
 export const getShoppingCartQueryKey = (options?: Options<GetShoppingCartData>) => createQueryKey('getShoppingCart', options);
 
 export const getShoppingCartOptions = (options?: Options<GetShoppingCartData>) => queryOptions<GetShoppingCartResponse, DefaultError, GetShoppingCartResponse, ReturnType<typeof getShoppingCartQueryKey>>({
@@ -241,6 +212,35 @@ export const createUserMutation = (options?: Partial<Options<CreateUserData>>): 
     const mutationOptions: UseMutationOptions<CreateUserResponse, DefaultError, Options<CreateUserData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await createUser({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getCurrentUserQueryKey = (options?: Options<GetCurrentUserData>) => createQueryKey('getCurrentUser', options);
+
+export const getCurrentUserOptions = (options?: Options<GetCurrentUserData>) => queryOptions<GetCurrentUserResponse, DefaultError, GetCurrentUserResponse, ReturnType<typeof getCurrentUserQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getCurrentUser({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getCurrentUserQueryKey(options)
+});
+
+export const updateCurrentUserMutation = (options?: Partial<Options<UpdateCurrentUserData>>): UseMutationOptions<UpdateCurrentUserResponse, DefaultError, Options<UpdateCurrentUserData>> => {
+    const mutationOptions: UseMutationOptions<UpdateCurrentUserResponse, DefaultError, Options<UpdateCurrentUserData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateCurrentUser({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -440,21 +440,6 @@ export const getOrderByIdOptions = (options: Options<GetOrderByIdData>) => query
     queryKey: getOrderByIdQueryKey(options)
 });
 
-export const getAllOrdersQueryKey = (options: Options<GetAllOrdersData>) => createQueryKey('getAllOrders', options);
-
-export const getAllOrdersOptions = (options: Options<GetAllOrdersData>) => queryOptions<GetAllOrdersResponse, DefaultError, GetAllOrdersResponse, ReturnType<typeof getAllOrdersQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await getAllOrders({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: getAllOrdersQueryKey(options)
-});
-
 export const getAllUsersQueryKey = (options?: Options<GetAllUsersData>) => createQueryKey('getAllUsers', options);
 
 export const getAllUsersOptions = (options?: Options<GetAllUsersData>) => queryOptions<GetAllUsersResponse, DefaultError, GetAllUsersResponse, ReturnType<typeof getAllUsersQueryKey>>({
@@ -470,11 +455,11 @@ export const getAllUsersOptions = (options?: Options<GetAllUsersData>) => queryO
     queryKey: getAllUsersQueryKey(options)
 });
 
-export const getAllOrders1QueryKey = (options: Options<GetAllOrders1Data>) => createQueryKey('getAllOrders1', options);
+export const getAllOrdersQueryKey = (options: Options<GetAllOrdersData>) => createQueryKey('getAllOrders', options);
 
-export const getAllOrders1Options = (options: Options<GetAllOrders1Data>) => queryOptions<GetAllOrders1Response, DefaultError, GetAllOrders1Response, ReturnType<typeof getAllOrders1QueryKey>>({
+export const getAllOrdersOptions = (options: Options<GetAllOrdersData>) => queryOptions<GetAllOrdersResponse, DefaultError, GetAllOrdersResponse, ReturnType<typeof getAllOrdersQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-        const { data } = await getAllOrders1({
+        const { data } = await getAllOrders({
             ...options,
             ...queryKey[0],
             signal,
@@ -482,7 +467,7 @@ export const getAllOrders1Options = (options: Options<GetAllOrders1Data>) => que
         });
         return data;
     },
-    queryKey: getAllOrders1QueryKey(options)
+    queryKey: getAllOrdersQueryKey(options)
 });
 
 export const getAllManagersQueryKey = (options?: Options<GetAllManagersData>) => createQueryKey('getAllManagers', options);
