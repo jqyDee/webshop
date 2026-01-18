@@ -96,7 +96,7 @@ public class AuthenticationControllerTest {
         boolean isEnabled = true;
 
         UserxUpdateDTO newUser = new UserxUpdateDTO(id, username, password, firstName, lastName,
-                                                    email, "", true, null, null, role);
+                                                    email, "", true, null, null, role, null);
         Userx user = new Userx();
         user.setId(id);
         user.setUsername(username);
@@ -108,7 +108,7 @@ public class AuthenticationControllerTest {
         Mockito.when(userService.createUser(user, password)).thenReturn(user);
         Mockito.when(userMapper.mapTo(user)).thenReturn(
                 new UserxDTO(id, null, null, null, null, username, firstName, lastName, email, "",
-                             null, null, isEnabled, role));
+                             null, null, isEnabled, role, null));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/authentication/register")
                                               .with(SecurityMockMvcRequestPostProcessors.csrf())

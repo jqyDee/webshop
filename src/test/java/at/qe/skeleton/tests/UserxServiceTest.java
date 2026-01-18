@@ -380,7 +380,7 @@ public class UserxServiceTest {
         Userx user2 = userService.loadUser(6000L).orElseThrow();
         Assertions.assertTrue(user2.getNotifyOptions().isEmpty());
         user2.addNotifyOption(NotificationType.EMAIL);
-        userService.saveUser(user2);
+        userService.saveUser(user2, user2.getPassword());
         Userx updatedUser = userService.loadUser(3000L).orElseThrow();
         Assertions.assertTrue(updatedUser.getNotifyOptions().contains(NotificationType.EMAIL));
     }
@@ -390,7 +390,7 @@ public class UserxServiceTest {
     public void testRemoveNotifyOption() {
         Userx user2 = userService.loadUser(3000L).orElseThrow();
         user2.removeNotifyOption(NotificationType.EMAIL);
-        userService.saveUser(user2);
+        userService.saveUser(user2, user2.getPassword());
         Userx updatedUser = userService.loadUser(3000L).orElseThrow();
         Assertions.assertFalse(updatedUser.getNotifyOptions().contains(NotificationType.EMAIL));
     }
