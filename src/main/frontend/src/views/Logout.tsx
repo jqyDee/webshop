@@ -3,7 +3,7 @@
  * Architecture" offered by Innsbruck University.
  */
 import {useNavigate} from "react-router-dom";
-import {useUser} from "../Contexts/authenticatedUserContext";
+import {useUser} from "../contexts/authenticatedUserContext";
 import {useEffect} from "react";
 
 /**

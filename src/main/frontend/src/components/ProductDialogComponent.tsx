@@ -10,7 +10,7 @@ import {
 } from "../api/@tanstack/react-query.gen.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {ProductsRoute} from "../routes.ts";
-import {useGlobalToast} from "../Contexts/toastContext.tsx";
+import {useGlobalToast} from "../contexts/toastContext.tsx";
 
 export interface ProductDialogHandle {
     open: (openProduct: ProductDto | null) => void;

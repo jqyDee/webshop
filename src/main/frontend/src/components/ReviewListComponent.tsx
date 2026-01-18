@@ -6,7 +6,7 @@ import {Avatar} from "primereact/avatar";
 import {Rating} from "primereact/rating";
 import {Dropdown} from "primereact/dropdown";
 import {Button} from "primereact/button";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 
 interface ReviewListComponentProps {
     reviews: ReviewDto[],

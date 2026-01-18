@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { DataViewPageEvent } from "primereact/dataview";
 import OrderListComponent from "./OrderListComponent";
+import { useUser } from "../contexts/authenticatedUserContext.tsx";
 import {getOrdersOptions, getAllOrdersOptions} from "../api/@tanstack/react-query.gen";
-import { useUser } from "../Contexts/authenticatedUserContext.tsx";
 import { RoleEnum } from "../api";
 import {Button} from "primereact/button";
 

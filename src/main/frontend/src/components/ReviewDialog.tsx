@@ -1,7 +1,7 @@
 import {ProductDto, ReviewDto} from "../api";
 import {Button} from "primereact/button";
 import {Dialog} from "primereact/dialog";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 import React from "react";
 import {Message} from "primereact/message";
 import ReviewForm from "./ReviewForm.tsx";

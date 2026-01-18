@@ -11,8 +11,8 @@ import {InputIcon} from "primereact/inputicon";
 import React, {useEffect, useState} from "react";
 
 import DefaultImage from "../assets/default.jpg"
-import {useCart} from "../Contexts/cartContext.tsx";
-import {useUser} from "../Contexts/authenticatedUserContext.tsx";
+import {useCart} from "../contexts/cartContext.tsx";
+import {useUser} from "../contexts/authenticatedUserContext.tsx";
 import {useNavigate} from "react-router-dom";
 
 interface ProductListComponentProps {

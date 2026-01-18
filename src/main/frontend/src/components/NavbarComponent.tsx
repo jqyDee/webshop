@@ -4,7 +4,7 @@
  */
 import React, { useRef } from 'react';
 import {Menubar} from "primereact/menubar";
-import {useUser} from "../Contexts/authenticatedUserContext";
+import {useUser} from "../contexts/authenticatedUserContext";
 import {menuConfig, MenuItemConfig, userMenuConfig} from "../config/menuConfig";
 import {MenuItem} from "primereact/menuitem";
 import {Link} from "react-router-dom";
@@ -13,7 +13,7 @@ import { TieredMenu } from "primereact/tieredmenu"; // Use TieredMenu for the dr
 import { Avatar } from "primereact/avatar";
 import { ROUTES } from "../utilities/routes.paths.ts";
 import { Button } from "primereact/button";
-import {useCart} from "../Contexts/cartContext.tsx";
+import {useCart} from "../contexts/cartContext.tsx";
 import {Badge} from "primereact/badge";
 
 /**
