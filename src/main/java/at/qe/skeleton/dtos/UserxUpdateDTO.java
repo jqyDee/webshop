@@ -1,7 +1,10 @@
 package at.qe.skeleton.dtos;
 
+import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.UserxRole;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.Set;
 
 /**
  * Reduced data transfer object for the UserxTypes Entity in the create endpoint.
@@ -21,5 +24,6 @@ public record UserxUpdateDTO(
     boolean enabled,
     AddressDTO shippingAddress,
     AddressDTO paymentAddress,
-    UserxRole role
+    UserxRole role,
+    Set<NotificationType> notifyOptions
 ) {}

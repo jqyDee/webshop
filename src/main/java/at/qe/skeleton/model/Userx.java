@@ -57,7 +57,27 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
     @Enumerated(EnumType.STRING)
     private UserxRole role;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "notify_options",
+            joinColumns = @JoinColumn(name = "owner_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", nullable = false)
+    private Set<NotificationType> notifyOptions = new HashSet<>();
     boolean enabled;
+
+    public Set<NotificationType> getNotifyOptions() {
+        return notifyOptions;
+    }
+
+    public void addNotifyOption(NotificationType notificationType) {
+        notifyOptions.add(notificationType);
+    }
+
+    public void removeNotifyOption(NotificationType notificationType) {
+        notifyOptions.remove(notificationType);
+    }
 
     public Address getShippingAddress() {
         return shippingAddress;

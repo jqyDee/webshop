@@ -1,4 +1,5 @@
 package at.qe.skeleton.tests;
+
 import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.mappers.*;
 import at.qe.skeleton.model.*;
@@ -66,6 +67,7 @@ public class MapperTest {
         user.setEmail("john@doe.com");
         user.setCreateUser(creator);
         user.setRole(UserxRole.CUSTOMER);
+        user.addNotifyOption(NotificationType.EMAIL);
 
         // Map to DTO
         UserxDTO dto = userxMapper.mapTo(user);
@@ -73,13 +75,15 @@ public class MapperTest {
         Assertions.assertEquals(user.getId(), dto.id());
         Assertions.assertEquals(user.getUsername(), dto.username());
         Assertions.assertEquals(1L, dto.createdBy()); // Source: createUser.id
-        Assertions.assertEquals(UserxRole.CUSTOMER, dto.role());
+        Assertions.assertTrue(dto.role().equals(UserxRole.CUSTOMER));
+        Assertions.assertTrue(dto.notifyOptions().contains(NotificationType.EMAIL));
 
         // Map from DTO
         Userx mappedUser = userxMapper.mapFrom(dto);
         Assertions.assertEquals(dto.username(), mappedUser.getUsername());
         Assertions.assertNull(mappedUser.getPassword()); // password is ignored
         Assertions.assertNull(mappedUser.getCreateUser()); // createUser is ignored
+        Assertions.assertTrue(mappedUser.getNotifyOptions().contains(NotificationType.EMAIL));
     }
 
     @Test

@@ -86,7 +86,7 @@ public class UserxControllerTest {
         userEntity.setUsername("testuser");
         userEntity.setRole(UserxRole.CUSTOMER);
 
-        UserxDTO userDTO = new UserxDTO(3000L, null, null, null, null, "testuser", "m", "m", null, null, null, null, true, null);
+        UserxDTO userDTO = new UserxDTO(3000L, null, null, null, null, "testuser", "m", "m", null, null, null, null, true, null, null);
 
         Mockito.when(userMapper.mapTo(ArgumentMatchers.any(Userx.class))).thenReturn(userDTO);
 

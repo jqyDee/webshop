@@ -120,7 +120,7 @@ public class ProductServiceTest {
     public void testGetProductsFiltered() {
         // Single Filter Tests
         ProductFilterDTO spec1 = new ProductFilterDTO("13", null, null, null, null);
-        ProductFilterDTO spec2 = new ProductFilterDTO(null, null, 300.0, 400.0, null);
+        ProductFilterDTO spec2 = new ProductFilterDTO(null, null, 250.0, 300.0, null);
         ProductFilterDTO spec3 = new ProductFilterDTO(null, null, null, 400.0, null);
         ProductFilterDTO spec4 = new ProductFilterDTO(null, null, 300.0, null, null);
         ProductFilterDTO spec5 = new ProductFilterDTO(null, 4.0, null, null, null);
@@ -129,9 +129,9 @@ public class ProductServiceTest {
         Assertions.assertEquals(1, productService.getProducts(null, null, null, spec1).getContent().size(),
                                 "Insufficient amount of products retrieved");
 
-        Assertions.assertEquals(3, productService.getProducts(null, null, null, spec2).getContent().size(),
+        Assertions.assertEquals(1, productService.getProducts(null, null, null, spec2).getContent().size(),
                                 "Insufficient amount of products retrieved");
-        Assertions.assertEquals(4, productService.getProducts(null, null, null, spec3).getContent().size(),
+        Assertions.assertEquals(5, productService.getProducts(null, null, null, spec3).getContent().size(),
                                 "Insufficient amount of products retrieved");
         Assertions.assertEquals(5, productService.getProducts(null, null, null, spec4).getContent().size(),
                                 "Insufficient amount of products retrieved");

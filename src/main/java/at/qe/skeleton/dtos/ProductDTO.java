@@ -1,9 +1,11 @@
 package at.qe.skeleton.dtos;
 
+import at.qe.skeleton.model.ProductEventType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 public record ProductDTO(
         Long id,
@@ -17,5 +19,6 @@ public record ProductDTO(
         Double rating,
         String imageUrl,
         LocalDateTime createdDate,
-        LocalDateTime updatedDate
+        LocalDateTime updatedDate,
+        Map<ProductEventType, Boolean> subscriptions
 ) {}

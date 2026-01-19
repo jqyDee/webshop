@@ -11,6 +11,7 @@ import at.qe.skeleton.model.Order;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.services.OrderService;
+import at.qe.skeleton.services.ProductSubscriptionService;
 import at.qe.skeleton.services.UserxService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -40,15 +41,17 @@ public class AdminController {
     private final UserxService userService;
     private final OrderService orderService;
     private final OrderMapper orderMapper;
+    private final ProductSubscriptionService productSubscriptionService;
 
     @Autowired
     public AdminController(UserxMapper userMapper, UserxService userService,
-                           UserxUpdateMapper userCreateMapper, OrderService orderService, OrderMapper orderMapper) {
+                           UserxUpdateMapper userCreateMapper, OrderService orderService, OrderMapper orderMapper, ProductSubscriptionService productSubscriptionService) {
         this.userUpdateMapper = userCreateMapper;
         this.userMapper = userMapper;
         this.userService = userService;
         this.orderService = orderService;
         this.orderMapper = orderMapper;
+        this.productSubscriptionService = productSubscriptionService;
     }
 
     /**
@@ -160,5 +163,12 @@ public class AdminController {
         );
 
         return ResponseEntity.ok(pageableListDTO);
+    }
+
+    @DeleteMapping("/user/{id}/unsubscribe/{productId}")
+    public ResponseEntity<Void> deleteUserProductSubscription(@PathVariable Long id, @PathVariable Long productId) {
+        Userx forUser = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
+        productSubscriptionService.deleteProductSubscription(forUser, productId);
+        return ResponseEntity.ok().build();
     }
 }

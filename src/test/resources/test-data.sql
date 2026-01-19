@@ -20,6 +20,11 @@ VALUES (6000, TRUE, 'Jonny', 'Denber', 'jonny', 'passwd', 1000, '2024-01-01 00:0
 INSERT INTO USERX (ID, ENABLED, FIRST_NAME, LAST_NAME, PASSWORD, USERNAME, CREATE_USER_ID, CREATED_DATE, ROLE)
 VALUES (7000, TRUE, 'Admin2', 'Istrator', 'passwd', 'admin2', 1000, '2024-01-01 00:00:00', 'ADMIN');
 
+-- Insert into User notify_options
+INSERT INTO NOTIFY_OPTIONS (OWNER_ID, NOTIFICATION_TYPE)
+VALUES (3000, 'EMAIL'),
+       (3000, 'SMS');
+
 -- Insert into ADDRESS
 INSERT INTO ADDRESS (ID, STREET, NUMBER, POSTAL_CODE, CITY, COUNTRY, USER_ID)
 VALUES (1000, 'boulevard', '23', '12345', 'INNSBRUCK', 'AUSTRIA', 6000);
@@ -27,23 +32,23 @@ VALUES (1000, 'boulevard', '23', '12345', 'INNSBRUCK', 'AUSTRIA', 6000);
 UPDATE USERX SET SHIPPING_ADDRESS_ID = 1000, PAYMENT_ADDRESS_ID = 1000 WHERE ID = 6000;
 
 -- Insert products into the PRODUCT table
-INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (1000, 'Iphone 15', 580.99, 1, 0, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, DISCOUNTED_PRICE, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (1000, 'Iphone 15', 580.99, 1, 0, 580.99, 'Apple Iphone 15', 'This is an Apple Iphone 15', 'https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-hero-geo-230912_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 2.0);
 
-INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (2000, 'Iphone 12', 280.99, 9, 0, 'Apple Iphone 12', 'This is an Apple Iphone 12', 'https://www.google.com/', '2024-01-01 00:00:00', 3.0);
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, DISCOUNTED_PRICE, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (2000, 'Iphone 12', 280.99, 9, 0, 280.99,'Apple Iphone 12', 'This is an Apple Iphone 12', 'https://www.apple.com/newsroom/images/product/iphone/geo/apple_iphone-12_2-up_geo_10132020_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 3.0);
 
-INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (3000, 'Iphone 14', 480.99, 5, 0.3, 'Apple Iphone 14', 'This is an Apple Iphone 14', 'https://www.google.com/', '2024-01-01 00:00:00', 2.0);
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, DISCOUNTED_PRICE, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (3000, 'Iphone 14', 480.99, 5, 0.3, 336.70,'Apple Iphone 14', 'This is an Apple Iphone 14', 'https://www.apple.com/newsroom/images/product/iphone/geo/Apple-iPhone-14-iPhone-14-Plus-2up-midnight-220907-geo_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 2.0);
 
-INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, DISCOUNTED_PRICE, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (4000, 'Iphone 13', 380.99, 10, 0.1, 342.90,'Apple Iphone 13', 'This is an Apple Iphone 13', 'https://www.apple.com/newsroom/images/product/iphone/geo/Apple_iphone13_hero_geo_09142021_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 5.0);
 
-INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (5000, 'Iphone 16', 380.99, 4, 0, 'Apple Iphone 10', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, DISCOUNTED_PRICE, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (5000, 'Iphone 16', 380.99, 4, 0, 380.99,'Apple Iphone 16', 'This is an Apple Iphone 16', 'https://www.apple.com/newsroom/images/2024/09/apple-introduces-iphone-16-and-iphone-16-plus/article/geo/Apple-iPhone-16-hero-geo-240909_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 5.0);
 
-INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
-VALUES (6000, 'Iphone 17', 380.99, 4, 0, 'Apple Iphone 9', 'This is an Apple Iphone 13', 'https://www.google.com/', '2024-01-01 00:00:00', 5.0);
+INSERT INTO PRODUCT (ID, NAME, PRICE, STOCK, DISCOUNT, DISCOUNTED_PRICE, SHORT_DESCRIPTION, DESCRIPTION, IMAGE_URL, CREATED_DATE, RATING)
+VALUES (6000, 'Iphone 17', 380.99, 4, 0, 380.99,'Apple Iphone 17', 'This is an Apple Iphone 17', 'https://www.apple.com/newsroom/images/2025/09/apple-debuts-iphone-17/geo/article/Apple-iPhone-17-hero-250909_inline.jpg.large_2x.jpg', '2024-01-01 00:00:00', 5.0);
 
 -- Insert reviews into the REVIEW table
 -- Reviews for Iphone 15 (ID: 1000) - Avg Rating in Product table is 2.0
@@ -104,4 +109,13 @@ VALUES (7000, 4000, 'CANCELLED', 100.00, CURRENT_TIMESTAMP);
 -- Insert into Order_Item
 INSERT INTO ORDER_ITEM (ID, ORDER_ID, PRODUCT_ID, QUANTITY, NAME, TOTAL)
 VALUES (9000, 9000, 5000, 2, 'Storno-Produkt', 50.0);
+
+-- Insert into Product_Subscription
+INSERT INTO PRODUCT_SUBSCRIPTION (ID, PRODUCT_ID, USER_ID)
+VALUES (1000, 1000, 3000);
+
+-- Insert into Product_Subscription_Notify_On
+INSERT INTO PRODUCT_SUBSCRIPTION_NOTIFY_ON (PRODUCT_SUBSCRIPTION_ID, EVENT_TYPE)
+VALUES (1000, 'BACK_IN_STOCK'),
+       (1000, 'FOR_SALE');
 

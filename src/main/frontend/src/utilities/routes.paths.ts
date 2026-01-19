@@ -8,4 +8,5 @@ export const ROUTES = {
     ORDERS: '/orders',
     ORDER: '/orders/:id',
     PRODUCT: '/product/:id',
+    ORDER_CREATION: '/order/:id/create',
 } as const;
