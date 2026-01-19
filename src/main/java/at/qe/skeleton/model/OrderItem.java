@@ -95,7 +95,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
         if (!(obj instanceof OrderItem)) {
             return false;
         }
-        return Objects.equals(this.getId(), ((OrderItem) obj).getId());
+        return Objects.equals(this.getProduct().getId(), ((OrderItem) obj).getProduct().getId());
     }
 
     @Override
