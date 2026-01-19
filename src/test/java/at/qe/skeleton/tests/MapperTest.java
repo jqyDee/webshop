@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
  * Generated with LLM: <a href="https://gemini.google.com/share/2dd04d9878c9">Link to conversation<a>
  */
 @SpringBootTest
-public class MapperTest {
+class MapperTest {
 
     @Autowired
     private UserxMapper userxMapper;
@@ -77,7 +77,7 @@ public class MapperTest {
         Assertions.assertEquals(user.getId(), dto.id());
         Assertions.assertEquals(user.getUsername(), dto.username());
         Assertions.assertEquals(1L, dto.createdBy()); // Source: createUser.id
-        Assertions.assertTrue(dto.role().equals(UserxRole.CUSTOMER));
+        Assertions.assertEquals(UserxRole.CUSTOMER, dto.role());
         Assertions.assertTrue(dto.notifyOptions().contains(NotificationType.EMAIL));
 
         // Map from DTO

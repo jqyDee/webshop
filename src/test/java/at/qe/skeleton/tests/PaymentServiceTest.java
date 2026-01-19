@@ -20,7 +20,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-public class PaymentServiceTest {
+class PaymentServiceTest {
 
     @Autowired
     private PaymentService paymentService;

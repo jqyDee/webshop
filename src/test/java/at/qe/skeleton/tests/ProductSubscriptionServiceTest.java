@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class ProductSubscriptionServiceTest {
+class ProductSubscriptionServiceTest {
     @Autowired
     private ProductSubscriptionService productSubscriptionService;
     @Autowired

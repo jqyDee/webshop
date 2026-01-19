@@ -19,7 +19,7 @@ import java.util.*;
  * Tests for the Cart Service
  */
 @SpringBootTest
-public class CartServiceTest {
+class CartServiceTest {
     @Autowired
     CartService cartService;
     @Autowired

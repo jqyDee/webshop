@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
-public class ProductServiceTest {
+class ProductServiceTest {
 
     @Autowired
     ProductService productService;

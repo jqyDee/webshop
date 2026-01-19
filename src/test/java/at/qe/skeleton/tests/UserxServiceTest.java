@@ -33,7 +33,7 @@ import java.util.Set;
 
 
 @SpringBootTest()
-public class UserxServiceTest {
+class UserxServiceTest {
 
     @Autowired
     UserxService userService;
