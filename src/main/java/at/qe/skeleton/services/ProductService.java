@@ -167,7 +167,7 @@ public class ProductService {
 
         Long productId = orderItem.getProduct().getId();
         if (productId == null) {
-            throw new IllegalArgumentException("ProductId is null");
+            throw new IllegalStateException("ProductId is null");
         }
 
         // Load OLD state from DB
