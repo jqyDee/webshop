@@ -144,16 +144,16 @@ public class OrderService {
     private Collection<OrderItem> convertAndReserveStock(List<CartItem> cartItems)
             throws OutOfStockException {
         Collection<OrderItem> orderItems = new ArrayList<>();
-        boolean allInStock = true;
-        int index = 0;
-        int size = cartItems.size();
-        for (; index < size; index++) {
-            CartItem cartItem = cartItems.get(index);
 
+        boolean allInStock = true;
+
+        for (CartItem cartItem : cartItems) {
             allInStock = productService.reserveStock(cartItem.getProduct().getId(), cartItem.getQuantity());
+
             if (!allInStock) {
                 break;
             }
+
             OrderItem orderItem = new OrderItem();
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setName(cartItem.getProduct().getName());
