@@ -45,6 +45,8 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
 
     @Column(unique = true, nullable = false, length = 100)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
     private String firstName;
@@ -55,7 +57,27 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
     @Enumerated(EnumType.STRING)
     private UserxRole role;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "notify_options",
+            joinColumns = @JoinColumn(name = "owner_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", nullable = false)
+    private Set<NotificationType> notifyOptions = new HashSet<>();
     boolean enabled;
+
+    public Set<NotificationType> getNotifyOptions() {
+        return notifyOptions;
+    }
+
+    public void addNotifyOption(NotificationType notificationType) {
+        notifyOptions.add(notificationType);
+    }
+
+    public void removeNotifyOption(NotificationType notificationType) {
+        notifyOptions.remove(notificationType);
+    }
 
     public Address getShippingAddress() {
         return shippingAddress;
@@ -220,6 +242,10 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
 
     @Override
     public int compareTo(Userx o) {
+        if (o.getId() == null) {
+            throw new NullPointerException("comparing with id is null");
+        }
+
         return this.id.compareTo(o.getId());
     }
 

@@ -1,11 +1,10 @@
-/**
+ /**
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
 import {useNavigate} from "react-router-dom";
-import {useUser} from "../Contexts/authenticatedUserContext";
+import {useUser} from "../contexts/authenticatedUserContext";
 import {useEffect} from "react";
-import {ROUTES} from "../utilities/routes.paths";
 
 /**
  * Logout component
@@ -20,8 +19,6 @@ const Logout = () => {
         const handleLogout = async () => {
             // clear user data via user context regardless of success or failure
             logout();
-            // redirect to login page
-            navigate(ROUTES.LOGIN);
         };
         void handleLogout();
     }, [logout, navigate]);

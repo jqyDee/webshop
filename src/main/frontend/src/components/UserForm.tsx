@@ -13,6 +13,8 @@ import {Dropdown} from "primereact/dropdown";
 
 interface UserFormProps {
     user: UserxUpdateDto,
+    isRegister: boolean,
+    canSetRole: boolean,
     fieldErrors?: Partial<Record<keyof UserxUpdateDto, string>>,
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
     onRolesChange: (event: { value: string }) => void,
@@ -22,6 +24,9 @@ interface UserFormProps {
 /**
  * Form for creating or editing a user.
  * @param user the user to be edited
+ * @param isRegister if the dialog is for registration
+ * @param isNewUser if the dialog is for new user
+ * @param canSetRole
  * @param fieldErrors field validation
  * @param onInputChange callback when the input changes
  * @param onRolesChange callback when the role change
@@ -30,6 +35,8 @@ interface UserFormProps {
 const UserForm: React.FC<UserFormProps> =
     ({
         user,
+        isRegister,
+        canSetRole,
         fieldErrors,
         onInputChange,
         onRolesChange,
@@ -39,11 +46,9 @@ const UserForm: React.FC<UserFormProps> =
 
         return (
             <div>
-                <h1>{user.firstName} {user.lastName}</h1>
-                <h5><span className="p-text-secondary">{user.username}</span></h5>
                 {/* create form */}
                 <form>
-                <div className="card p-fluid flex flex-wrap gap-3">
+                <div className="card p-fluid flex flex-column gap-3">
                     <div className="flex-auto mb-3">
                         <label htmlFor="username" className="font-bold block">Username</label>
                         <InputText id="username" name="username" value={user.username}
@@ -92,33 +97,37 @@ const UserForm: React.FC<UserFormProps> =
                         {fieldErrors?.password && <small className="p-error">{fieldErrors.password}</small>}
                     </div>
                     <div className="flex-auto mb-3">
-                        <label htmlFor="role" className="font-bold block">Roles</label>
-                        <Dropdown inputId="role" name="role" value={user.role} onChange={onRolesChange}
-                            options={userRoles} optionLabel="label"
-                            placeholder="Select Roles"
-                            className="w-full md:w-20rem"
-                            invalid={!!fieldErrors?.role}
-                        />
-                        {fieldErrors?.role && <small className="p-error">{fieldErrors.role}</small>}
-                    </div>
-                    <div className="flex-auto mb-3">
                         <label htmlFor="phone" className="font-bold block">Phone</label>
                         <InputMask id="phone" name="phone" mask="+99 999 9999999"
-                            onChange={onInputChange}
-                            placeholder="+43 123 1234567"
-                            autoComplete="off"
-                            value={user.phone ?? ''}>
+                                   onChange={onInputChange}
+                                   placeholder="+43 123 1234567"
+                                   autoComplete="off"
+                                   value={user.phone ?? ''}>
                         </InputMask>
                     </div>
-                    <div className="flex-auto mb-3">
-                        <label htmlFor="enabled" className="font-bold block">Enabled</label>
-                        <Checkbox inputId="enabled" name="enabled"
-                            style={{ float: "right" }}
-                            onChange={onUserEnabledChange}
-                            checked={user.enabled ?? false}>
-                        </Checkbox>
+                    {canSetRole &&
+                        <div className="flex-auto mb-3">
+                            <label htmlFor="role" className="font-bold block">Roles</label>
+                            <Dropdown inputId="role" name="role" value={user.role} onChange={onRolesChange}
+                                      options={userRoles} optionLabel="label"
+                                      placeholder="Select Roles"
+                                      className="w-full md:w-20rem"
+                                      invalid={!!fieldErrors?.role}
+                            />
+                            {fieldErrors?.role && <small className="p-error">{fieldErrors.role}</small>}
+                        </div>
+                    }
+                    { (!isRegister) &&
+                        <div className="flex-auto mb-3">
+                            <label htmlFor="enabled" className="font-bold block mb-1">Enabled</label>
+                            <Checkbox inputId="enabled" name="enabled"
+                                      style={{ float: "left" }}
+                                      onChange={onUserEnabledChange}
+                                      checked={user.enabled ?? false}>
+                            </Checkbox>
+                        </div>
+                    }
                     </div>
-                </div>
                 </form>
             </div>
         )

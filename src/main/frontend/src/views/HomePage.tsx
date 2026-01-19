@@ -7,8 +7,6 @@ import '../styles/App.css';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import {Message} from 'primereact/message';
 import React from "react";
-import NavbarComponent from "../components/NavbarComponent";
-import {FooterComponent} from "../components/FooterComponent";
 
 /**
  * The home page of the application.
@@ -17,7 +15,6 @@ class HomePage extends React.Component {
     render() {
         return (
             <div>
-                <NavbarComponent />
                 <div className="App">
                     <header className="App-header">
                         <img src={logo} className="App-logo" alt="logo" />
@@ -36,7 +33,6 @@ class HomePage extends React.Component {
                         <Message severity={"success"} text={"PrimeReact is installed!"} />
                     </header>
                 </div>
-                <FooterComponent/>
             </div>
         );
     }

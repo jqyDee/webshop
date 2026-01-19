@@ -4,37 +4,72 @@
  */
 import './styles/App.css';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
+import "primeflex/primeflex.css"
 import React, {Suspense} from "react";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {HomePageRoute, LoginsRoute, LogoutsRoute, ManageUsersRoute} from "./routes";
+import {
+    HomePageRoute,
+    LoginsRoute,
+    LogoutsRoute,
+    ManageUsersRoute,
+    ProductRoute,
+    OrdersRoute,
+    ProductsRoute,
+    ShoppingCartRoute,
+    OrderDetailRoute,
+    OrderCreationRoute,
+} from "./routes";
 import PrivateRoute from './components/PrivateRoute';
-import {UserProvider} from "./Contexts/authenticatedUserContext";
+import {UserProvider} from "./contexts/authenticatedUserContext";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
+import {CartContextProvider} from "./contexts/cartContext.tsx";
+import MainLayout from "./components/MainLayout.tsx";
+import {ToastProvider} from "./contexts/toastContext.tsx";
 
-const client = new QueryClient();
+const client = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5,    // Data is "fresh" for 5 minutes
+        },
+    },
+});
 
 const App: React.FC = () => {
     return (
-        // Wrap the application in the UserProvider, which allows to access the authenticated user
-        <UserProvider>
-            <QueryClientProvider client={client}>
-                <Suspense fallback={<div>Loading...</div>}>
-                    <BrowserRouter>
-                        <Routes>
-                            <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
-                            {/* Protected Routes (authentication required) */}
-                            <Route element={<PrivateRoute/>}>
-                                <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
-                                <Route path={ManageUsersRoute.url}
-                                       Component={ManageUsersRoute.component}/>
-                                <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
-                            </Route>
-                            {/* end of protected routes */}
-                        </Routes>
-                    </BrowserRouter>
-                </Suspense>
-            </QueryClientProvider>
-        </UserProvider>
+        <QueryClientProvider client={client}>
+            { /* Wrap the application in the UserProvider, which allows to access the authenticated user */ }
+            <UserProvider>
+                <ToastProvider>
+                    <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
+                    <CartContextProvider>
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <BrowserRouter>
+                                <Routes>
+                                    <Route element={<MainLayout/>}>
+                                        <Route path={LoginsRoute.url} Component={LoginsRoute.component}/>
+                                        <Route path={HomePageRoute.url} Component={HomePageRoute.component}/>
+                                        <Route path={ProductRoute.url} Component={ProductRoute.component}/>
+                                        <Route path={ProductsRoute.url} Component={ProductsRoute.component}/>
+                                        <Route path={ShoppingCartRoute.url} Component={ShoppingCartRoute.component}/>
+                                        {/* Protected Routes (authentication required) */}
+                                        <Route element={<PrivateRoute/>}>
+                                            <Route path={OrdersRoute.url} Component={OrdersRoute.component}/>
+                                            <Route path={OrderDetailRoute.url} Component={OrderDetailRoute.component}/>
+                                            <Route path={OrderCreationRoute.url} Component={OrderCreationRoute.component}/>
+                                            <Route path={ManageUsersRoute.url}
+                                                   Component={ManageUsersRoute.component}/>
+                                            <Route path={LogoutsRoute.url} Component={LogoutsRoute.component}/>
+                                        </Route>
+                                        {/* end of protected routes */}
+                                    </Route>
+                                </Routes>
+                            </BrowserRouter>
+                        </Suspense>
+                    </CartContextProvider>
+                </ToastProvider>
+            </UserProvider>
+        </QueryClientProvider>
     );
 }
 

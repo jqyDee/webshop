@@ -63,6 +63,10 @@ public class UserxService implements UserDetailsService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Optional<Userx> loadUser(Long id) {
+        return loadUserProtected(id);
+    }
+
+    protected Optional<Userx> loadUserProtected(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("Id is null");
         }
@@ -80,9 +84,9 @@ public class UserxService implements UserDetailsService {
      * @return the updated user
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Userx saveUser(Userx user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User is null");
+    public Userx saveUser(Userx user, String newRawPassword) {
+        if (user == null || user.getUsername() == null) {
+            throw new IllegalArgumentException("User or username is null");
         }
 
         if (user.isNew()) {
@@ -90,11 +94,16 @@ public class UserxService implements UserDetailsService {
                 throw new UsernameDuplicateException(
                         "Username " + user.getUsername() + " not available");
             }
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setPassword(passwordEncoder.encode(newRawPassword));
             user.setCreateUser(authenticatedUserService.getAuthenticatedUser());
         } else {
+            if (newRawPassword != null && !newRawPassword.isEmpty()) {
+                user.setPassword(passwordEncoder.encode(newRawPassword));
+            }
+
             user.setUpdateUser(authenticatedUserService.getAuthenticatedUser());
         }
+
         return userRepository.save(user);
     }
 
@@ -142,4 +151,19 @@ public class UserxService implements UserDetailsService {
         return userRepository.findFirstByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    /**
+     * Create a new user
+     *
+     * @param user new user to add
+     * @return added user
+     */
+    public Userx createUser(Userx user, String rawPassword) {
+        if (user == null) throw new IllegalArgumentException("User is null");
+
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setRole(UserxRole.CUSTOMER);
+        return userRepository.save(user);
+    }
+
 }

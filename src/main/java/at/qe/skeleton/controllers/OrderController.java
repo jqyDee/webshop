@@ -3,10 +3,7 @@ package at.qe.skeleton.controllers;
 import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.mappers.AddressMapper;
 import at.qe.skeleton.mappers.OrderMapper;
-import at.qe.skeleton.model.Address;
-import at.qe.skeleton.model.Order;
-import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.repositories.OrderRepository;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.services.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -15,24 +12,26 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
     private final OrderService orderService;
     private final OrderMapper orderMapper;
-    private final OrderRepository orderRepository;
     private final AddressMapper addressMapper;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper, OrderRepository orderRepository,
+    public OrderController(OrderService orderService, OrderMapper orderMapper,
                            AddressMapper addressMapper) {
         this.orderService = orderService;
         this.orderMapper = orderMapper;
-        this.orderRepository = orderRepository;
         this.addressMapper = addressMapper;
+
     }
 
     /**
@@ -46,10 +45,11 @@ public class OrderController {
      *         the specified page with the specified filters and sorting
      */
     @GetMapping("")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<PageableListDTO<OrderDTO>> getOrders(
             @RequestParam(required = false) Integer pageId,
             @RequestParam(required = false) Integer pageSize,
-            @SortDefault(sort = "createdDate", direction = Sort.Direction.ASC) Sort sort,
+            @SortDefault(sort = "createdDate", direction = Sort.Direction.DESC) Sort sort,
             @AuthenticationPrincipal Userx user) {
         Sort finalSort = (sort != null) ? sort : Sort.unsorted();
 
@@ -57,7 +57,11 @@ public class OrderController {
                 ? PageRequest.of(pageId, pageSize, finalSort)
                 : Pageable.unpaged();
 
-        Page<Order> orderPage = orderService.getOrders(user, pageable);
+        Page<Order> orderPage = Page.empty();
+
+        if (user.getRole() == UserxRole.CUSTOMER) {
+            orderPage = orderService.getOrders(user, pageable);
+        }
         PageableListDTO<OrderDTO> pageableListDTO = new PageableListDTO<>(
                 pageSize,
                 (pageId != null) ? pageId + 1 : null,
@@ -66,6 +70,20 @@ public class OrderController {
                 orderPage.getContent().stream().map(orderMapper::mapTo).toList()
         );
         return ResponseEntity.ok(pageableListDTO);
+    }
+
+    /**
+     * GET one Order
+     *
+     * @param id the id to search for
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with the order of given id in
+     *         the body, or with status {@code 404} if no such product exists
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
+        Order order = orderService.loadOrder(id).orElseThrow(EntityNotFoundException::new);
+
+        return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 
     /**
@@ -98,13 +116,18 @@ public class OrderController {
     public ResponseEntity<OrderDTO> confirmOrder(@PathVariable Long orderId,
                                                  @Valid @RequestBody OrderConfirmRequestDTO dto,
                                                  @AuthenticationPrincipal Userx user) {
+
         Address shippingAddress = addressMapper.mapFrom(dto.shippingAddress());
         Address paymentAddress = addressMapper.mapFrom(dto.paymentAddress());
 
-        Order order = orderRepository.findById(orderId).orElseThrow(EntityNotFoundException::new);
+        Order order = orderService.loadOrder(orderId).orElseThrow(EntityNotFoundException::new);
+        if (!order.getUser().equals(user)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to confirm this order");
+        }
         orderService.confirmOrder(order, user, shippingAddress, paymentAddress);
         return ResponseEntity.ok(orderMapper.mapTo(order));
     }
+
 
     /**
      * POST cancel order
@@ -119,9 +142,12 @@ public class OrderController {
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long orderId,
                                                 @AuthenticationPrincipal Userx user) {
-        Order order = orderRepository.findById(orderId)
-                                     .orElseThrow(EntityNotFoundException::new);
+        Order order = orderService.loadOrder(orderId).orElseThrow(EntityNotFoundException::new);
+        if (!order.getUser().equals(user) && !user.getRole().equals(UserxRole.ADMIN)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to cancel this order");
+        }
         orderService.cancelOrder(order, user);
+        order = orderService.loadOrder(orderId).orElseThrow(EntityNotFoundException::new);
         return ResponseEntity.ok(orderMapper.mapTo(order));
     }
 }

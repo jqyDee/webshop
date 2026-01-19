@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -26,14 +27,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
     private final AddressRepository addressRepository;
+    private final PaymentService paymentService;
 
     @Autowired
     public OrderService(CartService cartService, OrderRepository orderRepository, ProductService productService,
-                        AddressRepository addressRepository) {
+                        AddressRepository addressRepository, PaymentService paymentService) {
         this.cartService = cartService;
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.addressRepository = addressRepository;
+        this.paymentService = paymentService;
     }
 
     /**
@@ -70,7 +73,26 @@ public class OrderService {
             return orderRepository.findAllByUserId(currentUser.getId(), pageable);
         }
 
+        return Page.empty(pageable);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Page<Order> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable);
+    }
+
+    /**
+     * Search for order with id in database.
+     *
+     * @param id id to search in the database
+     * @return order matching the id
+     */
+    public Optional<Order> loadOrder(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
+        return this.orderRepository.findById(id);
     }
 
     /**
@@ -129,7 +151,7 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setName(cartItem.getProduct().getName());
-            orderItem.setTotal(cartItem.getProduct().getPrice(), cartItem.getProduct().getDiscount());
+            orderItem.setTotal(cartItem.getProduct().getDiscountedPrice());
             orderItem.setProduct(cartItem.getProduct());
             orderItems.add(orderItem);
         }
@@ -174,14 +196,17 @@ public class OrderService {
 
         if (!order.getStatus().isCancellable()) {
             throw new IllegalStateException(
-                    "Can't cancel order. Order status is not <= PENDING_PAYMENT.");
+                    "Can't cancel order. Order status is not <= PAID.");
+        }
+
+        if (OrderStatus.PAID.equals(order.getStatus())) {
+            paymentService.reversePayment(order);
         }
 
         order.setStatus(OrderStatus.CANCELLED);
         for (OrderItem orderItem : order.getProducts()) {
             productService.releaseStock(orderItem);
         }
-        order.getProducts().clear();
         orderRepository.save(order);
     }
 
@@ -234,10 +259,10 @@ public class OrderService {
 
         order.setStatus(OrderStatus.PENDING_PAYMENT);
 
-        boolean paymentSuccessful = performStubbedPayment(order);
+        boolean paymentSuccessful = paymentService.performPayment(order);
 
         if (paymentSuccessful) {
-            return paymentReceived(order, user);
+            return paymentService.paymentReceived(order, user);
         }
         return orderRepository.save(order);
     }
@@ -283,46 +308,5 @@ public class OrderService {
         } else {
             address.setUser(user);
         }
-    }
-
-    // TODO: put this in own payment service
-    /**
-     * Perform the payment (STUBBED)
-     *
-     * @param order the order the user just confirmed and wants to pay
-     * @return boolean whether the payment went through or not, in our case always true as payment only stubbed
-     */
-    private boolean performStubbedPayment(Order order) {
-        if (order == null) {
-            throw new IllegalArgumentException("Order is null");
-        }
-
-        System.out.println("Simulate Order payment for Order:  " + order.getId() + " with total amount: " + order.getSum());
-        return true;
-    }
-
-
-    /**
-     * Set order status after payment received
-     *
-     * @param order order to be set to payment received
-     * @param user currently authenticated user
-     * @return the updated order
-     */
-    @Transactional
-    public Order paymentReceived(Order order, Userx user) {
-        if (user == null || order == null) {
-            throw new IllegalArgumentException("User and Order cannot be null");
-        }
-        if (!order.getUser().equals(user)) {
-            throw new AccessDeniedException("You do not have permission to confirm this order");
-        }
-
-        if (!order.getStatus().equals(OrderStatus.PENDING_PAYMENT)) {
-            throw new IllegalStateException("Can't confirm order. Order status is not PENDING_PAYMENT.");
-        }
-
-        order.setStatus(OrderStatus.PROCESSING);
-        return orderRepository.save(order);
     }
 }

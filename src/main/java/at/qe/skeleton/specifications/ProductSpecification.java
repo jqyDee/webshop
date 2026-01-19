@@ -34,7 +34,7 @@ public class ProductSpecification {
             if (minRating == null || minRating.equals(0.0)) {
                 return null;
             }
-            return builder.greaterThan(root.get(Product_.rating), minRating);
+            return builder.greaterThanOrEqualTo(root.get(Product_.rating), minRating);
         };
     }
 
@@ -45,11 +45,11 @@ public class ProductSpecification {
                 return null;
             }
             if (minPrice != null && maxPrice != null) {
-                return builder.between(root.get(Product_.price), minPrice, maxPrice);
+                return builder.between(root.get(Product_.discountedPrice), minPrice, maxPrice);
             } else if (minPrice != null) {
-                return builder.greaterThanOrEqualTo(root.get(Product_.price), minPrice);
+                return builder.greaterThanOrEqualTo(root.get(Product_.discountedPrice), minPrice);
             } else {
-                return builder.lessThanOrEqualTo(root.get(Product_.price), maxPrice);
+                return builder.lessThanOrEqualTo(root.get(Product_.discountedPrice), maxPrice);
             }
         };
     }

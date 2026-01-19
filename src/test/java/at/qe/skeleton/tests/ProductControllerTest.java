@@ -8,9 +8,10 @@ import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.dtos.ReviewDTO;
 import at.qe.skeleton.mappers.ProductMapper;
 import at.qe.skeleton.mappers.ReviewMapper;
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Review;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.services.ProductService;
+import at.qe.skeleton.services.ProductSubscriptionService;
+import at.qe.skeleton.services.UserxService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -37,10 +38,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -65,6 +63,12 @@ public class ProductControllerTest {
 
     @MockitoBean
     private ReviewMapper reviewMapper;
+
+    @MockitoBean
+    private UserxService userxService;
+
+    @MockitoBean
+    private ProductSubscriptionService productSubscriptionService;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -102,7 +106,7 @@ public class ProductControllerTest {
         product.setStock(10);
 
         Mockito.when(productService.loadProduct(id)).thenReturn(Optional.of(product));
-        Mockito.when(productMapper.mapTo(product)).thenReturn(new ProductDTO(id, name, 100.0, 10, 0.0, null, null, null, null, null, null));
+        Mockito.when(productMapper.mapTo(Mockito.eq(product), Mockito.anyMap())).thenReturn(new ProductDTO(id, name, 100.0, 10, 0.0, 0.0, null, null, null, null, null, null, null));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/product/{id}", id))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -143,10 +147,10 @@ public class ProductControllerTest {
                 ArgumentMatchers.any(ProductFilterDTO.class)
         )).thenReturn(page);
 
-        Mockito.when(productMapper.mapTo(ArgumentMatchers.any(Product.class)))
+        Mockito.when(productMapper.mapTo(ArgumentMatchers.any(Product.class), ArgumentMatchers.any()))
                 .thenAnswer(invocation -> {
                     Product product = invocation.getArgument(0);
-                    return new ProductDTO(product.getId(), product.getName(), 0.0, 0, 0.0, null, null, null, null, null, null);
+                    return new ProductDTO(product.getId(), product.getName(), 0.0, 0, 0.0, 0.0, null, null, null, null, null, null, null);
                 });
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/product/products")
@@ -301,7 +305,7 @@ public class ProductControllerTest {
                 ArgumentMatchers.any()
         )).thenReturn(Optional.of(product));
         Mockito.when(productMapper.mapTo(ArgumentMatchers.any(Product.class))).thenReturn(
-                new ProductDTO(1L, null, 2.0, 10, 0.0, null, null, null, null, null, null));
+                new ProductDTO(1L, null, 2.0, 10, 0.0, 0.0, null, null, null, null, null, null, null));
 
         String jsonBody = new ObjectMapper().writeValueAsString(reviewCreationRequest);
 
@@ -346,5 +350,164 @@ public class ProductControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/product/{productId}/review/{reviewId}", productId, reviewId)
                                               .with(SecurityMockMvcRequestPostProcessors.csrf()))
                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testSubscribeProductToAll() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService)
+                .addProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.BACK_IN_STOCK)
+                );
+
+        Mockito.verify(productSubscriptionService)
+                .addProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.FOR_SALE)
+                );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testSubscribeProductToInStock() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
+                        .param("inStock", "true")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService)
+                .addProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.BACK_IN_STOCK)
+                );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testSubscribeProductToForSale() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
+                        .param("discount", "true")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService)
+                .addProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.FOR_SALE)
+                );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testUnsubscribeProduct() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/product/{id}/unsubscribe", productId)
+                    .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService)
+                .deleteProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId)
+                );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testUpdateSubscriptionToInStock() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
+                        .param("inStock", "true")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService)
+                .addProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.BACK_IN_STOCK)
+                );
+
+        Mockito.verify(productSubscriptionService)
+                .removeProductSubscriptionEvent(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.FOR_SALE)
+                );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testUpdateSubscriptionToForSale() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
+                        .param("discount", "true")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService)
+                .addProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.FOR_SALE)
+                );
+
+        Mockito.verify(productSubscriptionService)
+                .removeProductSubscriptionEvent(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.eq(ProductEventType.BACK_IN_STOCK)
+                );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testUpdateSubscriptionToNone() throws Exception {
+        Long productId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService)
+                .deleteProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId)
+                );
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testSubscriptionAccessDenied() throws Exception {
+        Long productId = 1L;
+
+        Mockito.doThrow(new org.springframework.security.access.AccessDeniedException("Not allowed"))
+                .when(productSubscriptionService).addProductSubscription(
+                        ArgumentMatchers.any(),
+                        ArgumentMatchers.eq(productId),
+                        ArgumentMatchers.any()
+                );
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
+                    .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 }

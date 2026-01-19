@@ -6,7 +6,7 @@ import {Navigate, Outlet, useLocation} from 'react-router-dom';
 import {useEffect, useState} from 'react';
 import {ProgressSpinner} from 'primereact/progressspinner';
 
-import {useUser} from "../Contexts/authenticatedUserContext";
+import {useUser} from "../contexts/authenticatedUserContext";
 import {ROUTES} from "../utilities/routes.paths";
 
 /**
