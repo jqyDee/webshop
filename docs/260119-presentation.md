@@ -8,6 +8,7 @@
 - Product Subscriptions finished (Backend)
 - Generally backend logic completely finished
 
+
 ## Challenges
 1. Communication about the design of the webshop. (List/Grid/Both, Layout decisions, unified look and feel, ...)
 2. Blocking of frontend issues. (Components relying on each other and subsequent waiting for team-members)
