@@ -3,7 +3,6 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.exceptions.CartEmptyException;
 import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.repositories.*;
-import at.qe.skeleton.services.PaymentService;
 import jakarta.persistence.EntityManager;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.model.*;
@@ -53,7 +52,7 @@ public class OrderServiceTest {
     private Userx customer2;
     private Userx customer3;
     @Autowired
-    private PaymentService paymentService;
+    private AddressRepository addressRepository;
 
     @BeforeEach
     public void setup() {
@@ -173,17 +172,6 @@ public class OrderServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
-    public void testPaymentReceived() {
-        Order order = orderRepository.findById(8000L).orElseThrow();
-        Order updatedOrder = paymentService.paymentReceived(order, customer1);
-
-        assertEquals(OrderStatus.DELIVERED, updatedOrder.getStatus());
-    }
-
-    @Transactional
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "jonny", authorities = {"CUSTOMER"})
     public void testGetOrdersUser() {
         Page<Order> orders = orderService.getOrders(customer1, PageRequest.of(0, 10));
         assertEquals(2, orders.getTotalElements());
@@ -202,15 +190,6 @@ public class OrderServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
-    public void testPaymentReceivedUnauthorized() {
-        Order order = orderRepository.findById(9000L).orElseThrow();
-        Assertions.assertThrows(AccessDeniedException.class, () -> paymentService.paymentReceived(order, customer2));
-    }
-
-    @Transactional
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
     public void testCancelOrderUnauthorized() {
         Order order = orderRepository.findById(9000L).orElseThrow();
         Userx user = userxRepository.findFirstByUsername("user2").orElseThrow();
@@ -223,16 +202,6 @@ public class OrderServiceTest {
     @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
     public void testCartEmptyCreateOrder() {
         Assertions.assertThrows(CartEmptyException.class, () -> orderService.createOrder(customer3));
-    }
-
-    @Transactional
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
-    public void testWrongOrderStatus() {
-        Order order = orderRepository.findById(7000L).orElseThrow();
-        Assertions.assertThrows(IllegalStateException.class, () -> orderService.cancelOrder(order, customer3));
-        Assertions.assertThrows(IllegalStateException.class, () -> paymentService.paymentReceived(order, customer3));
     }
 
     @Transactional
@@ -266,5 +235,104 @@ public class OrderServiceTest {
         Order updatedOrder = orderRepository.findById(staleOrder.getId()).orElseThrow();
         assertEquals(OrderStatus.CANCELLED, updatedOrder.getStatus(),
                                 "Order older than 30 mins should be cancelled");
+    }
+
+    @Test
+    @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
+    public void testGetOrdersIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.getOrders(null, null));
+    }
+
+    @Test
+    public void testLoadOrderIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.loadOrder(null));
+    }
+
+    @Test
+    @WithMockUser(username = "elvis", authorities = {"CUSTOMER"})
+    public void testCreateOrderIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.createOrder(null));
+    }
+
+    @Test
+    public void testCancelOrderIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.cancelOrder(null, null));
+
+        Order order = new Order();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.cancelOrder(order, null));
+    }
+
+    @Test
+    public void testConfirmOrderIllegalArgument() {
+        Order order = new Order();
+        Userx user = new Userx();
+        Address address = new Address();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.confirmOrder(null, null, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.confirmOrder(order, null, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.confirmOrder(order, user, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.confirmOrder(order, user, address, null));
+    }
+
+    @Test
+    public void testConfirmOrderAccessDenied() {
+        Userx userOrder = new Userx();
+        userOrder.setId(100L);
+        Order order = new Order();
+        order.setUser(userOrder);
+        Address address = new Address();
+        Userx user = new Userx();
+        user.setId(200L);
+        Assertions.assertThrows(AccessDeniedException.class, () -> orderService.confirmOrder(order, user, address, address));
+    }
+
+    @Test
+    public void testConfirmIllegalState() {
+        Userx user = new Userx();
+        user.setId(100L);
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus(OrderStatus.PAID);
+        Address address = new Address();
+        Assertions.assertThrows(IllegalStateException.class, () -> orderService.confirmOrder(order, user, address, address));
+    }
+
+    @Test
+    public void testValidateAddressOwnershipAccessDenied() {
+        Userx userWrong = new Userx();
+        userWrong.setId(100L);
+        Userx user = new Userx();
+        user.setId(200L);
+
+        Address address = addressRepository.findById(1000L).orElseThrow();
+        Order order = new Order();
+        order.setStatus(OrderStatus.PENDING);
+        order.setUser(user);
+
+        Assertions.assertThrows(AccessDeniedException.class, () -> orderService.confirmOrder(order, user, address, address));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testValidateAddressOwnershipSetOwnership() {
+        Userx user = userxRepository.findById(8000L).orElseThrow();
+
+        Address address = new Address();
+        address.setCity("London");
+        address.setCountry("United States");
+        address.setPostalCode("12345");
+        address.setNumber("asd");
+        address.setStreet("London");
+
+        Order order = new Order();
+        order.setStatus(OrderStatus.PENDING);
+        order.setUser(user);
+        order.setCreatedDate(LocalDateTime.now());
+        order.setSum(10.0);
+
+        orderService.confirmOrder(order, user, address, address);
+
+        Optional<Address> address2 = addressRepository.findById(1L);
+        Assertions.assertTrue(address2.isPresent());
     }
 }

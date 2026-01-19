@@ -49,6 +49,17 @@ public class ProductSubscriptionServiceTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "user2", authorities = {"CUSTOMER"})
+    public void testAddSubscriptionEvent_EventExists() {
+        Userx user2 = userxService.getUserByUsername("customer");
+        Product product = productService.loadProduct(1000L).orElseThrow();
+        productSubscriptionService.addProductSubscription(user2, product.getId(), ProductEventType.BACK_IN_STOCK);
+        ProductSubscription s = productSubscriptionRepository.findByProductIdAndUser(product.getId(), user2).orElseThrow();
+        Assertions.assertTrue(s.getNotifyOn().contains(ProductEventType.BACK_IN_STOCK));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user2", authorities = {"CUSTOMER"})
     public void testRemoveSubscriptionEvent() {
         Userx user2 = userxService.getUserByUsername("user2");
         productSubscriptionService.removeProductSubscriptionEvent(user2, 1000L, ProductEventType.BACK_IN_STOCK);
@@ -122,7 +133,6 @@ public class ProductSubscriptionServiceTest {
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testOnDeleteUserDeletesSubscription() {
         Userx user = userxService.getUserByUsername("user2");
-        Product p =  productService.loadProduct(1000L).orElseThrow();
         userxService.deleteUser(user);
         Assertions.assertTrue(productSubscriptionRepository.findByProductIdAndUser(1000L, user).isEmpty());
     }
@@ -135,5 +145,17 @@ public class ProductSubscriptionServiceTest {
         Product p =  productService.loadProduct(1000L).orElseThrow();
         productService.deleteProduct(p);
         Assertions.assertTrue(productSubscriptionRepository.findByProductIdAndUser(1000L, user).isEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "user2", authorities = {"CUSTOMER"})
+    public void validateArgsIllegalArgument() {
+        Userx user = userxService.getUserByUsername("user2");
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productSubscriptionService.createProductSubscription(null, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productSubscriptionService.createProductSubscription(user, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productSubscriptionService.createProductSubscription(user, 1000L, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productSubscriptionService.deleteProductSubscription(null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productSubscriptionService.deleteProductSubscription(user, null));
     }
 }
