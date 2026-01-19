@@ -5,6 +5,7 @@ import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.repositories.CartItemRepository;
 import at.qe.skeleton.services.CartService;
 import at.qe.skeleton.services.UserxService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -244,5 +245,56 @@ public class CartServiceTest {
 
         Assertions.assertEquals(1, c2.getQuantity());
         Assertions.assertEquals(3, c3.getQuantity());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testGetCartItemsUserIsNullShouldThrowException() {
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class, () -> cartService.getCartItems(null));
+
+        Assertions.assertEquals("Current user is null", exception.getMessage());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testSaveCartItemUserIsNullShouldThrowException() {
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> cartService.saveCartItem(null, 1000L, 1));
+
+        Assertions.assertEquals("Current user or product id is null", exception.getMessage());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testSaveCartItemProductNotFound() {
+        Userx u1 = userxService.getUserByUsername("user1");
+        Long nonExistentProductId = 999999L;
+
+        EntityNotFoundException e = Assertions.assertThrows(EntityNotFoundException.class, () -> cartService.saveCartItem(u1, nonExistentProductId, 1));
+
+        Assertions.assertEquals("Product not found", e.getMessage());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testSaveCartItemsUserIsNullShouldThrowException() {
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> cartService.saveCartItems(null, null));
+
+        Assertions.assertEquals("Current user or product/quantity map is null or empty", exception.getMessage());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testRemoveCartItemUserIsNullShouldThrowException() {
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> cartService.removeCartItem(null, 1000L));
+
+        Assertions.assertEquals("Current user or product id is null", exception.getMessage());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"CUSTOMER"})
+    public void testClearCartItemUserIsNullShouldThrowException() {
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> cartService.clearCartItems(null));
+
+        Assertions.assertEquals("Current user is null", exception.getMessage());
     }
 }
