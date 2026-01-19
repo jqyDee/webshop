@@ -8,12 +8,12 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public record OrderDTO(
-        Long id,
+        @NotNull Long id,
         @NotNull UserxDTO user,
         @NotNull OrderStatus status,
         AddressDTO shippingAddress,
         AddressDTO paymentAddress,
-        double sum,
+        @NotNull double sum,
         @NotEmpty Set<OrderItemDTO> products,
-        LocalDateTime createdDate
+        @NotNull LocalDateTime createdDate
 ) {}

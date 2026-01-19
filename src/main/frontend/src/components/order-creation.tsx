@@ -1,21 +1,30 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {useMatch} from "react-router-dom";
 import {ROUTES} from "../utilities/routes.paths.ts";
-import {useQuery} from "@tanstack/react-query";
-import {getOrderByIdOptions} from "../api/@tanstack/react-query.gen.ts";
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {confirmOrderMutation, getOrderByIdOptions} from "../api/@tanstack/react-query.gen.ts";
 import {Stepper} from "primereact/stepper";
 import {StepperPanel} from "primereact/stepperpanel";
-import {Button} from "primereact/button";
-import {AddressDto} from "../api";
-import {useUser} from "../contexts/authenticated-user.tsx";
+import {AddressDto, StatusEnum} from "../api";
 import {AddressStepperContent} from "./order-creation/address-stepper-content.tsx";
+import {OverviewStepperContent} from "./order-creation/overview-stepper-content.tsx";
+import {useGlobalToast} from "../contexts/toast.tsx";
+import {PaymentStepperContent} from "./order-creation/payment-stepper-content.tsx";
+import {ConfirmationStepperContent} from "./order-creation/confirmation-stepper-content.tsx";
+
+enum Steps {
+    Address,
+    Overview,
+    Payment,
+    Confirmation,
+}
 
 export const OrderCreation: React.FC = () => {
     const pathId = useMatch(ROUTES.ORDER_CREATION)?.params.id;
+    const {showToast} = useGlobalToast();
+    const [activeStep, setActiveStep] = useState<Steps>(Steps.Address);
     const id = useMemo(() => Number(pathId), [pathId]);
     const isPathIdValid = useMemo(() => !Number.isNaN(pathId), [pathId]);
-    const {currentUser} = useUser();
-    const stepperRef = useRef<Stepper>(null);
     const [shippingAddress, setShippingAddress] = useState<AddressDto>({
         city: "",
         country: "",
@@ -31,68 +40,67 @@ export const OrderCreation: React.FC = () => {
         street: "",
     });
 
-    const {data: order, isLoading} = useQuery({...getOrderByIdOptions({path: {id}}), enabled: isPathIdValid});
+    const {data: order, isLoading, refetch} = useQuery({
+        ...getOrderByIdOptions({path: {id}}),
+        enabled: isPathIdValid,
+    });
+    const confirmOrder = useMutation({
+        ...confirmOrderMutation(),
+        onError: (error) => {
+            console.error("Confirm failed:", error);
+            showToast({ severity: 'error', summary: 'Error', detail: 'Failed to confirm order' });
+        },
+        onSuccess: async () => {
+            await refetch();
+            setActiveStep(Steps.Payment);
+        }
+    });
 
     useEffect(() => {
+        if (order?.status === StatusEnum.DELIVERED) {
+            setActiveStep(Steps.Confirmation);
+        }
         if (order?.shippingAddress !== undefined && order.shippingAddress !== null) {
             setShippingAddress(order.shippingAddress);
         }
         if (order?.paymentAddress !== undefined && order?.paymentAddress !== null) {
             setPaymentAddress(order.paymentAddress);
         }
-    }, [order, setShippingAddress, setPaymentAddress]);
+    }, [order, setShippingAddress, setPaymentAddress, setActiveStep]);
 
     // !important do this after all hooks are called
-    if (isLoading || !isPathIdValid || order === undefined || currentUser === null) {
+    if (isLoading || !isPathIdValid || order === undefined) {
         return <div>Loading...</div>;
     }
     return <div className="card flex justify-content-center">
-        <Stepper ref={stepperRef} style={{flexBasis: "80rem"}}>
+        <Stepper style={{flexBasis: "80rem"}} linear orientation={"vertical"} activeStep={activeStep}>
             <StepperPanel header={"Address"}>
                 <AddressStepperContent
-                    user={currentUser}
+                    user={order.user}
                     paymentAddress={paymentAddress}
                     shippingAddress={shippingAddress}
                     onChangeShippingAddress={setShippingAddress}
                     onChangePaymentAddress={setPaymentAddress}
-                    onSubmit={() => stepperRef.current?.nextCallback()}
+                    onSubmit={() => setActiveStep(Steps.Overview)}
                 />
             </StepperPanel>
             <StepperPanel header={"Overview"}>
-                <div className="flex flex-column h-12rem">
-                    <div
-                        className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">Content
-                        I
-                    </div>
-                </div>
-                <div className="flex pt-4 justify-content-end">
-                    <Button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                            onClick={() => stepperRef.current?.nextCallback()}/>
-                </div>
+                <OverviewStepperContent
+                    paymentAddress={paymentAddress}
+                    shippingAddress={shippingAddress}
+                    order={order}
+                    onSubmitOrder={async () => {
+                        await confirmOrder.mutateAsync({body: {shippingAddress, paymentAddress}, path: {orderId: order.id}});
+
+                    }}
+                    onGoBackToAddress={() => setActiveStep(Steps.Address)}
+                />
             </StepperPanel>
             <StepperPanel header={"Payment"}>
-                <div className="flex flex-column h-12rem">
-                    <div
-                        className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">Content
-                        I
-                    </div>
-                </div>
-                <div className="flex pt-4 justify-content-end">
-                    <Button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                            onClick={() => stepperRef.current?.nextCallback()}/>
-                </div>
+                    <PaymentStepperContent onPay={() => setActiveStep(Steps.Confirmation)}/>
             </StepperPanel>
             <StepperPanel header={"Confirmation"}>
-                <div className="flex flex-column h-12rem">
-                    <div
-                        className="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">Content
-                        I
-                    </div>
-                </div>
-                <div className="flex pt-4 justify-content-start">
-                    <Button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                            onClick={() => stepperRef.current?.nextCallback()}/>
-                </div>
+                <ConfirmationStepperContent order={order}/>
             </StepperPanel>
         </Stepper>
     </div>;
