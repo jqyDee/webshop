@@ -5,9 +5,9 @@ import React, {useState} from "react";
 import {DataViewPageEvent} from "primereact/dataview";
 import {ProductDto, ReviewDto} from "../api";
 import {InputMaskChangeEvent} from "primereact/inputmask";
-import {emptyReviewDto, ReviewValidationResult} from "../utilities/review.ts";
 import {ReviewDialog} from "./review-table/review-dialog.tsx";
 import {ReviewList} from "./review-table/review-list.tsx";
+import {validateFormData, ValidationResult} from "../utilities/form-data-validator.ts";
 
 interface ReviewTableProps {
     product: ProductDto;
@@ -24,7 +24,7 @@ export const ReviewTable: React.FC<ReviewTableProps> = (props) => {
     const {id} = useParams<{ id: string }>();
     const [createReviewDto, setCreateReviewDto] = useState<ReviewDto | null>(null);
     const [dialogVisible, setDialogVisible] = useState<boolean>(false);
-    const [validation, setValidation] = useState<ReviewValidationResult>({valid: true});
+    const [validation, setValidation] = useState<ValidationResult<ReviewDto>>({valid: true});
     const [submitting, setSubmitting] = useState<boolean>(false);
 
     // pagination state
@@ -92,17 +92,11 @@ export const ReviewTable: React.FC<ReviewTableProps> = (props) => {
         if (!review) return {valid: false, message: 'Something went wrong. Please try again.'};
 
         const required: (keyof ReviewDto)[] = ["title", "comment"];
-        const fieldErrors: Partial<Record<keyof ReviewDto, string>> = {};
-
-        required.forEach((k) => {
-            const v = (review[k] as unknown as string) ?? '';
-            if (!v.trim()) fieldErrors[k] = "Required";
-        })
-
-        if (!review.rating) fieldErrors["rating"] = "Required";
-
-        const valid = Object.keys(fieldErrors).length === 0;
-        return valid ? {valid} : {valid, message: 'Please fill in all required fields', fieldErrors};
+        return validateFormData(
+            review,
+            [(key) => key === "rating" && !review.rating ? "Required" : undefined,
+                (key) => required.includes(key) && !review[key] ? "Required" : undefined,
+            ]);
     };
 
     const handleSubmit = async () => {
@@ -189,4 +183,16 @@ export const ReviewTable: React.FC<ReviewTableProps> = (props) => {
             />
         </>
     );
+}
+
+const emptyReviewDto = (): ReviewDto => {
+    return {
+        id: undefined,
+        rating: 0,
+        title: '',
+        comment: '',
+        author: undefined,
+        product: undefined,
+        createdDate: undefined,
+    }
 }

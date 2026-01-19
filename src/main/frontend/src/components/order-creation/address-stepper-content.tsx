@@ -4,13 +4,13 @@ import {InputMaskChangeEvent} from "primereact/inputmask";
 import {InputText} from "primereact/inputtext";
 import {Button} from "primereact/button";
 import {Checkbox} from "primereact/checkbox";
-import {validateFormData, ValidationResult} from "../../utilities/form-data-validator.tsx";
+import {validateFormData, ValidationResult} from "../../utilities/form-data-validator.ts";
 
 interface AddressFormProps {
     readonly address: AddressDto;
     readonly user: UserxDto;
     readonly onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
-    readonly fieldErrors: Partial<Record<keyof AddressDto, string>>;
+    readonly fieldErrors: ValidationResult<AddressDto>["fieldErrors"];
 }
 
 interface AddressStepperPanelProps {
@@ -25,8 +25,8 @@ interface AddressStepperPanelProps {
 
 export const AddressStepperContent: React.FC<AddressStepperPanelProps> = (props) => {
     const {shippingAddress, paymentAddress, onSubmit, user, onChangePaymentAddress, onChangeShippingAddress} = props;
-    const [shippingAddressFieldErrors, setShippingAddressFieldErrors] = useState<ValidationResult<AddressDto>>({valid: false});
-    const [paymentAddressFieldErrors, setPaymentAddressFieldErrors] = useState<ValidationResult<AddressDto>>({valid: false});
+    const [shippingAddressValidation, setShippingAddressValidation] = useState<ValidationResult<AddressDto>>({valid: false});
+    const [paymentAddressValidation, setPaymentAddressValidation] = useState<ValidationResult<AddressDto>>({valid: false});
     const [isIdenticalToShipping, setIsIdenticalToShipping] = useState(true);
 
     const onNavigateToOverview = useCallback(() => {
@@ -34,7 +34,7 @@ export const AddressStepperContent: React.FC<AddressStepperPanelProps> = (props)
             shippingAddress,
             [(key) => key !== "id" && shippingAddress[key].length === 0 ? `${key} is required` : undefined]
             );
-        setShippingAddressFieldErrors(shippingAddressErrors);
+        setShippingAddressValidation(shippingAddressErrors);
         let _paymentAddress = paymentAddress;
         if (isIdenticalToShipping) {
             _paymentAddress = shippingAddress;
@@ -44,24 +44,24 @@ export const AddressStepperContent: React.FC<AddressStepperPanelProps> = (props)
             _paymentAddress,
             [(key) => key !== "id" && _paymentAddress[key].length === 0 ? `${key} is required` : undefined]
         );
-        setPaymentAddressFieldErrors(paymentAddressErrors);
+        setPaymentAddressValidation(paymentAddressErrors);
 
         if (shippingAddressErrors.valid && paymentAddressErrors.valid) {
             onSubmit();
         }
     }, [
         isIdenticalToShipping,
-        shippingAddressFieldErrors,
-        paymentAddressFieldErrors,
+        shippingAddressValidation,
+        paymentAddressValidation,
         shippingAddress,
         paymentAddress,
-        setShippingAddressFieldErrors,
-        setPaymentAddressFieldErrors,
+        setShippingAddressValidation,
+        setPaymentAddressValidation,
     ]);
     return (<>
             <h2>Shipping Address</h2>
             <AddressForm
-                fieldErrors={shippingAddressFieldErrors ?? {}}
+                fieldErrors={shippingAddressValidation.fieldErrors}
                 onInputChange={({target}) => onChangeShippingAddress({...shippingAddress, [target.name]: target.value})}
                 user={user}
                 address={shippingAddress}
@@ -75,7 +75,7 @@ export const AddressStepperContent: React.FC<AddressStepperPanelProps> = (props)
             <label htmlFor="Same as Shipping Address" className="ml-2">Same as Shipping Address</label>
             {!isIdenticalToShipping
                 ? <AddressForm
-                    fieldErrors={paymentAddressFieldErrors ?? {}}
+                    fieldErrors={paymentAddressValidation.fieldErrors}
                     onInputChange={({target}) => onChangePaymentAddress({
                         ...paymentAddress,
                         [target.name]: target.value

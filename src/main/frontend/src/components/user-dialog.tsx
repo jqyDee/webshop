@@ -1,11 +1,5 @@
 import React, {forwardRef, useImperativeHandle, useState} from "react";
-import {UserxDto, UserxUpdateDto} from "../api";
-import {
-    createUserxRoleArrayFromStrings,
-    emptyUserxUpdateDto,
-    fromUserxDtoToUserxUpdateDto,
-    UserxValidationResult
-} from "../utilities/userx-utilities.ts";
+import {RoleEnum, UserxDto, UserxUpdateDto} from "../api";
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
 import {QueryObserverResult, RefetchOptions, useMutation} from "@tanstack/react-query";
@@ -17,6 +11,7 @@ import {Message} from "primereact/message";
 import {Dialog} from "primereact/dialog";
 import {Button} from "primereact/button";
 import {UserForm} from "./user-dialog/user-form.tsx";
+import {validateFormData, ValidationResult} from "../utilities/form-data-validator.ts";
 
 export interface UserDialogHandle {
     open: (user: UserxDto | null, register?: boolean) => void;
@@ -33,7 +28,7 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
         const [isNewUser, setIsNewUser] = useState<boolean>(false);
         const [isRegister, setIsRegister] = useState<boolean>(false);
         const [dialogVisible, setDialogVisible] = useState<boolean>(false);
-        const [validation, setValidation] = useState<UserxValidationResult>({valid: true});
+        const [validation, setValidation] = useState<ValidationResult<UserxDto>>({valid: true});
         const [submitting, setSubmitting] = useState<boolean>(false);
         const {login} = useUser();
         const navigate = useNavigate();
@@ -103,32 +98,17 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
             opts: {
                 requirePassword?: boolean
             } = {requirePassword: true},
-        ): UserxValidationResult => {
+        ): ValidationResult<UserxDto> => {
 
             if (!user) return {valid: false, message: 'No user selected'};
 
             const required: (keyof UserxUpdateDto)[] = ['firstName', 'lastName', 'username'];
             const {requirePassword = true} = opts; // password input on edit user not needed
-            const fieldErrors: Partial<Record<keyof UserxUpdateDto, string>> = {};
-
-            required.forEach((k) => {
-                const v = (user[k] as unknown as string) ?? '';
-                if (!v.trim()) fieldErrors[k] = 'Required';
-            });
-
-            // check for password required
-            const pwd = (user.password as unknown as string) ?? '';
-            if (requirePassword && !pwd.trim()) fieldErrors.password = 'Required';
-
-            // at least one role required (see also UserxCreateDTO in backend
-            if (!user.role) {
-                fieldErrors.role = 'Required';
-            }
-
-            const valid = Object.keys(fieldErrors).length === 0;
-            return valid
-                ? {valid}
-                : {valid, message: 'Please fill in all required fields', fieldErrors};
+            return validateFormData(user, [
+                (key) => required.includes(key) && !user[key] ? "Required" : undefined,
+                (key) => key === "password" && requirePassword && (user[key] ?? "").length === 0 ? "Required" : undefined,
+                (key) => key === "role" && !user.role ? "Required" : undefined,
+            ]);
         }
 
         /**
@@ -285,3 +265,60 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
         )
     }
 );
+
+/**
+ * Create a UserxRole array from a string array of role
+ * @param role
+ *
+ * @returns UserxRole[]
+ * @throws Error if an invalid role is provided
+ */
+const createUserxRoleArrayFromStrings = (role: string): RoleEnum => {
+    switch (role) {
+        case RoleEnum.ADMIN.valueOf():
+            return RoleEnum.ADMIN;
+        case RoleEnum.MANAGER.valueOf():
+            return RoleEnum.MANAGER;
+        case RoleEnum.CUSTOMER.valueOf():
+            return RoleEnum.CUSTOMER;
+        default:
+            throw new Error(`Invalid role: ${role}`);
+    }
+}
+/**
+ * Create UserxUpdateDto from UserxDto
+ * @param user UserxDto to map from
+ *
+ * @returns UserxUpdateDto
+ */
+const fromUserxDtoToUserxUpdateDto = (user: UserxDto): UserxUpdateDto => {
+    return {
+        id: user.id,
+        username: user.username,
+        password: "",
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        enabled: user.enabled,
+        role: user.role,
+    };
+}
+/**
+ * Create empty UserxUpdateDto for new User Dialog
+ *
+ * @returns UserxUpdateDto
+ */
+const emptyUserxUpdateDto = (): UserxUpdateDto => {
+    return {
+        id: undefined,
+        username: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        enabled: true,
+        role: RoleEnum.CUSTOMER,
+    };
+}

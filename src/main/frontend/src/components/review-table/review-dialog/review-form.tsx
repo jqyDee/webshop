@@ -4,11 +4,12 @@ import {Rating} from "primereact/rating";
 import {InputTextarea} from "primereact/inputtextarea";
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {ReviewDto} from "../../../api";
+import {ValidationResult} from "../../../utilities/form-data-validator.ts";
 
 
 interface UserFormProps {
     review: ReviewDto,
-    fieldErrors?: Partial<Record<keyof ReviewDto, string>>,
+    fieldErrors: ValidationResult<ReviewDto>["fieldErrors"],
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement> | InputMaskChangeEvent) => void,
 }
 

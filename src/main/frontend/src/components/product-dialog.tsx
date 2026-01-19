@@ -1,5 +1,4 @@
 import {forwardRef, useImperativeHandle, useState} from "react";
-import {emptyProductDto, ProductValidationResult} from "../utilities/product.ts";
 import {ProductDto} from "../api";
 import {QueryObserverResult, RefetchOptions, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
@@ -14,6 +13,7 @@ import {Message} from "primereact/message";
 import {Dialog} from "primereact/dialog";
 import {Button} from "primereact/button";
 import {ProductForm} from "./product-dialog/product-form.tsx";
+import {validateFormData, ValidationResult} from "../utilities/form-data-validator.ts";
 
 export interface ProductDialogHandle {
     open: (openProduct: ProductDto | null) => void;
@@ -30,7 +30,7 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
 
         const [dialogVisible, setDialogVisible] = useState<boolean>(false);
         const [isNewProduct, setIsNewProduct] = useState<boolean>(false);
-        const [validation, setValidation] = useState<ProductValidationResult>({valid: true});
+        const [validation, setValidation] = useState<ValidationResult<ProductDto>>({valid: true});
         const [product, setEditProduct] = useState<ProductDto | null>(null);
         const queryClient = useQueryClient();
 
@@ -70,36 +70,14 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
             onSuccess: async () => await refetch()
         })
 
-        const validateProduct = (product: ProductDto): ProductValidationResult => {
+        const validateProduct = (product: ProductDto): ValidationResult<ProductDto> => {
             if (!product) return {valid: false, message: 'No product could be loaded'};
 
-            const required: (keyof ProductDto)[] = ['name'];
-            const fieldErrors: Partial<Record<keyof ProductDto, string>> = {};
-
-            required.forEach((k) => {
-                const v = (product[k] as unknown as string) ?? '';
-                if (!v.trim()) fieldErrors[k] = 'Required';
-            })
-
-            // 'name', 'price', 'stock', 'discount'
-            // price
-            const price = product.price;
-            if (!price) fieldErrors['price'] = 'Required';
-
-            // stock
-            const stock = product.stock;
-            if (!stock) fieldErrors['stock'] = 'Required';
-
-            // discount
-            const discount = product.discount;
-            if (discount) {
-                if (discount < 0.0 || discount > 1) {
-                    fieldErrors['discount'] = 'discount has to be between 0 and 1';
-                }
-            }
-
-            const valid = Object.keys(fieldErrors).length === 0;
-            return valid ? {valid} : {valid, message: 'Please fill in all required fields', fieldErrors};
+            return validateFormData(product, [
+                (key) => key === "name" && product[key].length === 0 ? "Required" : undefined,
+                (key) => (key === "price" || key === "stock") && !product[key] ? "Required" : undefined,
+                (key) => key === "discount" && (product[key] < 0.0 || product[key] > 1) ? "discount has to be between 0 and 1" : undefined,
+            ]);
         }
 
         const hideDialog = () => {
@@ -203,3 +181,20 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
         );
     }
 );
+
+const emptyProductDto = (): ProductDto => {
+    return {
+        id: undefined,
+        name: "",
+        price: 0,
+        stock: 0,
+        discount: 0.0,
+        discountedPrice: 0,
+        shortDescription: undefined,
+        description: undefined,
+        rating: undefined,
+        imageUrl: undefined,
+        createdDate: undefined,
+        updatedDate: undefined
+    }
+}

@@ -9,13 +9,14 @@ import {Password} from "primereact/password";
 import {Checkbox, CheckboxChangeEvent} from "primereact/checkbox";
 import {Dropdown} from "primereact/dropdown";
 import {RoleEnum, UserxUpdateDto} from "../../api";
+import {ValidationResult} from "../../utilities/form-data-validator.ts";
 
 
 interface UserFormProps {
     user: UserxUpdateDto,
     isRegister: boolean,
     canSetRole: boolean,
-    fieldErrors?: Partial<Record<keyof UserxUpdateDto, string>>,
+    fieldErrors: ValidationResult<UserxUpdateDto>["fieldErrors"],
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
     onRolesChange: (event: { value: string }) => void,
     onUserEnabledChange: (event: CheckboxChangeEvent) => void
