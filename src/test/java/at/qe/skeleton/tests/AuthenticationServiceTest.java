@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class AuthenticationServiceTest {
+class AuthenticationServiceTest {
 
     @Mock
     private AuthenticationManager authenticationManager;

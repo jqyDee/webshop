@@ -3,17 +3,30 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.mappers.*;
 import at.qe.skeleton.model.*;
+import at.qe.skeleton.services.UserxService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import at.qe.skeleton.model.NotificationType;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static java.lang.Boolean.TRUE;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for verifying the correct behavior of MapStruct mappers.
  * Generated with LLM: <a href="https://gemini.google.com/share/2dd04d9878c9">Link to conversation<a>
  */
 @SpringBootTest
-public class MapperTest {
+class MapperTest {
 
     @Autowired
     private UserxMapper userxMapper;
@@ -29,6 +42,18 @@ public class MapperTest {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private OrderItemMapper orderItemMapper;
+
+    @Autowired
+    private CartItemMapper cartItemMapper;
+
+    @Autowired
+    private UserxUpdateMapper userxUpdateMapper;
+
+    @MockitoBean
+    private UserxService userxService;
 
     @Test
     public void testUserxMapper() {
@@ -52,7 +77,7 @@ public class MapperTest {
         Assertions.assertEquals(user.getId(), dto.id());
         Assertions.assertEquals(user.getUsername(), dto.username());
         Assertions.assertEquals(1L, dto.createdBy()); // Source: createUser.id
-        Assertions.assertTrue(dto.role().equals(UserxRole.CUSTOMER));
+        Assertions.assertEquals(UserxRole.CUSTOMER, dto.role());
         Assertions.assertTrue(dto.notifyOptions().contains(NotificationType.EMAIL));
 
         // Map from DTO
@@ -151,5 +176,94 @@ public class MapperTest {
         Order mappedOrder = orderMapper.mapFrom(dto);
         Assertions.assertEquals(dto.id(), mappedOrder.getId());
         Assertions.assertEquals(dto.status(), mappedOrder.getStatus());
+    }
+
+    @Test
+    public void testOrderItemMapper() {
+        OrderItem item = new OrderItem();
+        item.setName("Test OrderItem");
+        item.setTotal(100);
+        item.setId(1L);
+        item.setQuantity(1);
+
+
+        // Map to DTO
+        OrderItemDTO dto = orderItemMapper.mapTo(item);
+
+        Assertions.assertEquals(item.getId(), dto.id());
+        Assertions.assertEquals(item.getName(), dto.name());
+        Assertions.assertEquals(100, dto.total());
+        Assertions.assertEquals(1, dto.quantity());
+
+        // Map from DTO
+        OrderItem orderItemMapped = orderItemMapper.mapFrom(dto);
+        Assertions.assertEquals(dto.name(), orderItemMapped.getName());
+        Assertions.assertEquals(dto.total(), orderItemMapped.getTotal());
+    }
+
+    @Test
+    public void testCartItemMapper() {
+        CartItem item = new CartItem();
+        item.setId(1L);
+        item.setQuantity(1);
+
+        // Map to DTO
+        CartItemDTO dto = cartItemMapper.mapTo(item);
+        Assertions.assertEquals(item.getId(), dto.id());
+        Assertions.assertEquals(1, dto.quantity());
+
+        // Map from DTO
+        CartItem cartItemMapped = cartItemMapper.mapFrom(dto);
+        Assertions.assertEquals(dto.id(), cartItemMapped.getId());
+        Assertions.assertEquals(dto.quantity(), cartItemMapped.getQuantity());
+    }
+
+    private void authenticateUser(Userx user) {
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    @Test
+    @WithMockUser(authorities = "ADMIN")
+    public void UserxUpdateMapperResolveUser() {
+        AddressDTO address = new AddressDTO(1L, "", "", "", "", "");
+        Set<NotificationType> notifyOptions = null;
+        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER, notifyOptions);
+        Userx userx = new Userx();
+        userx.setId(1L);
+        userx.setRole(UserxRole.ADMIN);
+        authenticateUser(userx);
+
+        when(userxService.loadUser(anyLong())).thenReturn(Optional.of(userx));
+
+        Userx result = userxUpdateMapper.resolveUser(dto, 1L);
+        Assertions.assertEquals(userx.getId(), result.getId());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ADMIN")
+    public void UserxUpdateMapperResolveUserNewUser() {
+        Set<NotificationType> notifyOptions = null;
+        AddressDTO address = new AddressDTO(1L, "", "", "", "", "");
+        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER, notifyOptions);
+
+        when(userxService.loadUser(anyLong())).thenReturn(Optional.empty());
+
+        Userx result = userxUpdateMapper.resolveUser(dto, 1L);
+        Assertions.assertNull(result.getId());
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    @WithMockUser(authorities = "ADMIN")
+    public void UserxUpdateMapperResolveUserNull() {
+        Set<NotificationType> notifyOptions = null;
+        AddressDTO address = new AddressDTO(1L, "", "", "", "", "");
+        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER, notifyOptions);
+
+        Userx result = userxUpdateMapper.resolveUser(dto, null);
+        Assertions.assertNull(result.getId());
+        Assertions.assertNotNull(result);
     }
 }

@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
-public class OrderServiceScheduleTest {
+class OrderServiceScheduleTest {
     @MockitoSpyBean
     private OrderService orderService;
 

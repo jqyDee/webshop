@@ -47,7 +47,7 @@ import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class OrderControllerTest {
+class OrderControllerTest {
     @Autowired
     private MockMvc mockMvc;
 

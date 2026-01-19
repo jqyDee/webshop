@@ -43,7 +43,7 @@ import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class ProductControllerTest {
+class ProductControllerTest {
     @Autowired
     private MockMvc mockMvc;
 

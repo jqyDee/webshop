@@ -1,5 +1,6 @@
 package at.qe.skeleton.tests;
 
+import at.qe.skeleton.exceptions.UsernameDuplicateException;
 import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -30,7 +33,7 @@ import java.util.Set;
 
 
 @SpringBootTest()
-public class UserxServiceTest {
+class UserxServiceTest {
 
     @Autowired
     UserxService userService;
@@ -40,7 +43,7 @@ public class UserxServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testDatainitialization() {
-        Assertions.assertEquals(7, userService.getAllUsers().size(),
+        Assertions.assertEquals(8, userService.getAllUsers().size(),
                 "Insufficient amount of users initialized for test data source");
         for (Userx user : userService.getAllUsers()) {
             switch (user.getUsername()) {
@@ -68,7 +71,7 @@ public class UserxServiceTest {
                     Assertions.assertNull(user.getUpdatedDate(),
                                           "User \"" + user + "\" has a updateDate defined");
                 }
-                case "user2", "jonny" -> {
+                case "user2", "jonny", "customer" -> {
                     Assertions.assertEquals(UserxRole.CUSTOMER, user.getRole(),
                                             "User \"" + user + "\" does not have role CUSTOMER");
                     Assertions.assertNotNull(user.getCreateUser(),
@@ -93,7 +96,7 @@ public class UserxServiceTest {
         Long deleteUserId = 2000L;
         Optional<Userx> adminUser = userService.loadUser(1000L);
 
-        Assertions.assertEquals(7, userService.getAllUsers().size());
+        Assertions.assertEquals(8, userService.getAllUsers().size());
 
         Assertions.assertFalse(adminUser.isEmpty(),
                 "Admin user could not be loaded from test data source");
@@ -104,7 +107,7 @@ public class UserxServiceTest {
 
         userService.deleteUser(toBeDeletedUser);
 
-        Assertions.assertEquals(6, userService.getAllUsers().size(),
+        Assertions.assertEquals(7, userService.getAllUsers().size(),
                 "No user has been deleted after calling UserService.deleteUser");
         Optional<Userx> deletedUserOpt = userService.loadUser(deleteUserId);
         Assertions.assertTrue(deletedUserOpt.isEmpty(),
@@ -401,5 +404,60 @@ public class UserxServiceTest {
         Userx user2 = userService.loadUser(3000L).orElseThrow(EntityNotFoundException::new);
         Set<NotificationType> expectedOptions = Sets.newHashSet(List.of(NotificationType.EMAIL, NotificationType.SMS));
         Assertions.assertEquals(expectedOptions, user2.getNotifyOptions());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void loadUserIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.loadUser(null).orElseThrow());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void saveUserIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.saveUser(null, "test"));
+
+        Userx user = new Userx();
+        user.setUsername(null);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.saveUser(user, "test"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void saveUserUsernameDuplicate() {
+        Userx newUser = new Userx();
+        newUser.setUsername("admin");
+
+        Assertions.assertThrows(UsernameDuplicateException.class, () -> userService.saveUser(newUser, "test"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void deleteUserIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.deleteUser(null));
+        Userx user =  new Userx();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.deleteUser(user));
+    }
+
+    @Test
+    public void getUserByUsernameIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.getUserByUsername(null));
+    }
+
+    @Test
+    public void loadUserByUsername() {
+        UserDetails uDetails = userService.loadUserByUsername("admin");
+        Assertions.assertNotNull(uDetails);
+    }
+
+    @Test
+    public void loadUserByUsernameUsernameNotFound() {
+        Assertions.assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("test"));
+    }
+
+    @Test
+    public void createUserIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.createUser(null, null));
     }
 }

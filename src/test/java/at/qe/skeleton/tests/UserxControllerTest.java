@@ -37,7 +37,7 @@ import java.util.Optional;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class UserxControllerTest {
+class UserxControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
