@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -118,7 +119,7 @@ public class OrderService {
             throw new CartEmptyException();
         }
 
-        Collection<OrderItem> orderItems = convertAndReserveStock(cartItems);
+        Collection<OrderItem> orderItems = convertAndReserveStock(cartItems.stream().toList());
 
         // create Order and add all products
         Order order = new Order();
@@ -140,13 +141,18 @@ public class OrderService {
      * @return Collection of OrderItems to add to the Order
      * @throws OutOfStockException if cart item is out of Stock
      */
-    private Collection<OrderItem> convertAndReserveStock(Collection<CartItem> cartItems)
+    private Collection<OrderItem> convertAndReserveStock(List<CartItem> cartItems)
             throws OutOfStockException {
         Collection<OrderItem> orderItems = new ArrayList<>();
-        for (CartItem cartItem : cartItems) {
-            boolean allInStock = productService.reserveStock(cartItem.getProduct().getId(), cartItem.getQuantity());
+        boolean allInStock = true;
+        int index = 0;
+        int size = cartItems.size();
+        for (; index < size; index++) {
+            CartItem cartItem = cartItems.get(index);
+
+            allInStock = productService.reserveStock(cartItem.getProduct().getId(), cartItem.getQuantity());
             if (!allInStock) {
-                throw new OutOfStockException(cartItem.getProduct().getName());
+                break;
             }
             OrderItem orderItem = new OrderItem();
             orderItem.setQuantity(cartItem.getQuantity());
@@ -155,6 +161,14 @@ public class OrderService {
             orderItem.setProduct(cartItem.getProduct());
             orderItems.add(orderItem);
         }
+
+        if (!allInStock) {
+            for (OrderItem orderItem : orderItems) {
+                productService.releaseStock(orderItem);
+            }
+            throw new OutOfStockException("x");
+        }
+
         return orderItems;
     }
 
