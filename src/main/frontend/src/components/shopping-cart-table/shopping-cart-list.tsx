@@ -1,24 +1,24 @@
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
-import { InputNumber } from "primereact/inputnumber";
+import {DataTable} from "primereact/datatable";
+import {Column} from "primereact/column";
+import {Button} from "primereact/button";
+import {InputNumber} from "primereact/inputnumber";
 import React from "react";
-import {CartItemDto} from "../../api";
+import {CartItemDto, ProductDto} from "../../api";
 import {useGlobalToast} from "../../contexts/toast.tsx";
 
 interface ShoppingCartListComponentProps {
     items: CartItemDto[];
     loading: boolean;
-    onQuantityChange: (product: any, qty: number) => void;
+    onQuantityChange: (product: ProductDto, qty: number) => void;
     onRemove: (productId: number) => Promise<void>;
 }
 
 export const ShoppingCartList: React.FC<ShoppingCartListComponentProps> = ({
-                                                                                 items,
-                                                                                 loading,
-                                                                                 onQuantityChange,
-                                                                                 onRemove
-                                                                             }) => {
+                                                                               items,
+                                                                               loading,
+                                                                               onQuantityChange,
+                                                                               onRemove
+                                                                           }) => {
 
     const priceTemplate = (item: CartItemDto) => (
         <span>€{item.product.discountedPrice ?? item.product.price}</span>
@@ -26,14 +26,18 @@ export const ShoppingCartList: React.FC<ShoppingCartListComponentProps> = ({
 
     const {showToast} = useGlobalToast();
 
-    const quantityTemplate = (item: CartItemDto) => (
-        <InputNumber
-            value={item.quantity}
-            min={1}
-            onValueChange={(e) => onQuantityChange(item.product, e.value ?? 1)}
-            showButtons
-        />
-    );
+    const quantityTemplate = (item: CartItemDto) => {
+        return (<div className={"flex gap-2 align-items-center"}>
+            <InputNumber
+                value={item.quantity}
+                min={1}
+                onValueChange={(e) => onQuantityChange(item.product, e.value ?? 1)}
+                showButtons
+            />
+            <span className={"font-bold"}>(Stock: {item.product.stock})</span>
+        </div>);
+    };
+
 
     const subtotal = (item: CartItemDto) => {
         return ((item.product.discountedPrice ?? item.product.price) * item.quantity).toFixed(2);
@@ -44,20 +48,27 @@ export const ShoppingCartList: React.FC<ShoppingCartListComponentProps> = ({
     );
 
     const removeTemplate = (item: CartItemDto) => {
-        return (
-            <Button
-                icon="pi pi-trash"
-                severity="danger"
-                text
-                onClick={() => {
-                    item.product.id ? onRemove(item.product.id) : showToast({
-                        severity: 'error',
-                        summary: 'Error loading Product',
-                        detail: 'The current product could not be loaded. Please try refreshing the page!',
-                        life: 3000
-                    })
-                }}
-            />
+        return (<div className={"flex gap-2 align-items-center"}>
+                <Button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    text
+                    onClick={() => {
+                        item.product.id ? onRemove(item.product.id) : showToast({
+                            severity: 'error',
+                            summary: 'Error loading Product',
+                            detail: 'The current product could not be loaded. Please try refreshing the page!',
+                            life: 3000
+                        })
+                    }}
+                />
+                <Button
+                    label={"Fix"}
+                    disabled={item.quantity <= item.product.stock}
+                    onClick={() => item.product.stock === 0 ? onRemove(item.product.id!) : onQuantityChange(item.product, item.product.stock)}
+                    className={item.quantity > item.product.stock ? "p-button-danger" : ""}
+                />
+            </div>
         )
     };
 
@@ -96,5 +107,5 @@ export const ShoppingCartList: React.FC<ShoppingCartListComponentProps> = ({
                 body={removeTemplate}
                 headerClassName="w-2rem"
             />
-        </DataTable>    );
+        </DataTable>);
 };
