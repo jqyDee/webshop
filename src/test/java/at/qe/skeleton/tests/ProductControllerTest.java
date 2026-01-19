@@ -3,7 +3,6 @@ package at.qe.skeleton.tests;
 import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
-import at.qe.skeleton.controllers.ProductController;
 import at.qe.skeleton.dtos.ProductDTO;
 import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.dtos.ReviewDTO;
