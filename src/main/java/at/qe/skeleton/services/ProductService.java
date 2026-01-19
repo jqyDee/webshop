@@ -165,10 +165,23 @@ public class ProductService {
             throw new IllegalArgumentException("OrderItem is null");
         }
 
-        this.productRepository.releaseStock(orderItem.getProduct().getId(), orderItem.getQuantity());
-        Product product = orderItem.getProduct();
-        Product updatedProduct = loadProduct(product.getId()).orElseThrow(EntityNotFoundException::new);
-        publishProductEvents(product, updatedProduct);
+        Long productId = orderItem.getProduct().getId();
+        if (productId == null) {
+            throw new IllegalArgumentException("ProductId is null");
+        }
+
+        // Load OLD state from DB
+        Product oldProduct = productRepository.findById(productId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        // Update stock
+        productRepository.releaseStock(productId, orderItem.getQuantity());
+
+        // Load UPDATED state from DB
+        Product updatedProduct = productRepository.findById(productId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        publishProductEvents(oldProduct, updatedProduct);
     }
 
     /**
