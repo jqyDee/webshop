@@ -12,8 +12,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import at.qe.skeleton.model.NotificationType;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -226,7 +228,8 @@ public class MapperTest {
     @WithMockUser(authorities = "ADMIN")
     public void UserxUpdateMapperResolveUser() {
         AddressDTO address = new AddressDTO(1L, "", "", "", "", "");
-        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER);
+        Set<NotificationType> notifyOptions = null;
+        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER, notifyOptions);
         Userx userx = new Userx();
         userx.setId(1L);
         userx.setRole(UserxRole.ADMIN);
@@ -241,8 +244,9 @@ public class MapperTest {
     @Test
     @WithMockUser(authorities = "ADMIN")
     public void UserxUpdateMapperResolveUserNewUser() {
+        Set<NotificationType> notifyOptions = null;
         AddressDTO address = new AddressDTO(1L, "", "", "", "", "");
-        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER);
+        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER, notifyOptions);
 
         when(userxService.loadUser(anyLong())).thenReturn(Optional.empty());
 
@@ -254,8 +258,9 @@ public class MapperTest {
     @Test
     @WithMockUser(authorities = "ADMIN")
     public void UserxUpdateMapperResolveUserNull() {
+        Set<NotificationType> notifyOptions = null;
         AddressDTO address = new AddressDTO(1L, "", "", "", "", "");
-        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER);
+        UserxUpdateDTO dto = new UserxUpdateDTO(1L, "name", "jjj", "jjj", "jjj", "", "", TRUE, address, address, UserxRole.CUSTOMER, notifyOptions);
 
         Userx result = userxUpdateMapper.resolveUser(dto, null);
         Assertions.assertNull(result.getId());
