@@ -4,12 +4,12 @@ import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.controllers.AdminController;
-import at.qe.skeleton.dtos.UserxDTO;
-import at.qe.skeleton.dtos.UserxUpdateDTO;
+import at.qe.skeleton.dtos.*;
+import at.qe.skeleton.mappers.OrderMapper;
 import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
-import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.model.*;
+import at.qe.skeleton.services.OrderService;
 import at.qe.skeleton.services.ProductSubscriptionService;
 import at.qe.skeleton.services.UserxService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +18,7 @@ import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -25,6 +26,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -36,6 +38,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Some very basic tests for {@link AdminController}.
@@ -72,6 +75,12 @@ class AdminControllerTest {
 
     @MockitoBean
     private ProductSubscriptionService productSubscriptionService;
+
+    @MockitoBean
+    private OrderService orderService;
+
+    @MockitoBean
+    private OrderMapper orderMapper;
 
     @Autowired
     private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
@@ -301,5 +310,55 @@ class AdminControllerTest {
                 ).andExpect(MockMvcResultMatchers.status().isOk());
 
         Mockito.verify(productSubscriptionService).deleteProductSubscription(ArgumentMatchers.eq(mockUser), ArgumentMatchers.eq(productId));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testGetAllOrders() throws Exception {
+        Userx mockUser = new Userx();
+        mockUser.setId(1L);
+
+        UserxDTO userxDTO = new UserxDTO(1L, null, null, null, null, "as", "as", "as", null, null, null, null, true, UserxRole.CUSTOMER, null);
+
+        ProductDTO productDTO = new ProductDTO(1L, "as", 0.0, 1, 0.0, 0.0, null, null, null, null, null, null, null);
+
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, null, null, null);
+
+        Order order1 = new Order();
+        order1.setId(1L);
+        order1.setUser(mockUser);
+        order1.setSum(20.0);
+
+        Order order2 = new Order();
+        order2.setId(2L);
+        order2.setUser(mockUser);
+        order2.setSum(40.0);
+
+        List<Order> orders = List.of(order1, order2); // product 3 has to be left out here as the PageImpl does not remove it in this case
+        Pageable pageable = PageRequest.of(0, 2);
+        int total_count = 3;
+
+        Page<Order> page = new PageImpl<>(orders, pageable, total_count);
+
+        Mockito.when(orderService.getAllOrders(ArgumentMatchers.any())).thenReturn(page);
+
+        Mockito.when(orderMapper.mapTo(ArgumentMatchers.any(Order.class)))
+               .thenAnswer(invocation -> {
+                   Order order = invocation.getArgument(0);
+                   return new OrderDTO(order.getId(), userxDTO, OrderStatus.PROCESSING, null, null, order.getSum(),
+                                       Set.of(orderItemDTO), null);
+               });
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/admin/orders")
+                                              .param("pageId", "0")
+                                              .param("pageSize", "2"))
+               .andExpect(MockMvcResultMatchers.status().isOk())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.pageSize").value(2))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.pageIdAfter").value(1))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.items", Matchers.hasSize(2)))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.items[0].id").value(1L))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.items[1].id").value(2L))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.totalCount").value(3))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.pageCount").value(2));
     }
 }
