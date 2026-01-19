@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.controllers;
 
 import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
@@ -34,7 +34,7 @@ import java.util.Optional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class ManagerControllerTest {
+class ManagerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

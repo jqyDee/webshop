@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.model;
 
 import at.qe.skeleton.model.*;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -9,11 +9,10 @@ import org.junit.jupiter.api.Test;
  * Tests to ensure that each entity's implementation of equals conforms to the
  * contract. See {@linkplain http://www.jqno.nl/equalsverifier/} for more
  * information.
- *
  * This class is part of the skeleton project provided for students of the
  * course "Software Architecture" offered by the University of Innsbruck.
  */
-public class EqualsImplementationTest {
+class EqualsImplementationTest {
 
     @Test
     public void testUserEqualsContract() {

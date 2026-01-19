@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.controllers;
 
 import at.qe.skeleton.configs.JwtConfig;
 import at.qe.skeleton.configs.JwtTokenProvider;
@@ -9,6 +9,7 @@ import at.qe.skeleton.dtos.ReviewDTO;
 import at.qe.skeleton.mappers.ProductMapper;
 import at.qe.skeleton.mappers.ReviewMapper;
 import at.qe.skeleton.model.*;
+import at.qe.skeleton.repositories.ProductSubscriptionRepository;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.ProductSubscriptionService;
 import at.qe.skeleton.services.UserxService;
@@ -42,7 +43,7 @@ import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class ProductControllerTest {
+class ProductControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -69,6 +70,8 @@ public class ProductControllerTest {
 
     @MockitoBean
     private ProductSubscriptionService productSubscriptionService;
+    @MockitoBean
+    private ProductSubscriptionRepository productSubscriptionRepository;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -350,6 +353,41 @@ public class ProductControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/product/{productId}/review/{reviewId}", productId, reviewId)
                                               .with(SecurityMockMvcRequestPostProcessors.csrf()))
                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
+    public void testGetSubscriptions() throws Exception {
+        Userx user2 = new Userx();
+        user2.setId(2L);
+        user2.setUsername("customer2");
+        user2.setPassword("customer2");
+        user2.setRole(UserxRole.CUSTOMER);
+
+        Long productId = 1L;
+        String name = "Product 1";
+        Product product = new Product();
+        product.setId(productId);
+        product.setName(name);
+        product.setPrice(100.0);
+        product.setStock(10);
+
+        ProductSubscription subscription = new ProductSubscription();
+        subscription.setProduct(product);
+        subscription.setUser(user2);
+        subscription.addNotifyEvent(ProductEventType.BACK_IN_STOCK);
+
+        Mockito.when(productService.loadProduct(productId)).thenReturn(Optional.of(product));
+        Mockito.when(productMapper.mapTo(Mockito.eq(product), Mockito.anyMap())).thenReturn(new ProductDTO(productId, name, 100.0, 10, 0.0, 0.0, null, null, null, null, null, null, null));
+        Mockito.when(productSubscriptionRepository.findByProductIdAndUser(productId, user2)).thenReturn(Optional.of(subscription));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/product/{id}", productId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                .with(SecurityMockMvcRequestPostProcessors.user(user2)))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionRepository).findByProductIdAndUser(ArgumentMatchers.eq(productId), ArgumentMatchers.eq(user2));
+
     }
 
     @Test

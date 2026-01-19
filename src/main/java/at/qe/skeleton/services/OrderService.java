@@ -166,10 +166,6 @@ public class OrderService {
      * @return the saved order
      */
     private Order saveOrder(Order order) {
-        if (order == null) {
-            throw new IllegalArgumentException("Order is null");
-        }
-
         return this.orderRepository.save(order);
     }
 
@@ -262,8 +258,9 @@ public class OrderService {
         boolean paymentSuccessful = paymentService.performPayment(order);
 
         if (paymentSuccessful) {
-            return paymentService.paymentReceived(order, user);
+            paymentService.paymentReceived(order, user);
         }
+        // This will never be reached in the current state, as the payment is stubbed to always succeed
         return orderRepository.save(order);
     }
 
@@ -294,9 +291,6 @@ public class OrderService {
      */
     private void validateAddressOwnership(Address address, Userx user)
             throws AccessDeniedException, IllegalArgumentException {
-        if (address == null || user == null || user.isNew()) {
-            throw new IllegalArgumentException("Address or User is null or User is new");
-        }
 
         if (address.getId() != null) {
             Address existingAddress = addressRepository.findById(address.getId())

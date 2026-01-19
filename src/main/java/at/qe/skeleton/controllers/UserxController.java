@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * Userx endpoints exposed by the server.
- *
  * This class is part of the skeleton project provided for students of the
  * course "Software Architecture" offered by Innsbruck University.
  */
@@ -24,11 +23,6 @@ public class UserxController {
     @Autowired
     public UserxController(UserxMapper userMapper) {
         this.userMapper = userMapper;
-    }
-
-    @PatchMapping("/me")
-    public ResponseEntity<UserxDTO> updateCurrentUser(@AuthenticationPrincipal Userx user) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @GetMapping("/me")
