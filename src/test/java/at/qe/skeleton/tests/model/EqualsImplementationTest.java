@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.model;
 
 import at.qe.skeleton.model.*;
 import nl.jqno.equalsverifier.EqualsVerifier;

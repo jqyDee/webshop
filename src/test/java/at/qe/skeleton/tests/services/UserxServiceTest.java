@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.services;
 
 import at.qe.skeleton.exceptions.UsernameDuplicateException;
 import at.qe.skeleton.model.NotificationType;

@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.notifications;
 
 import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.Userx;

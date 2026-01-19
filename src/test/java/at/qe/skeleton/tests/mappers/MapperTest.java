@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.mappers;
 
 import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.mappers.*;

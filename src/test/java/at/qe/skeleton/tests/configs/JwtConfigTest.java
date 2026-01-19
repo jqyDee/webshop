@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.configs;
 
 import at.qe.skeleton.configs.JwtConfig;
 import org.junit.jupiter.api.Assertions;

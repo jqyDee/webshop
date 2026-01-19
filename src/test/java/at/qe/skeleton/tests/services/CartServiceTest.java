@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.services;
 
 import at.qe.skeleton.model.CartItem;
 import at.qe.skeleton.model.Userx;
