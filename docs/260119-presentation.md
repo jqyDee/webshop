@@ -21,4 +21,6 @@
 - Frontend testing strategy and frontend testing (probably a few bugs to fix)
 - Backend testing evaluation (see Screenshot)
 ![Coverage](images/260119-coverage.png)
+![Coverage](images/260119-coverage-controller.png)
+![Coverage](images/260119-coverage-services.png)
 - Backend testing final touches
