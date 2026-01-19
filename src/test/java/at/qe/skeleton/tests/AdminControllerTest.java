@@ -10,6 +10,7 @@ import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
+import at.qe.skeleton.services.ProductSubscriptionService;
 import at.qe.skeleton.services.UserxService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -65,6 +67,15 @@ public class AdminControllerTest {
 
     @MockitoBean
     private UserxUpdateMapper userCreateMapper;
+
+    @MockitoBean
+    private UserxUpdateMapper userxUpdateMapper;
+
+    @MockitoBean
+    private ProductSubscriptionService productSubscriptionService;
+
+    @Autowired
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -238,6 +249,58 @@ public class AdminControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testUpdateUser() throws Exception {
+        Long userId = 1L;
 
+        Userx existingUser = new Userx();
+        existingUser.setId(userId);
+        existingUser.setUsername("oldUser");
 
+        Userx updatedUser = new Userx();
+        updatedUser.setId(userId);
+        updatedUser.setUsername("newUser");
+
+        UserxUpdateDTO updateDto = new UserxUpdateDTO(userId, "newUser", null, null, null, null, null, true, null, null, null, null);
+
+        UserxDTO responseDto = new UserxDTO(userId, null, null, null, null, "newUser", "mock", "mock", null, null, null, null, true, UserxRole.CUSTOMER, null);
+
+        Mockito.when(userService.loadUser(userId)).thenReturn(Optional.of(existingUser));
+
+        Mockito.when(userCreateMapper.mapFrom(Mockito.any(UserxUpdateDTO.class), Mockito.eq(userId)))
+                .thenReturn(updatedUser);
+
+        Mockito.when(userService.saveUser(Mockito.eq(updatedUser), Mockito.any()))
+                .thenReturn(updatedUser);
+
+        Mockito.when(userMapper.mapTo(updatedUser)).thenReturn(responseDto);
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.patch("/api/admin/user/{id}", userId)
+                                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(userId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("newUser"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testDeleteUserProductSubscription() throws Exception {
+        Userx mockUser = new Userx();
+        Long userId = 1L;
+        Long productId = 1L;
+
+        mockUser.setId(userId);
+
+        Mockito.when(userService.loadUser(ArgumentMatchers.eq(productId))).thenReturn(Optional.of(mockUser));
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/admin/user/{id}/unsubscribe/{productId}", userId, productId)
+                .with(SecurityMockMvcRequestPostProcessors.csrf())
+                ).andExpect(MockMvcResultMatchers.status().isOk());
+
+        Mockito.verify(productSubscriptionService).deleteProductSubscription(ArgumentMatchers.eq(mockUser), ArgumentMatchers.eq(productId));
+    }
 }
