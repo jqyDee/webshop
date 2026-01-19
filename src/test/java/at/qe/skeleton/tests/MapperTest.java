@@ -1,23 +1,16 @@
 package at.qe.skeleton.tests;
-
-import at.qe.skeleton.configs.JwtTokenProvider;
-import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.dtos.*;
 import at.qe.skeleton.mappers.*;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.services.UserxService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.Optional;
 
