@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.services;
 
 import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.model.OrderItem;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
-public class ProductServiceTest {
+class ProductServiceTest {
 
     @Autowired
     ProductService productService;
@@ -525,5 +525,60 @@ public class ProductServiceTest {
         Assertions.assertEquals(product.getReviews().stream().toList(), page.getContent());
 
         Assertions.assertEquals(3.0, product.getRating(), 0.01);
+    }
+
+    @Test
+    public void testLoadProductsIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.loadProduct(null));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testSaveProductIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.saveProduct(null));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testDeleteProductIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.deleteProduct(null));
+    }
+
+    @Test
+    public void testCheckStockIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.checkStock(null, 999));
+    }
+
+    @Test
+    public void testReleaseStockIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.releaseStock(null));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testAddReviewIllegalArgument() {
+        Review review = new Review();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.addReview(null, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.addReview(100L, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.addReview(100L, review, null));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testRemoveReviewIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.removeReview(null, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.removeReview(100L, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.removeReview(100L, 100L, null));
+    }
+
+    @Transactional
+    @Test
+    public void testUpdateRatingIllegalArgument() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.updateRating(null));
+
+        Product product = productService.loadProduct(6000L).orElseThrow(IllegalArgumentException::new);
+        productService.updateRating(product);
+        product = productService.loadProduct(6000L).orElseThrow(IllegalArgumentException::new);
+        Assertions.assertNull(product.getRating());
     }
 }

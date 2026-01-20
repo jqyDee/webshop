@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.services;
 
 import at.qe.skeleton.model.Order;
 import at.qe.skeleton.model.OrderStatus;
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
-public class OrderServiceScheduleTest {
+class OrderServiceScheduleTest {
     @MockitoSpyBean
     private OrderService orderService;
 

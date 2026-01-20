@@ -1,4 +1,4 @@
-package at.qe.skeleton.tests;
+package at.qe.skeleton.tests.controllers;
 
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
@@ -6,9 +6,7 @@ import at.qe.skeleton.dtos.CartItemDTO;
 import at.qe.skeleton.dtos.ProductDTO;
 import at.qe.skeleton.dtos.UserxDTO;
 import at.qe.skeleton.mappers.CartItemMapper;
-import at.qe.skeleton.model.CartItem;
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.services.CartService;
 import at.qe.skeleton.services.UserxService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,14 +30,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import at.qe.skeleton.model.NotificationType;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CartControllerTest {
+class CartControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -88,14 +88,16 @@ public class CartControllerTest {
         Userx user = userxService.getUserByUsername("user2");
         CartItem item = new CartItem();
         item.setId(100L);
+        Set<NotificationType> notiyOptions = null;
+        Map<ProductEventType, Boolean> eventOptions = null;
 
         Mockito.when(cartService.getCartItems(ArgumentMatchers.any(Userx.class)))
                .thenReturn(List.of(item));
 
         Mockito.when(cartItemMapper.mapTo(item)).thenReturn(new CartItemDTO(
-                100,
-                new ProductDTO(1L, "Test Product", 10.0, 5, 0, 0.0, null, null, null, null, null, null, null),
-                new UserxDTO(3000L, null, null, null, null, "user2", "Max", "Mustermann", null, null, null, null, true, null, null),
+                100L,
+                new ProductDTO(1L, "Test Product", 10.0, 5, 0, 0.0, null, null, null, null, null, null, eventOptions),
+                new UserxDTO(3000L, null, null, null, null, "user2", "Max", "Mustermann", null, null, null, null, true, null, notiyOptions),
                 1));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/cart")
