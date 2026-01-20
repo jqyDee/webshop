@@ -192,7 +192,7 @@ Test starts at the shopping cart interface
 - After step 1: (/shopping-cart)
   - User sees the shopping cart as describe in non-user/user view
 - After step 2:
-  - When clicking the "up" arrow the Quatity increases by 1 and the down arrow decreases it by 1
+  - When clicking the "up" arrow the Quantity increases by 1 and the down arrow decreases it by 1
 - After step 4:
   - The Quantity decreases to the maximum stock
 - After step 5:
