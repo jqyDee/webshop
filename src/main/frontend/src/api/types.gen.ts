@@ -389,38 +389,6 @@ export type CreateUserResponses = {
 
 export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 
-export type GetCurrentUserData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type GetCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
-
-export type UpdateCurrentUserData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/users/me';
-};
-
-export type UpdateCurrentUserResponses = {
-    /**
-     * OK
-     */
-    200: UserxDto;
-};
-
-export type UpdateCurrentUserResponse = UpdateCurrentUserResponses[keyof UpdateCurrentUserResponses];
-
 export type DeleteProductData = {
     body?: never;
     path: {
@@ -541,6 +509,22 @@ export type UpdateUserResponses = {
 };
 
 export type UpdateUserResponse = UpdateUserResponses[keyof UpdateUserResponses];
+
+export type GetCurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/users/me';
+};
+
+export type GetCurrentUserResponses = {
+    /**
+     * OK
+     */
+    200: UserxDto;
+};
+
+export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
 
 export type IsAuthenticatedData = {
     body?: never;

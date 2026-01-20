@@ -10,6 +10,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
+@Table(
+        name = "order_item",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"order_id", "product_id"}
+        )
+)
 public class OrderItem implements Persistable<Long>, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -34,6 +40,16 @@ public class OrderItem implements Persistable<Long>, Serializable {
     private double total; //price including discount of the product at time of purchase
     @Column(nullable = false)
     private int quantity;
+
+    public OrderItem() {}
+
+    public OrderItem(Order order, Product product, int quantity, double total) {
+        this.order = order;
+        this.product = product;
+        this.name = product.getName();
+        this.quantity = quantity;
+        this.total = total;
+    }
 
     public Product getProduct() {
         return product;
@@ -77,7 +93,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
 
     // discount needs to be subtracted
     public double getTotalPrice() {
-        return total *quantity;
+        return total * quantity;
     }
 
     @Override
@@ -95,7 +111,7 @@ public class OrderItem implements Persistable<Long>, Serializable {
         if (!(obj instanceof OrderItem)) {
             return false;
         }
-        return Objects.equals(this.getProduct().getId(), ((OrderItem) obj).getProduct().getId());
+        return Objects.equals(this.getId(), ((OrderItem) obj).getId());
     }
 
     @Override

@@ -1,4 +1,5 @@
 package at.qe.skeleton.tests.controllers;
+
 import at.qe.skeleton.configs.JwtTokenProvider;
 import at.qe.skeleton.configs.TokenAuthenticationFilter;
 import at.qe.skeleton.dtos.*;
@@ -37,17 +38,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class OrderControllerTest {
+public class OrderControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -174,7 +172,7 @@ class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        Set<OrderItemDTO> set = new HashSet<>();
+        List<OrderItemDTO> list = new ArrayList<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -183,7 +181,7 @@ class OrderControllerTest {
                 null,
                 null,
                 10,
-                set,
+                list,
                 null
         );
 
@@ -194,8 +192,8 @@ class OrderControllerTest {
                 .thenReturn(mockOrderDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/createOrder")
-                                .with(SecurityMockMvcRequestPostProcessors.csrf())
-                                .contentType(MediaType.APPLICATION_JSON)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100L))
@@ -246,7 +244,7 @@ class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        Set<OrderItemDTO> set = new HashSet<>();
+        List<OrderItemDTO> list = new ArrayList<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -255,7 +253,7 @@ class OrderControllerTest {
                 null,
                 null,
                 10,
-                set,
+                list,
                 null
         );
 
@@ -281,7 +279,7 @@ class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        Set<OrderItemDTO> set = new HashSet<>();
+        List<OrderItemDTO> list = new ArrayList<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -290,7 +288,7 @@ class OrderControllerTest {
                 null,
                 null,
                 10,
-                set,
+                list,
                 null
         );
 
@@ -316,7 +314,7 @@ class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        Set<OrderItemDTO> set = new HashSet<>();
+        List<OrderItemDTO> list = new ArrayList<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -325,7 +323,7 @@ class OrderControllerTest {
                 null,
                 null,
                 10,
-                set,
+                list,
                 null
         );
 
@@ -351,7 +349,7 @@ class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        Set<OrderItemDTO> set = new HashSet<>();
+        List<OrderItemDTO> list = new ArrayList<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -360,7 +358,7 @@ class OrderControllerTest {
                 null,
                 null,
                 10,
-                set,
+                list,
                 null
         );
 
@@ -397,7 +395,7 @@ class OrderControllerTest {
         existingOrder.setUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        Set<OrderItemDTO> set = new HashSet<>();
+        List<OrderItemDTO> list = new ArrayList<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -406,7 +404,7 @@ class OrderControllerTest {
                 null,
                 null,
                 10,
-                set,
+                list,
                 null
         );
 
@@ -491,7 +489,7 @@ class OrderControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/100/cancel")
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-                                .with(SecurityMockMvcRequestPostProcessors.user(user))
+                        .with(SecurityMockMvcRequestPostProcessors.user(user))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
@@ -515,7 +513,7 @@ class OrderControllerTest {
         existingOrder.setUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        Set<OrderItemDTO> set = new HashSet<>();
+        List<OrderItemDTO> list = new ArrayList<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -524,7 +522,7 @@ class OrderControllerTest {
                 null,
                 null,
                 10,
-                set,
+                list,
                 null
         );
 
@@ -584,13 +582,13 @@ class OrderControllerTest {
         Mockito.when(orderService.loadOrder(100L)).thenReturn(Optional.of(mockOrder));
 
         Mockito.doThrow(new IllegalStateException())
-               .when(orderService)
-               .cancelOrder(eq(mockOrder), any());
+                .when(orderService)
+                .cancelOrder(eq(mockOrder), any());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders/100/cancel")
-                                              .with(SecurityMockMvcRequestPostProcessors.csrf())
-                                              .with(SecurityMockMvcRequestPostProcessors.user(user))
-                                              .contentType(MediaType.APPLICATION_JSON))
-               .andExpect(MockMvcResultMatchers.status().isConflict());
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .with(SecurityMockMvcRequestPostProcessors.user(user))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isConflict());
     }
 }

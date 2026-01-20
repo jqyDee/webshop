@@ -346,7 +346,7 @@ class AdminControllerTest {
                .thenAnswer(invocation -> {
                    Order order = invocation.getArgument(0);
                    return new OrderDTO(order.getId(), userxDTO, OrderStatus.PROCESSING, null, null, order.getSum(),
-                                       Set.of(orderItemDTO), null);
+                                       List.of(orderItemDTO), null);
                });
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/admin/orders")
