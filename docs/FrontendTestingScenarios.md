@@ -137,7 +137,7 @@ Start test on the "Home" Page
 - After step 4:
   - Manager gets the same window as after step 3 only with "Create" instead of "Save" Button at the bottom
 - After step 6:
-  - Manger doesnt have any options here
+  - Manger doesnt have any options here except logout
   
 
 ## Admins view of the shop:
@@ -226,7 +226,7 @@ Test starts at the shopping cart interface
   - Customer sees all steps of the order process on the left side (Address, Overview, Payment, Confirmation)
   - Customer can now enter a shipping address and a payment address
   - In the bottom right corner customer sees a "next" button
-- After step 4:
+- After step 5:
   - All address fields get red and the user is told to enter something
 - After step 7:
   - The Customer now sees they arrived at the Overview step
@@ -237,6 +237,7 @@ Test starts at the shopping cart interface
   - Customer arrives at the confirmation step of the order process
   - Customer again sees the products ordered
   - At the bottom is a "Continue Shopping" button
+- After step 9:
   - the shopping cart is empty now
 
 ## Test registration:
