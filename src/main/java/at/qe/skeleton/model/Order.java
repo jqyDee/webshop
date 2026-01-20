@@ -36,7 +36,7 @@ public class Order implements Persistable<Long>, Serializable {
     private Address paymentAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private Set<OrderItem> products = new HashSet<>();
+    private List<OrderItem> products = new ArrayList<>();
 
     @Column(nullable = false)
     double sum = 0;
@@ -53,13 +53,12 @@ public class Order implements Persistable<Long>, Serializable {
         this.user = user;
     }
 
-    public Set<OrderItem> getProducts() {
+    public List<OrderItem> getProducts() {
         return products;
     }
     public void addProduct(OrderItem orderItem) {
-        products.add(orderItem); // The sum will always be updated whenever a product is added
+        products.add(orderItem);
         sum += orderItem.getTotalPrice();
-        orderItem.setOrder(this);
     }
 
     public OrderStatus getStatus() {

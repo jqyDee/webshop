@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -118,13 +119,14 @@ public class OrderService {
             throw new CartEmptyException();
         }
 
-        Collection<OrderItem> orderItems = convertAndReserveStock(cartItems);
+        Collection<OrderItem> orderItems = convertAndReserveStock(cartItems.stream().toList());
 
         // create Order and add all products
         Order order = new Order();
         order.setUser(currentUser);
         order.setStatus(OrderStatus.PENDING);
         for (OrderItem orderItem : orderItems) {
+            orderItem.setOrder(order);
             order.addProduct(orderItem);
         }
 
@@ -140,21 +142,35 @@ public class OrderService {
      * @return Collection of OrderItems to add to the Order
      * @throws OutOfStockException if cart item is out of Stock
      */
-    private Collection<OrderItem> convertAndReserveStock(Collection<CartItem> cartItems)
+    private Collection<OrderItem> convertAndReserveStock(List<CartItem> cartItems)
             throws OutOfStockException {
         Collection<OrderItem> orderItems = new ArrayList<>();
+
+        boolean allInStock = true;
+
         for (CartItem cartItem : cartItems) {
-            boolean allInStock = productService.reserveStock(cartItem.getProduct().getId(), cartItem.getQuantity());
+            allInStock = productService.reserveStock(cartItem.getProduct().getId(), cartItem.getQuantity());
+
             if (!allInStock) {
-                throw new OutOfStockException(cartItem.getProduct().getName());
+                break;
             }
-            OrderItem orderItem = new OrderItem();
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setName(cartItem.getProduct().getName());
-            orderItem.setTotal(cartItem.getProduct().getDiscountedPrice());
-            orderItem.setProduct(cartItem.getProduct());
+
+            OrderItem orderItem = new OrderItem(
+                    null,
+                    cartItem.getProduct(),
+                    cartItem.getQuantity(),
+                    cartItem.getProduct().getDiscountedPrice()
+            );
             orderItems.add(orderItem);
         }
+
+        if (!allInStock) {
+            for (OrderItem orderItem : orderItems) {
+                productService.releaseStock(orderItem);
+            }
+            throw new OutOfStockException("x");
+        }
+
         return orderItems;
     }
 
@@ -166,6 +182,10 @@ public class OrderService {
      * @return the saved order
      */
     private Order saveOrder(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException("Order is null");
+        }
+
         return this.orderRepository.save(order);
     }
 
@@ -258,9 +278,8 @@ public class OrderService {
         boolean paymentSuccessful = paymentService.performPayment(order);
 
         if (paymentSuccessful) {
-            paymentService.paymentReceived(order, user);
+            return paymentService.paymentReceived(order, user);
         }
-        // This will never be reached in the current state, as the payment is stubbed to always succeed
         return orderRepository.save(order);
     }
 
@@ -291,6 +310,9 @@ public class OrderService {
      */
     private void validateAddressOwnership(Address address, Userx user)
             throws AccessDeniedException, IllegalArgumentException {
+        if (address == null || user == null || user.isNew()) {
+            throw new IllegalArgumentException("Address or User is null or User is new");
+        }
 
         if (address.getId() != null) {
             Address existingAddress = addressRepository.findById(address.getId())

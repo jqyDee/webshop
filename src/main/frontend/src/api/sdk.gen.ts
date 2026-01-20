@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AddAllToShoppingCartData, AddAllToShoppingCartResponses, AuthenticateUserData, AuthenticateUserResponses, CancelOrderData, CancelOrderResponses, ClearShoppingCartData, ClearShoppingCartResponses, ConfirmOrderData, ConfirmOrderResponses, CreateOrderData, CreateOrderResponses, CreateProductData, CreateProductResponses, CreateReviewData, CreateReviewResponses, CreateUserData, CreateUserResponses, DeleteProductData, DeleteProductFromShoppingCartData, DeleteProductFromShoppingCartResponses, DeleteProductResponses, DeleteReviewData, DeleteReviewResponses, DeleteUserData, DeleteUserProductSubscriptionData, DeleteUserProductSubscriptionResponses, DeleteUserResponses, GetAllManagersData, GetAllManagersResponses, GetAllOrdersData, GetAllOrdersResponses, GetAllUsersData, GetAllUsersResponses, GetCurrentUserData, GetCurrentUserResponses, GetOrderByIdData, GetOrderByIdResponses, GetOrdersData, GetOrdersResponses, GetProductByIdData, GetProductByIdResponses, GetProductsData, GetProductsResponses, GetReviewsData, GetReviewsResponses, GetShoppingCartData, GetShoppingCartResponses, GetUserData, GetUserResponses, IsAuthenticatedData, IsAuthenticatedResponses, RegisterData, RegisterResponses, SubscribeData, SubscribeResponses, UnsubscribeData, UnsubscribeResponses, UpdateCurrentUserData, UpdateCurrentUserResponses, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductInShoppingCartResponses, UpdateProductResponses, UpdateSubscriptionData, UpdateSubscriptionResponses, UpdateUserData, UpdateUserResponses } from './types.gen';
+import type { AddAllToShoppingCartData, AddAllToShoppingCartResponses, AuthenticateUserData, AuthenticateUserResponses, CancelOrderData, CancelOrderResponses, ClearShoppingCartData, ClearShoppingCartResponses, ConfirmOrderData, ConfirmOrderResponses, CreateOrderData, CreateOrderResponses, CreateProductData, CreateProductResponses, CreateReviewData, CreateReviewResponses, CreateUserData, CreateUserResponses, DeleteProductData, DeleteProductFromShoppingCartData, DeleteProductFromShoppingCartResponses, DeleteProductResponses, DeleteReviewData, DeleteReviewResponses, DeleteUserData, DeleteUserProductSubscriptionData, DeleteUserProductSubscriptionResponses, DeleteUserResponses, GetAllManagersData, GetAllManagersResponses, GetAllOrdersData, GetAllOrdersResponses, GetAllUsersData, GetAllUsersResponses, GetCurrentUserData, GetCurrentUserResponses, GetOrderByIdData, GetOrderByIdResponses, GetOrdersData, GetOrdersResponses, GetProductByIdData, GetProductByIdResponses, GetProductsData, GetProductsResponses, GetReviewsData, GetReviewsResponses, GetShoppingCartData, GetShoppingCartResponses, GetUserData, GetUserResponses, IsAuthenticatedData, IsAuthenticatedResponses, RegisterData, RegisterResponses, SubscribeData, SubscribeResponses, UnsubscribeData, UnsubscribeResponses, UpdateProductData, UpdateProductInShoppingCartData, UpdateProductInShoppingCartResponses, UpdateProductResponses, UpdateSubscriptionData, UpdateSubscriptionResponses, UpdateUserData, UpdateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -93,10 +93,6 @@ export const createUser = <ThrowOnError extends boolean = false>(options: Option
     }
 });
 
-export const getCurrentUser = <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) => (options?.client ?? client).get<GetCurrentUserResponses, unknown, ThrowOnError>({ url: '/api/users/me', ...options });
-
-export const updateCurrentUser = <ThrowOnError extends boolean = false>(options?: Options<UpdateCurrentUserData, ThrowOnError>) => (options?.client ?? client).patch<UpdateCurrentUserResponses, unknown, ThrowOnError>({ url: '/api/users/me', ...options });
-
 export const deleteProduct = <ThrowOnError extends boolean = false>(options: Options<DeleteProductData, ThrowOnError>) => (options.client ?? client).delete<DeleteProductResponses, unknown, ThrowOnError>({ url: '/api/manager/product/{id}', ...options });
 
 export const updateProduct = <ThrowOnError extends boolean = false>(options: Options<UpdateProductData, ThrowOnError>) => (options.client ?? client).patch<UpdateProductResponses, unknown, ThrowOnError>({
@@ -124,6 +120,8 @@ export const updateUser = <ThrowOnError extends boolean = false>(options: Option
         ...options.headers
     }
 });
+
+export const getCurrentUser = <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) => (options?.client ?? client).get<GetCurrentUserResponses, unknown, ThrowOnError>({ url: '/api/users/me', ...options });
 
 export const isAuthenticated = <ThrowOnError extends boolean = false>(options?: Options<IsAuthenticatedData, ThrowOnError>) => (options?.client ?? client).get<IsAuthenticatedResponses, unknown, ThrowOnError>({ url: '/api/users/authenticated', ...options });
 
