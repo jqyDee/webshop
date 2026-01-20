@@ -1,6 +1,6 @@
 ## Overview of the following tests:
-1. Login and logout as Customer
-2. Non-customers view of the shop
+1. Non-customers view of the shop
+2. Login and logout as Customer
 3. Users view of the shop
 4. Managers view of the shop
 5. Admins view of the shop
@@ -8,35 +8,6 @@
 7. Test order process
 8. Test registration
 
-## Login and logout as Customer:
-### Description:
-Login as Customer check what is possible to do and then logout again. Starting on the "Home" page
-###  Requirements:
-- Customer does have an Account
-- Home page (/)
-- Login Page (/login)
-### Procedure:
-1. Press "Login" in the top right corner
-2. Enter login data (user2, passwd)
-3. Press "Login" button
-4. Press "Logout" button
-### Results:
-- After step 1:
-  - User sees login page
-  - field to enter username
-  - field to enter password
-  - "Register" button
-  - "Login" button
-- After step 2:
-  - User end up on the shop homepage
-  - Possible Actions in the menu bar:
-    * Products (view the product list)
-    * Shopping cart (view the shopping cart of user2)
-    * Press on users name and view more options:
-      * Orders (view the orders of user2)
-      * Logout
-- after step 3:
-  - Back at the login page
 
 ## Non-customers view of the shop:
 ### Description:
@@ -79,19 +50,46 @@ Starting on the "Home" page (/)
   - Clear all Button
   - Total Price of all items
 
+## Login and logout as Customer:
+### Description:
+Login as Customer and then logout again. What the user can do in the shop after login is tests in the next test.
+Starting on the "Home" page
+###  Requirements:
+Customer must have an Account.
+Test is starting on the "Home" page
+### Procedure:
+1. Click "Login" in the top right corner
+2. Enter login data (user2, passwd)
+3. Click on the name of the customer in the top right corner
+4. Click "Logout" button
+### Results:
+- After step 1:
+  - User sees login page
+  - field to enter username
+  - field to enter password
+  - "Register" button
+  - "Login" button
+- After step 2:
+  - User ends up on the shop homepage
+- after step 3:
+  - User sees "logout" and "Orders" button
+- After step 4:
+  - User is back at the start (logged out on the "Home" page)
+
+
 ## Users view of the shop:
 ### Description:
-A User can do everything a non-user can do which was tested above. But there are things only a user can do after login.
+A User can do everything a non-user can do which was tested above. But there are things only a user can do after log in.
 Test begins after login on "Home" page.
 ###  Requirements:
-Login as User (user2, passwd)
+Login as User (user2, passwd). Some already placed orders, at least one with a status before processing and one which is already processed.
 Finished web shop for users
 ### Procedure:
 1. Click on customers name
 2. Click on "Order"
-3. Click on "view" on with status Delivered/Shipped/Cancelled/Processing
-4. Click arrow in tp left corner of the order details window
-5. Click on "view" on with status Pending/Pending payment/Paid
+3. Click on "view" next to an order with status Delivered/Shipped/Cancelled/Processing
+4. Click arrow in top left corner of the order details window
+5. Click on "view" next to an order with status Pending/Pending payment/Paid
 6. Click on Cart
 
 ### Result
@@ -107,15 +105,15 @@ Finished web shop for users
 - After step 4: (/orders)
   - Customer is back on the orders overview
 - After step 5: (/orders/id)
-  - Here the customer sees a "Cancel" button at left button corner allowing to cancel orders which are not processed yet
+  - Here the customer sees a "Cancel" button in the left bottom corner allowing to cancel orders which are not processed yet
 - After step 6: (/shopping-cart)
   - Compared to the non-user view of the shopping cart there now is an "Order now" button
 
 ## Managers view of the shop:
 ### Description:
-This test is concered with a Manager's view of the shop.
+This test is concerned with a Manager's view of the shop.
 ###  Requirements:
-Login as Manager (user1, passwd)
+Login as Manager (user1, passwd). Some Products in the shop.
 Start test on the "Home" Page
 ### Procedure:
 1. Click on Products
@@ -126,7 +124,7 @@ Start test on the "Home" Page
 6. Click on the managers name
 ### Result
 - After step 1: (/products)
-  - Manager sees all the products in the shop like a customer
+  - Manager sees all the products in the shop almost like a customer
   - At the top right there is a "Create Product" button
   - On top Manager sees a pen symbol to the right of each product
   - The cart symbol at the right is not clickable
@@ -145,7 +143,7 @@ Start test on the "Home" Page
 Previous tests checked what user and non-user see and can do on the page. 
 Now this test is concerned about everything the admin sees and can do
 ###  Requirements:
-Logged in as admin. (admin, passwd)
+Logged in as admin. (admin, passwd). Some orders by any of the customers. Some customer accounts.
 Starting one the "Home" page
 ### Procedure:
 1. Click on Products
@@ -180,9 +178,9 @@ Starting one the "Home" page
 ### Description:
 Testing what can be done in the shopping cart interface
 ###  Requirements:
-Login as User (user2, passwd)
-Add some products to the cart as described in the User view test
-Test starts at the shopping cart interface 
+Login as User (user2, passwd).
+Add some products to the cart as described in the User view test.
+Test starts at the shopping cart interface
 ### Procedure:
 1. After login go to http://localhost:3000/shopping-cart
 2. Click on the up and down arrow next to the quantity of a product
@@ -206,8 +204,8 @@ Test starts at the shopping cart interface
 ### Description:
 Testing the order process as a customer. A customer should be able to place an order with all the cart items
 ###  Requirements:
-Login as User (user2, passwd)
-Add some products to the cart as described in the User view test
+Login as User (user2, passwd).
+Add some products to the cart as described in the User view test.
 Test starts at the shopping cart interface
 ### Procedure:
 1. Set the quantity of one product > Stock
