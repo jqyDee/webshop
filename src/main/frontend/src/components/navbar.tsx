@@ -2,17 +2,17 @@
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-import React, { useRef } from 'react';
+import React, {useRef} from 'react';
 import {Menubar} from "primereact/menubar";
 import {useUser} from "../contexts/authenticated-user.tsx";
 import {menu, MenuItemConfig, userMenuConfig} from "../config/menu.ts";
 import {MenuItem, MenuItemOptions} from "primereact/menuitem";
 import {Link} from "react-router-dom";
 import {RoleEnum} from "../api";
-import { TieredMenu } from "primereact/tieredmenu"; // Use TieredMenu for the dropdown
-import { Avatar } from "primereact/avatar";
-import { ROUTES } from "../utilities/routes.paths.ts";
-import { Button } from "primereact/button";
+import {TieredMenu} from "primereact/tieredmenu"; // Use TieredMenu for the dropdown
+import {Avatar} from "primereact/avatar";
+import {ROUTES} from "../utilities/routes.paths.ts";
+import {Button} from "primereact/button";
 import {useCart} from "../contexts/cart.tsx";
 import {Badge} from "primereact/badge";
 
@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
         return items
             .map(item => {
                 const visibleChildren = item.items ? filterMenu(item.items) : undefined;
-                return { ...item, items: visibleChildren };
+                return {...item, items: visibleChildren};
             })
             .filter(item => {
                 const visible = hasRole(item.roles);
@@ -53,36 +53,42 @@ export const Navbar: React.FC = () => {
 
     const endContent = () => (
         <div className="flex align-items-center gap-3 pr-3">
-                    {canPutIntoCart &&
-                        <Link to="/shopping-cart" className="no-underline text-color">
-                            <Avatar
-                                icon="pi pi-shopping-cart"
-                                className="p-overlay-badge"
-                            >
-                                {totalCartItems > 0 && (
-                                    <Badge value={totalCartItems} severity="danger" className="text-xs" style={{
-                                        transform: 'scale(0.75)',
-                                        transformOrigin: 'top right',
-                                        top: '-8px',
-                                        right: '-8px',
-                                    }}/>
-                                )}
-                            </Avatar>
-                        </Link>
-                    }
+            {canPutIntoCart &&
+                <Link to="/shopping-cart" className="no-underline text-color">
+                    <Avatar
+                        icon="pi pi-shopping-cart"
+                        className="p-overlay-badge"
+                    >
+                        {totalCartItems > 0 && (
+                            <Badge value={totalCartItems} severity="danger" className="text-xs" style={{
+                                transform: 'scale(0.75)',
+                                transformOrigin: 'top right',
+                                top: '-8px',
+                                right: '-8px',
+                            }}/>
+                        )}
+                    </Avatar>
+                </Link>
+            }
 
             {user ? (
-                <div className="flex align-items-center gap-2 cursor-pointer" onClick={(e) => userMenuRef.current?.toggle(e)}>
+                <button
+                    type="button"
+                    className="flex align-items-center gap-2 cursor-pointer bg-transparent border-none p-0"
+                    onClick={(e) => userMenuRef.current?.toggle(e)}
+                    aria-haspopup="menu"
+                    aria-label="Open user menu"
+                >
                     <div className="flex flex-column align-items-end">
                         <span className="font-bold text-sm text-900">{user.firstName} {user.lastName}</span>
                         <small className="text-500">{user.role}</small>
                     </div>
                     <Avatar icon="pi pi-user" shape="circle"/>
-                    <TieredMenu model={rightModel} popup ref={userMenuRef} />
-                </div>
+                    <TieredMenu model={rightModel} popup ref={userMenuRef}/>
+                </button>
             ) : (
-                <Link to={ROUTES.LOGIN} style={{ textDecoration: 'none' }}>
-                    <Button label="Login" icon="pi pi-sign-in" className="p-button-text p-button-sm" />
+                <Link to={ROUTES.LOGIN} style={{textDecoration: 'none'}}>
+                    <Button label="Login" icon="pi pi-sign-in" className="p-button-text p-button-sm"/>
                 </Link>
             )}
         </div>
@@ -90,7 +96,7 @@ export const Navbar: React.FC = () => {
 
     return (
         <div className="card">
-            <Menubar model={leftModel} end={endContent} />
+            <Menubar model={leftModel} end={endContent}/>
         </div>
     );
 }

@@ -5,6 +5,7 @@ import {InputNumber} from "primereact/inputnumber";
 import React from "react";
 import {CartItemDto, ProductDto} from "../../api";
 import {useGlobalToast} from "../../contexts/toast.tsx";
+import {enforceNonNull} from "../../utilities/enforce-non-null.ts";
 
 interface ShoppingCartListComponentProps {
     items: CartItemDto[];
@@ -65,7 +66,7 @@ export const ShoppingCartList: React.FC<ShoppingCartListComponentProps> = ({
                 <Button
                     label={"Fix"}
                     disabled={item.quantity <= item.product.stock}
-                    onClick={() => item.product.stock === 0 ? onRemove(item.product.id!) : onQuantityChange(item.product, item.product.stock)}
+                    onClick={() => item.product.stock === 0 ? onRemove(enforceNonNull(item.product.id)) : onQuantityChange(item.product, item.product.stock)}
                     className={item.quantity > item.product.stock ? "p-button-danger" : ""}
                 />
             </div>

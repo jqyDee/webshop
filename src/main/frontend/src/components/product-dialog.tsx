@@ -56,7 +56,7 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
             onSuccess: async () => await queryClient.invalidateQueries({
                 predicate: (query) =>
                     Array.isArray(query.queryKey) &&
-                    (query.queryKey[0] as any)?._id === 'getProducts'
+                    (query.queryKey[0])?._id === 'getProducts'
             })
         })
 
