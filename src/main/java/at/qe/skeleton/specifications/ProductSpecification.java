@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.Specification;
  * Filter specification for the Product entity.
  */
 public class ProductSpecification {
+    private ProductSpecification() {}
+
     public static Specification<Product> createFromFilterDTO(ProductFilterDTO filterDTO) {
         if (filterDTO == null) {
             return null;

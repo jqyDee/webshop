@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public abstract class AddressMapper extends DTOMapper<Address, AddressDTO> {
+public abstract class AddressMapper implements DTOMapper<Address, AddressDTO> {
     public abstract AddressDTO mapTo(Address entity);
     @Mapping(target = "user", ignore = true)
     public abstract Address mapFrom(AddressDTO dto);

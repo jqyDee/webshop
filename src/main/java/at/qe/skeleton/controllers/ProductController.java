@@ -23,9 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Product REST api endpoints exposed by the server
@@ -76,7 +75,7 @@ public class ProductController {
                 (pageId != null) ? pageId + 1 : null,
                 productPage.getTotalPages(),
                 productPage.getTotalElements(),
-                productPage.getContent().stream().map((p) -> productMapper.mapTo(p, getSubscriptions(user, p))).toList()
+                productPage.getContent().stream().map(p -> productMapper.mapTo(p, getSubscriptions(user, p))).toList()
         );
 
         return ResponseEntity.ok(pageableListDTO);
@@ -84,7 +83,7 @@ public class ProductController {
 
     private Map<ProductEventType, Boolean> getSubscriptions(Userx user, Product product) {
         // init map with no subscriptions as a anonymous user would also have no subscriptions
-        Map<ProductEventType, Boolean> subscriptions = new HashMap<>();
+        Map<ProductEventType, Boolean> subscriptions = new EnumMap<>(ProductEventType.class);
         subscriptions.put(ProductEventType.BACK_IN_STOCK, false);
         subscriptions.put(ProductEventType.FOR_SALE, false);
         if (user == null) {
@@ -155,16 +154,12 @@ public class ProductController {
      * @return the updated product
      */
     @PostMapping("/{id}/createReview")
-    public ResponseEntity<ProductDTO> createReview(@PathVariable Long id,
-                                                   @Valid @RequestBody ReviewDTO reviewDto,
-                                                   @AuthenticationPrincipal Userx user) {
-        Optional<Product> product;
-
-        product = productService.addReview(id, reviewMapper.mapFrom(reviewDto), user);
-
-        return product.map(value -> ResponseEntity.ok(productMapper.mapTo(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-
+    public ResponseEntity<ProductDTO> createReview(
+            @PathVariable Long id,
+            @Valid @RequestBody ReviewDTO reviewDto,
+            @AuthenticationPrincipal Userx user) {
+        Product product = productService.addReview(id, reviewMapper.mapFrom(reviewDto), user).orElseThrow(EntityNotFoundException::new);
+        return ResponseEntity.ok(productMapper.mapTo(product));
     }
 
     /**

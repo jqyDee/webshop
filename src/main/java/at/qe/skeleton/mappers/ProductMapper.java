@@ -10,7 +10,7 @@ import org.mapstruct.MappingTarget;
 import java.util.Map;
 
 @Mapper(componentModel = "spring")
-public abstract class ProductMapper extends DTOMapper<Product, ProductDTO> {
+public abstract class ProductMapper implements DTOMapper<Product, ProductDTO> {
     @Mapping(target = "subscriptions", source = "subscriptions")
     public abstract ProductDTO mapTo(Product entity, Map<ProductEventType, Boolean> subscriptions);
     @Mapping(target = "subscriptions", ignore = true)

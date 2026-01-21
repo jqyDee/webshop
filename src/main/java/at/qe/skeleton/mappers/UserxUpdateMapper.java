@@ -9,7 +9,7 @@ import org.mapstruct.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = {AddressMapper.class})
-public abstract class UserxUpdateMapper extends DTOMapper<Userx, UserxUpdateDTO> {
+public abstract class UserxUpdateMapper implements DTOMapper<Userx, UserxUpdateDTO> {
 
     @Autowired
     protected UserxService userxService;
