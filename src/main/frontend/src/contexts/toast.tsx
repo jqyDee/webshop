@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, {createContext, useCallback, useContext, useMemo, useRef} from 'react';
 import { Toast as PRToast, ToastMessage } from 'primereact/toast';
 
 interface ToastContextType {
@@ -11,16 +11,18 @@ const Toast = createContext<ToastContextType | null>(null);
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const toast = useRef<PRToast>(null);
 
-    const showToast = (message: ToastMessage | ToastMessage[]) => {
+    const showToast = useCallback((message: ToastMessage | ToastMessage[]) => {
         toast.current?.show(message);
-    };
+    }, [toast]);
 
-    const clearToast = () => {
+    const clearToast = useCallback(() => {
         toast.current?.clear();
-    };
+    }, [toast]);
+
+    const value = useMemo(() => ({showToast, clearToast}), [showToast, clearToast]);
 
     return (
-        <Toast.Provider value={{ showToast, clearToast }}>
+        <Toast.Provider value={value}>
             <PRToast ref={toast} />
             {children}
         </Toast.Provider>

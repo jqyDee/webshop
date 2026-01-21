@@ -8,10 +8,10 @@ import {InputText} from "primereact/inputtext";
 import {IconField} from "primereact/iconfield";
 import {InputIcon} from "primereact/inputicon";
 import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {useUser} from "../../contexts/authenticated-user.tsx";
 import {useCart} from "../../contexts/cart.tsx";
-import {ProductDto, ProductFilterDto} from "../../api/types.gen.ts";
+import {ProductDto, ProductFilterDto} from "../../api";
 
 import DefaultImage from "../../assets/default.jpg"
 
@@ -32,10 +32,9 @@ interface ProductListComponentProps {
 }
 
 export const ProductList: React.FC<ProductListComponentProps> = (props) => {
-    const { currentUser, isAdmin, isManager } = useUser();
-    const { updateCartItem } = useCart();
+    const {currentUser, isAdmin, isManager} = useUser();
+    const {updateCartItem} = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
-    const navigate = useNavigate();
     const [layout, setLayout] = useState<'list' | 'grid'>('list');
 
     useEffect(() => {
@@ -80,53 +79,57 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
                     <div className="flex flex-wrap align-items-start gap-3">
 
                         {/* Min Price - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{ minWidth: '120px' }}>
-                            <label className="text-sm font-bold">Min Price</label>
-                            <InputNumber
-                                value={props.filters.minPrice}
-                                onValueChange={(e) => props.onFilterChange('minPrice', e.value)}
-                                placeholder="0.00"
-                                maxFractionDigits={2}
-                                inputClassName="w-full" // Forces the input to fill the 120px div
-                            />
+                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
+                            <label className="text-sm font-bold">Min Price
+                                <InputNumber
+                                    value={props.filters.minPrice}
+                                    onValueChange={(e) => props.onFilterChange('minPrice', e.value)}
+                                    placeholder="0.00"
+                                    maxFractionDigits={2}
+                                    inputClassName="w-full" // Forces the input to fill the 120px div
+                                />
+                            </label>
                         </div>
 
                         {/* Max Price - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{ minWidth: '120px' }}>
-                            <label className="text-sm font-bold">Max Price</label>
-                            <InputNumber
-                                value={props.filters.maxPrice}
-                                onValueChange={(e) => props.onFilterChange('maxPrice', e.value)}
-                                placeholder="999.00"
-                                maxFractionDigits={2}
-                                inputClassName="w-full"
-                            />
+                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
+                            <label className="text-sm font-bold">Max Price
+                                <InputNumber
+                                    value={props.filters.maxPrice}
+                                    onValueChange={(e) => props.onFilterChange('maxPrice', e.value)}
+                                    placeholder="999.00"
+                                    maxFractionDigits={2}
+                                    inputClassName="w-full"
+                                />
+                            </label>
                         </div>
 
                         {/* Min Stock - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{ minWidth: '120px' }}>
-                            <label className="text-sm font-bold">Min Stock</label>
-                            <InputNumber
-                                value={props.filters.minStock}
-                                onValueChange={(e) => props.onFilterChange('minStock', e.value)}
-                                placeholder="10"
-                                maxFractionDigits={0}
-                                inputClassName="w-full"
-                            />
+                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
+                            <label className="text-sm font-bold">Min Stock
+                                <InputNumber
+                                    value={props.filters.minStock}
+                                    onValueChange={(e) => props.onFilterChange('minStock', e.value)}
+                                    placeholder="10"
+                                    maxFractionDigits={0}
+                                    inputClassName="w-full"
+                                />
+                            </label>
                         </div>
 
                         {/* Min Rating - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{ minWidth: '120px' }}>
-                            <label className="text-sm font-bold">Min Rating</label>
-                            <Rating
-                                value={props.filters.minRating || 0} // Use the value from filters prop
-                                onChange={(e) => props.onFilterChange('minRating', e.value)} // Update parent state
-                                cancel={true} // Allow users to clear the rating filter
-                            />
+                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
+                            <label className="text-sm font-bold">Min Rating
+                                <Rating
+                                    value={props.filters.minRating || 0} // Use the value from filters prop
+                                    onChange={(e) => props.onFilterChange('minRating', e.value)} // Update parent state
+                                    cancel={true} // Allow users to clear the rating filter
+                                />
+                            </label>
                         </div>
 
                         {/* Sort Dropdown and Layout - Responsive width */}
-                        <div className="flex flex-row align-items-end gap-2 ml-auto" style={{ minWidth: '200px' }}>
+                        <div className="flex flex-row align-items-end gap-2 ml-auto" style={{minWidth: '200px'}}>
                             {canEdit &&
                                 <Button
                                     icon="pi pi-plus"
@@ -134,25 +137,27 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
                                     onClick={() => props.openDialog(null)}
                                 />
                             }
-                            <div className="flex flex-column gap-2" >
-                                <label className="text-sm font-bold">Sort By</label>
-                                <Dropdown
-                                    options={props.sortOptions}
-                                    value={props.sortKey}
-                                    optionLabel="label"
-                                    placeholder="Select Order"
-                                    onChange={props.onSortChange}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="hidden md:flex">
-                                <div className="flex flex-column gap-2" >
-                                    <label className="text-sm font-bold">Layout</label>
-                                    <DataViewLayoutOptions
-                                        layout={layout}
-                                        onChange={(e) => setLayout(e.value as 'list' | 'grid')}
+                            <div className="flex flex-column gap-2">
+                                <label className="text-sm font-bold">Sort By
+                                    <Dropdown
+                                        options={props.sortOptions}
+                                        value={props.sortKey}
+                                        optionLabel="label"
+                                        placeholder="Select Order"
+                                        onChange={props.onSortChange}
                                         className="w-full"
                                     />
+                                </label>
+                            </div>
+                            <div className="hidden md:flex">
+                                <div className="flex flex-column gap-2">
+                                    <label className="text-sm font-bold">Layout
+                                        <DataViewLayoutOptions
+                                            layout={layout}
+                                            onChange={(e) => setLayout(e.value as 'list' | 'grid')}
+                                            className="w-full"
+                                        />
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -164,28 +169,30 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
 
     const canEdit = currentUser && (isAdmin || isManager);
 
-    const listItem= (product: ProductDto) => {
+    const listItem = (product: ProductDto) => {
         return (
             <div className="col-12" key={product.id}>
-                <div className="card border-round flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 shadow-5 m-2">
+                <div
+                    className="card border-round flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 shadow-5 m-2">
                     <img className="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round"
-                         src={product.imageUrl || DefaultImage}
+                         src={product.imageUrl ?? DefaultImage}
                          alt={product.name}
                          onError={(e) => {
                              (e.currentTarget.src = DefaultImage);
                          }}
                     />
-                    <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+                    <div
+                        className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
                         <div className="flex flex-column align-items-center sm:align-items-start gap-2">
-                            <div className="text-2xl font-bold text-900 cursor-pointer hover:underline"
-                                 onClick={() => navigate(`/product/${product.id}`)}
+                            <Link className="text-2xl font-bold text-900 cursor-pointer hover:underline"
+                                 to={`/product/${product.id}`}
                             >
                                 {product.name}
-                            </div>
+                            </Link>
                             <div className="text-sm text-900">{product.shortDescription}</div>
                             <div className="flex align-items-center gap-2 mb-4">
                                 <Rating value={product.rating} readOnly cancel={false}></Rating>
-                                <span className="text-500">({product.rating?.toFixed(1) || 0})</span>
+                                <span className="text-500">({product.rating?.toFixed(1) ?? 0})</span>
                             </div>
                             <div className="flex align-items-center gap-3">
                                 <Tag value={'Stock: ' + product.stock} severity={getSeverity(product)}></Tag>
@@ -194,7 +201,7 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
                         <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
                             <div className="flex flex-row align-items-center gap-2">
                                 {/* Original Price (strikethrough) */}
-                                {product.discountedPrice && product.discount > 0.0 && (
+                                {product.discount > 0.0 && (
                                     <span className="text-xl text-500 line-through">
                                         €{product.price.toFixed(2)}
                                     </span>
@@ -202,13 +209,13 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
 
                                 {/* Current Price */}
                                 <span className="text-2xl font-semibold text-900">
-                                    €{product.discountedPrice.toFixed(2) || product.price.toFixed(2)}
+                                    €{product.discountedPrice.toFixed(2)}
                                 </span>
                             </div>
 
                             {/* 3. Discount Percentage */}
                             {product.discount > 0.0 && (
-                                <Tag severity="danger" value={`${product.discount * 100}% OFF`} />
+                                <Tag severity="danger" value={`${product.discount * 100}% OFF`}/>
                             )}
                             <div className="flex flex-row gap-2">
                                 {canEdit &&
@@ -239,15 +246,18 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
                 <div className="p-4 card border-round flex flex-column h-full shadow-5">
                     {/* Image Section */}
                     <div className="flex flex-column align-items-center gap-3 py-5">
-                        <img className="w-10 sm:w-16rem md:w-20rem xl:w-20rem shadow-2 block xl:block mx-auto border-round"
-                            src={product.imageUrl || DefaultImage}
+                        <img
+                            className="w-10 sm:w-16rem md:w-20rem xl:w-20rem shadow-2 block xl:block mx-auto border-round"
+                            src={product.imageUrl ?? DefaultImage}
                             alt={product.name}
-                            onError={(e) => { (e.currentTarget.src = DefaultImage); }}
+                            onError={(e) => {
+                                (e.currentTarget.src = DefaultImage);
+                            }}
                         />
-                        <div className="text-2xl font-bold text-900 cursor-pointer hover:underline text-center"
-                             onClick={() => navigate(`/product/${product.id}`)}>
+                        <Link className="text-2xl font-bold text-900 cursor-pointer hover:underline text-center"
+                             to={`/product/${product.id}`}>
                             {product.name}
-                        </div>
+                        </Link>
                         <div className="flex align-items-center gap-2">
                             <Rating value={product.rating} readOnly cancel={false}></Rating>
                             <span className="text-500">({product.rating?.toFixed(1) || 0})</span>
@@ -267,17 +277,17 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
                     {/* Footer Section: Price and Buttons */}
                     <div className="flex align-items-center justify-content-between">
                         <div className="flex flex-column">
-                            {product.discountedPrice && product.discount > 0.0 && (
+                            {product.discount > 0.0 && (
                                 <span className="text-sm text-500 line-through">
                                     €{product.price.toFixed(2)}
                                 </span>
                             )}
                             <div className="flex gap-2">
                                 <span className="text-2xl font-semibold text-900">
-                                    €{product.discountedPrice?.toFixed(2) || product.price.toFixed(2)}
+                                    €{product.discountedPrice?.toFixed(2)}
                                 </span>
                                 {product.discount > 0.0 && (
-                                    <Tag severity="danger" value={`${product.discount * 100}% OFF`} />
+                                    <Tag severity="danger" value={`${product.discount * 100}% OFF`}/>
                                 )}
                             </div>
                         </div>

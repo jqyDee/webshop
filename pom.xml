@@ -54,7 +54,8 @@
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
-            <version>6.4.4.Final</version> <scope>provided</scope>
+            <version>6.4.4.Final</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -142,25 +143,25 @@
                 </configuration>
             </plugin>
 
-	    <!-- Enable jacoco analysis -->
-	    <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-dependency-plugin</artifactId>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>properties</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
+            <!-- Enable jacoco analysis -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
-		    <argLine>${coverageAgent}</argLine>
+                    <argLine>${coverageAgent}</argLine>
                 </configuration>
             </plugin>
             <plugin>

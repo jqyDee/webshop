@@ -6,7 +6,7 @@ import React, { useRef } from 'react';
 import {Menubar} from "primereact/menubar";
 import {useUser} from "../contexts/authenticated-user.tsx";
 import {menu, MenuItemConfig, userMenuConfig} from "../config/menu.ts";
-import {MenuItem} from "primereact/menuitem";
+import {MenuItem, MenuItemOptions} from "primereact/menuitem";
 import {Link} from "react-router-dom";
 import {RoleEnum} from "../api";
 import { TieredMenu } from "primereact/tieredmenu"; // Use TieredMenu for the dropdown
@@ -47,42 +47,8 @@ export const Navbar: React.FC = () => {
                 return visible || hasChildren;
             });
     }, [user]);
-
-    // we want to use navigate (react router) to ensure pure client-side navigation on menu item click
-    // incidentally, we also want to fix primereact component-related aria warnings
-    const buildMenubarModel = React.useCallback((items: MenuItemConfig[]): MenuItem[] => {
-        return items.map(configItem => {
-            const children = configItem.items ? buildMenubarModel(configItem.items) : undefined;
-
-            const menuItem: MenuItem = {
-                label: configItem.label,
-                icon: configItem.icon,
-                items: children,
-            };
-
-            menuItem.template = (menuItem, options) => {
-                const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-                    options.onClick?.(e);
-                };
-
-                return (
-                    <Link
-                    to={configItem.route ?? "#"}
-                    className={`${options.className ?? ""} p-menuitem-link`}
-                    onClick={handleClick}
-                >
-                    {menuItem.icon && <span className={options.iconClassName} />}
-                    <span className={options.labelClassName}>{menuItem.label}</span>
-                </Link>
-                );
-            }
-            return menuItem;
-        });
-    }, []);
-
-    const leftModel = React.useMemo(() => buildMenubarModel(filterMenu(menu)), [filterMenu, buildMenubarModel]);
-    const rightModel = React.useMemo(() => buildMenubarModel(filterMenu(userMenuConfig)), [filterMenu, buildMenubarModel]);
-
+    const leftModel = React.useMemo(() => buildMenuBarModel(filterMenu(menu)), [filterMenu]);
+    const rightModel = React.useMemo(() => buildMenuBarModel(filterMenu(userMenuConfig)), [filterMenu]);
     const canPutIntoCart = !user || (user && isCustomer);
 
     const endContent = () => (
@@ -128,3 +94,38 @@ export const Navbar: React.FC = () => {
         </div>
     );
 }
+
+function buildMenuBarModel(items: MenuItemConfig[]): MenuItem[] {
+    return items.map(configItem => {
+        const children = configItem.items ? buildMenuBarModel(configItem.items) : undefined;
+        return {
+            label: configItem.label,
+            icon: configItem.icon,
+            items: children,
+            template: (item, options) => <MenuItemTemplate item={item} options={options} config={configItem}/>,
+        };
+    });
+}
+
+interface MenuItemTemplateProps {
+    readonly item: MenuItem;
+    readonly options: MenuItemOptions;
+    readonly config: MenuItemConfig;
+}
+
+const MenuItemTemplate: React.FC<MenuItemTemplateProps> = ({item, options, config}) => {
+    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+        options.onClick?.(e);
+    };
+
+    return (
+        <Link
+            to={config.route ?? "#"}
+            className={`${options.className ?? ""} p-menuitem-link`}
+            onClick={handleClick}
+        >
+            {item.icon && <span className={options.iconClassName}/>}
+            <span className={options.labelClassName}>{item.label}</span>
+        </Link>
+    );
+};

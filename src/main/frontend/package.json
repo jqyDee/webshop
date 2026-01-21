@@ -6,7 +6,6 @@
   "proxy": "http://localhost:8080",
   "dependencies": {
     "@tanstack/react-query": "^5.90.12",
-    "@tanstack/react-query-devtools": "^5.91.2",
     "axios": "^1.7.7",
     "jwt-decode": "^4.0.0",
     "primeflex": "^4.0.0",
@@ -23,6 +22,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@tanstack/react-query-devtools": "^5.91.2",
     "@types/jest": "^27.5.2",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
@@ -37,8 +37,8 @@
   },
   "scripts": {
     "openapi-ts": "openapi-ts",
-    "dev": "vite --port 3000",
-    "build": "tsc -b && vite build",
+    "dev": "openapi-ts && vite --port 3000",
+    "build": "openapi-ts && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   }

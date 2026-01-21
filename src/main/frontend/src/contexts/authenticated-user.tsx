@@ -45,7 +45,7 @@ type CustomJwtPayload = JwtPayload & { role: string, name: string, username: str
  * @param children The child components of the UserProvider
  * @returns The UserContext.Provider component
  */
-export function UserProvider({children}: { children: React.ReactNode }) {
+export function UserProvider({children}: { readonly children: React.ReactNode }) {
 
     // States the UserProvider manages
     // Docs: https://react.dev/reference/react/useState
@@ -135,7 +135,7 @@ export function UserProvider({children}: { children: React.ReactNode }) {
 
             if (decodedUser.exp && Date.now() >= decodedUser.exp! * 1000) {
                 console.info("JWT Token expired at " + decodedUser.exp! * 1000);
-                void logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
+                await logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
                 return false;
             }
 
@@ -143,12 +143,12 @@ export function UserProvider({children}: { children: React.ReactNode }) {
                 return true;
             } else {
                 setError(new Error('Authentication failed'));
-                void logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
+                await logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
                 return false;
             }
         } catch (err: any) {
             setError (err instanceof Error ? err : new Error("Invalid Token"));
-            void logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
+            await logout(); // ignore the returned promise; void explicit so ESLint doesn’t complain
             return false;
         }
     }, [token, logout, setError]);
