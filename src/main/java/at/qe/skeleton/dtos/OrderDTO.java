@@ -5,15 +5,15 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 public record OrderDTO(
-        Long id,
+        @NotNull Long id,
         @NotNull UserxDTO user,
         @NotNull OrderStatus status,
         AddressDTO shippingAddress,
         AddressDTO paymentAddress,
-        double sum,
-        @NotEmpty Set<OrderItemDTO> products,
-        LocalDateTime createdDate
+        @NotNull double sum,
+        @NotEmpty List<OrderItemDTO> products,
+        @NotNull LocalDateTime createdDate
 ) {}

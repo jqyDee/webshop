@@ -3,17 +3,17 @@
  * Architecture" offered by Innsbruck University.
  */
 
-import HomePage from "./views/HomePage";
-import ManageUsers from "./views/ManageUsers";
-import Login from "./views/Login";
-import Logout from "./views/Logout";
+import HomePage from "./views/home-page.tsx";
+import ManageUsers from "./views/manage-users.tsx";
+import Login from "./views/login.tsx";
+import Logout from "./views/logout.tsx";
 import {ROUTES} from "./utilities/routes.paths";
-import ProductDetails from "./views/ProductDetails.tsx";
-import Products from "./views/Products.tsx";
-import Orders from "./views/Orders.tsx";
-import OrderDetails from "./views/OrderDetails.tsx";
-import ShoppingCart from "./views/ShoppingCart.tsx";
-import OrderCreation from "./views/OrderCreation.tsx";
+import ProductDetails from "./views/product-details.tsx";
+import Products from "./views/products.tsx";
+import Orders from "./views/orders.tsx";
+import OrderDetails from "./views/order-details.tsx";
+import ShoppingCart from "./views/shopping-cart.tsx";
+import OrderCreation from "./views/order-creation.tsx";
 
 /**
  * Define the routes of the application.
