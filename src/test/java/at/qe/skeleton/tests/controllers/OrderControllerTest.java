@@ -172,7 +172,7 @@ public class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        List<OrderItemDTO> list = new ArrayList<>();
+        Set<OrderItemDTO> list = new HashSet<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -244,7 +244,7 @@ public class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        List<OrderItemDTO> list = new ArrayList<>();
+        Set<OrderItemDTO> list = new HashSet<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -279,7 +279,7 @@ public class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        List<OrderItemDTO> list = new ArrayList<>();
+        Set<OrderItemDTO> list = new HashSet<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -314,7 +314,7 @@ public class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        List<OrderItemDTO> list = new ArrayList<>();
+        Set<OrderItemDTO> list = new HashSet<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -349,7 +349,7 @@ public class OrderControllerTest {
         authenticateUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        List<OrderItemDTO> list = new ArrayList<>();
+        Set<OrderItemDTO> list = new HashSet<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -395,7 +395,7 @@ public class OrderControllerTest {
         existingOrder.setUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        List<OrderItemDTO> list = new ArrayList<>();
+        Set<OrderItemDTO> list = new HashSet<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,
@@ -513,7 +513,7 @@ public class OrderControllerTest {
         existingOrder.setUser(mockUser);
 
         UserxDTO userxDTO = userxMapper.mapTo(mockUser);
-        List<OrderItemDTO> list = new ArrayList<>();
+        Set<OrderItemDTO> list = new HashSet<>();
 
         OrderDTO mockOrderDTO = new OrderDTO(
                 100L,

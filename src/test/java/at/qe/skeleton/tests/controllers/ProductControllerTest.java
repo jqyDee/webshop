@@ -33,6 +33,7 @@ import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -392,35 +393,11 @@ class ProductControllerTest {
 
     @Test
     @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
-    public void testSubscribeProductToAll() throws Exception {
-        Long productId = 1L;
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
-                .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        Mockito.verify(productSubscriptionService)
-                .addProductSubscription(
-                        ArgumentMatchers.any(),
-                        ArgumentMatchers.eq(productId),
-                        ArgumentMatchers.eq(ProductEventType.BACK_IN_STOCK)
-                );
-
-        Mockito.verify(productSubscriptionService)
-                .addProductSubscription(
-                        ArgumentMatchers.any(),
-                        ArgumentMatchers.eq(productId),
-                        ArgumentMatchers.eq(ProductEventType.FOR_SALE)
-                );
-    }
-
-    @Test
-    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
     public void testSubscribeProductToInStock() throws Exception {
         Long productId = 1L;
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
-                        .param("inStock", "true")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
+                        .param("flip", ProductEventType.BACK_IN_STOCK.name())
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -433,12 +410,13 @@ class ProductControllerTest {
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
     public void testSubscribeProductToForSale() throws Exception {
         Long productId = 1L;
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
-                        .param("discount", "true")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
+                        .param("flip", ProductEventType.FOR_SALE.name())
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -451,6 +429,7 @@ class ProductControllerTest {
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
     public void testUnsubscribeProduct() throws Exception {
         Long productId = 1L;
@@ -467,12 +446,13 @@ class ProductControllerTest {
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
     public void testUpdateSubscriptionToInStock() throws Exception {
         Long productId = 1L;
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
-                        .param("inStock", "true")
+                        .param("flip", ProductEventType.BACK_IN_STOCK.name())
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -482,22 +462,16 @@ class ProductControllerTest {
                         ArgumentMatchers.eq(productId),
                         ArgumentMatchers.eq(ProductEventType.BACK_IN_STOCK)
                 );
-
-        Mockito.verify(productSubscriptionService)
-                .removeProductSubscriptionEvent(
-                        ArgumentMatchers.any(),
-                        ArgumentMatchers.eq(productId),
-                        ArgumentMatchers.eq(ProductEventType.FOR_SALE)
-                );
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
     public void testUpdateSubscriptionToForSale() throws Exception {
         Long productId = 1L;
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
-                        .param("discount", "true")
+                        .param("flip", ProductEventType.FOR_SALE.name())
                         .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -506,29 +480,6 @@ class ProductControllerTest {
                         ArgumentMatchers.any(),
                         ArgumentMatchers.eq(productId),
                         ArgumentMatchers.eq(ProductEventType.FOR_SALE)
-                );
-
-        Mockito.verify(productSubscriptionService)
-                .removeProductSubscriptionEvent(
-                        ArgumentMatchers.any(),
-                        ArgumentMatchers.eq(productId),
-                        ArgumentMatchers.eq(ProductEventType.BACK_IN_STOCK)
-                );
-    }
-
-    @Test
-    @WithMockUser(username = "customer", authorities = {"CUSTOMER"})
-    public void testUpdateSubscriptionToNone() throws Exception {
-        Long productId = 1L;
-
-        mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
-                        .with(SecurityMockMvcRequestPostProcessors.csrf()))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-
-        Mockito.verify(productSubscriptionService)
-                .deleteProductSubscription(
-                        ArgumentMatchers.any(),
-                        ArgumentMatchers.eq(productId)
                 );
     }
 
@@ -544,7 +495,8 @@ class ProductControllerTest {
                         ArgumentMatchers.any()
                 );
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/product/{id}/subscribe", productId)
+        mockMvc.perform(MockMvcRequestBuilders.patch("/api/product/{id}/subscribe", productId)
+                    .param("flip", ProductEventType.BACK_IN_STOCK.name())
                     .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }

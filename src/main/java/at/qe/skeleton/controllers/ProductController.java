@@ -6,10 +6,7 @@ import at.qe.skeleton.dtos.ProductFilterDTO;
 import at.qe.skeleton.dtos.ReviewDTO;
 import at.qe.skeleton.mappers.ProductMapper;
 import at.qe.skeleton.mappers.ReviewMapper;
-import at.qe.skeleton.model.Product;
-import at.qe.skeleton.model.ProductEventType;
-import at.qe.skeleton.model.Review;
-import at.qe.skeleton.model.Userx;
+import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductSubscriptionRepository;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.ProductSubscriptionService;
@@ -25,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Product REST api endpoints exposed by the server
@@ -89,13 +87,13 @@ public class ProductController {
         if (user == null) {
             return subscriptions;
         }
-        productSubscriptionRepository
-                .findByProductIdAndUser(product.getId(), user)
-                .ifPresent(
-                        subscription -> subscription
-                                .getNotifyOn()
-                                .forEach(notify -> subscriptions.put(notify, true))
-                );
+        Optional<ProductSubscription> sub = productSubscriptionRepository
+                .findByProductIdAndUser(product.getId(), user);
+        sub.ifPresent(
+                subscription -> subscription
+                        .getNotifyOn()
+                        .forEach(notify -> subscriptions.put(notify, true))
+        );
         return subscriptions;
     }
 
@@ -179,46 +177,21 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{id}/subscribe")
-    public ResponseEntity<Void> subscribe(
-            @AuthenticationPrincipal Userx user,
-            @PathVariable Long id,
-            @RequestParam(required = false) boolean inStock,
-            @RequestParam(required = false) boolean discount) {
-        // treat it as subscribe all if no args supplied
-        if (!inStock && !discount) {
-            productSubscriptionService.addProductSubscription(user, id, ProductEventType.BACK_IN_STOCK);
-            productSubscriptionService.addProductSubscription(user, id, ProductEventType.FOR_SALE);
-        }
-        if (inStock) {
-            productSubscriptionService.addProductSubscription(user, id, ProductEventType.BACK_IN_STOCK);
-        }
-        if (discount) {
-            productSubscriptionService.addProductSubscription(user, id, ProductEventType.FOR_SALE);
-        }
-        return ResponseEntity.ok().build();
-    }
-
     @PatchMapping("/{id}/subscribe")
     public ResponseEntity<Void> updateSubscription(
             @AuthenticationPrincipal Userx user,
             @PathVariable Long id,
-            @RequestParam(required = false) boolean inStock,
-            @RequestParam(required = false) boolean discount) {
-        if (!inStock && !discount) {
-            productSubscriptionService.deleteProductSubscription(user, id);
+            @RequestParam ProductEventType flip) {
+        Optional<ProductSubscription> exists = productSubscriptionRepository.findByProductIdAndUser(id, user);
+        if (exists.isEmpty()) {
+            productSubscriptionService.addProductSubscription(user, id, flip);
             return ResponseEntity.ok().build();
         }
-
-        if (inStock) {
-            productSubscriptionService.addProductSubscription(user, id, ProductEventType.BACK_IN_STOCK);
+        boolean shouldAdd = !exists.get().getNotifyOn().contains(flip);
+        if (shouldAdd) {
+            productSubscriptionService.addProductSubscription(user, id, flip);
         } else {
-            productSubscriptionService.removeProductSubscriptionEvent(user, id, ProductEventType.BACK_IN_STOCK);
-        }
-        if (discount) {
-            productSubscriptionService.addProductSubscription(user, id, ProductEventType.FOR_SALE);
-        } else {
-            productSubscriptionService.removeProductSubscriptionEvent(user, id, ProductEventType.FOR_SALE);
+            productSubscriptionService.removeProductSubscriptionEvent(user, id, flip);
         }
         return ResponseEntity.ok().build();
     }
