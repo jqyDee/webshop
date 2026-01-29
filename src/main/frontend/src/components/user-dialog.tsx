@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useState} from "react";
+import React, {forwardRef, useImperativeHandle, useMemo, useState} from "react";
 import {RoleEnum, UserxDto, UserxUpdateDto} from "../api";
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
@@ -239,10 +239,15 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
                         autoFocus loading={submitting} disabled={submitting}/>
             </div>
         );
+        const header = useMemo(() => {
+            if (isRegister) return 'Register';
+            if (isNewUser) return 'Create New User';
+            return "Edit User"
+        }, [isRegister, isNewUser])
         return (
             <div>
                 <Dialog
-                    header={isRegister ? "Register" : isNewUser ? "Create New User" : "Edit User"}
+                    header={header}
                     visible={dialogVisible}
                     style={{ width: '50vw' }}
                     onHide={hideDialog}

@@ -1,20 +1,20 @@
 import {ProgressSpinner} from "primereact/progressspinner";
-import React, {useRef} from "react";
-import {Toast} from "primereact/toast";
+import React from "react";
 import {Tag} from "primereact/tag";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {getOrderByIdOptions, cancelOrderMutation} from "../api/@tanstack/react-query.gen.ts";
-import { useNavigate, useParams } from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import { Button } from "primereact/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "../contexts/authenticated-user.tsx";
 import {Address} from "./order-details/address.tsx";
+import {useGlobalToast} from "../contexts/toast.tsx";
 
 export const OrderDetails: React.FC = () => {
 
     const {id} = useParams<{ id: string }>();
-    const toast = useRef<Toast | null>(null);
+    const {showToast} = useGlobalToast();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -31,11 +31,11 @@ export const OrderDetails: React.FC = () => {
                 await queryClient.invalidateQueries({
                     queryKey: getOrderByIdOptions({ path: { id: orderId } }).queryKey
                 });
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Order Cancelled' });
+                showToast({ severity: 'success', summary: 'Success', detail: 'Order Cancelled' });
             },
             onError: (error) => {
                 console.error("Cancel failed:", error);
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to cancel' });
+                showToast({ severity: 'error', summary: 'Error', detail: 'Failed to cancel' });
             }
         });
     };
@@ -71,8 +71,6 @@ export const OrderDetails: React.FC = () => {
 
     return (
         <div className="p-2">
-            <Toast ref={toast}/>
-
             {/* Header Row: Back Button and Title */}
             <div className="flex align-items-center gap-3 mb-4">
                 <Button
@@ -108,12 +106,11 @@ export const OrderDetails: React.FC = () => {
                 <Column
                     header="Productname"
                     body={(item) => (
-                        <span
+                        <Link
+                            title={item.product.name}
                             className="text-primary font-medium cursor-pointer hover:underline"
-                            onClick={() => navigate(`/product/${item.product.id}`)}
-                        >
-                            {item.product.name}
-                        </span>
+                            to={`/product/${item.product.id}`}
+                        >{item.product.name}</Link>
                     )}
                 />
                 <Column field="quantity" header="Quantity" />
@@ -156,7 +153,7 @@ export const OrderDetails: React.FC = () => {
                 <Button
                     icon="pi pi-times"
                     label="Cancel Order"
-                    onClick={() => onCancel(order.id!)}
+                    onClick={() => onCancel(order.id)}
                     loading={cancelMutation.isPending}
                     className="p-button-danger p-button-sm w-auto mt-2"
                 />

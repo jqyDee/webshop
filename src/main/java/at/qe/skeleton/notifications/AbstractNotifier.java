@@ -2,9 +2,7 @@ package at.qe.skeleton.notifications;
 
 import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.Userx;
-import org.springframework.stereotype.Component;
 
-@Component
 public abstract class AbstractNotifier implements Notifier {
     private final NotificationType type;
 

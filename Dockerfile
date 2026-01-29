@@ -25,7 +25,7 @@ COPY src/main/resources ./src/main/resources
 
 # Copy react build into static resources
 RUN mkdir -p src/main/resources/static
-COPY --from=frontend-build /app/frontend/build ./src/main/resources/static/
+COPY --from=frontend-build /app/frontend/dist ./src/main/resources/static/
 
 # Package Backend app; no testing here! (see separate pipeline step!)
 RUN mvn -q -B package -DskipTests -Dskip.frontend=true -Dspring.profiles.active=prod

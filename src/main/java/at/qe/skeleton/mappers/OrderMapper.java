@@ -5,7 +5,7 @@ import at.qe.skeleton.model.Order;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = {AddressMapper.class, UserxMapper.class, OrderItemMapper.class})
-public abstract class OrderMapper extends DTOMapper<Order, OrderDTO> {
+public abstract class OrderMapper {
     public abstract OrderDTO mapTo(Order entity);
     public abstract Order mapFrom(OrderDTO dto);
 }
