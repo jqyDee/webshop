@@ -52,7 +52,7 @@ export function UserProvider({children}: { readonly children: React.ReactNode })
     const [error, setError] = useState<Error | null>(null);
 
     const [token, setToken] = useState<string | null>(() => {
-       return localStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
+       return sessionStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
     });
 
     const queryClient = useQueryClient();
@@ -81,7 +81,7 @@ export function UserProvider({children}: { readonly children: React.ReactNode })
             return;
         }
 
-        localStorage.setItem(BEARER_TOKEN_LOCAL_STORAGE_KEY, bearerToken);
+        sessionStorage.setItem(BEARER_TOKEN_LOCAL_STORAGE_KEY, bearerToken);
         setToken(bearerToken); // trigger re-render
         setError(null);
         await queryClient.invalidateQueries();
@@ -93,7 +93,7 @@ export function UserProvider({children}: { readonly children: React.ReactNode })
      * token from the client side.
      */
     const logout = useCallback(async () => {
-        localStorage.removeItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
+        sessionStorage.removeItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
         setToken(null);
         await queryClient.invalidateQueries();
     }, [setToken]);
