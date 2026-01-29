@@ -166,6 +166,7 @@ class ManagerControllerTest {
         Mockito.when(productService.loadProduct(productId)).thenReturn(Optional.of(existingProduct));
         Mockito.when(productService.saveProduct(existingProduct)).thenReturn(updatedProduct);
 
+        Mockito.when(productMapper.mapFrom(productUpdateDto)).thenReturn(updatedProduct);
         Mockito.when(productMapper.mapTo(updatedProduct)).thenReturn(productUpdateDto);
 
         mockMvc.perform(
