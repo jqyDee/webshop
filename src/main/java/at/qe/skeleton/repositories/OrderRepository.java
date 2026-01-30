@@ -10,6 +10,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
+/**
+ * Repository for managing {@link Order} entities.
+ */
 public interface OrderRepository extends JpaRepository<Order, Long>,
                                         JpaSpecificationExecutor<Order> {
     Page<Order> findAllByUserId(Long userId, Pageable pageable);

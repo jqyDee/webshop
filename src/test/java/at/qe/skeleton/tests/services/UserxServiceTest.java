@@ -5,7 +5,7 @@ import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.model.UserxRole;
-import at.qe.skeleton.services.ProductService;
+import at.qe.skeleton.services.ReviewService;
 import at.qe.skeleton.services.UserxService;
 import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.util.Sets;
@@ -37,8 +37,9 @@ class UserxServiceTest {
 
     @Autowired
     UserxService userService;
+
     @Autowired
-    private ProductService productService;
+    private ReviewService reviewService;
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
@@ -319,7 +320,7 @@ class UserxServiceTest {
 
         Long productId1 = 1000L;
         Long productId2 = 4000L;
-        Page<Review> pageProduct1 = productService.getReviews(productId1, null, null, null);
+        Page<Review> pageProduct1 = reviewService.getReviews(productId1, null, null, null);
         Assertions.assertNotNull(pageProduct1);
 
         Optional<Review> review1Opt = pageProduct1.stream().findFirst();
@@ -327,7 +328,7 @@ class UserxServiceTest {
         Review review1 = review1Opt.get();
         Assertions.assertNull(review1.getAuthor());
 
-        Page<Review> pageProduct2 = productService.getReviews(productId2, null, null, null);
+        Page<Review> pageProduct2 = reviewService.getReviews(productId2, null, null, null);
         Assertions.assertNotNull(pageProduct2);
 
         Optional<Review> review2Opt = pageProduct2.stream().findFirst();

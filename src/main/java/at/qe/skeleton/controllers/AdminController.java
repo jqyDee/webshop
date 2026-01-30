@@ -136,7 +136,7 @@ public class AdminController {
     /**
      * Get all Orders.
      *
-     *@return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
      */
     @GetMapping("/orders")
     public ResponseEntity<PageableListDTO<OrderDTO>> getAllOrders(
@@ -164,6 +164,13 @@ public class AdminController {
         return ResponseEntity.ok(pageableListDTO);
     }
 
+    /**
+     * Delete the product subscriptions of a user for a specific product.
+     *
+     * @param id user id to delete the subscriptions for
+     * @param productId product id of the product subscriptions to be deleted
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
+     */
     @DeleteMapping("/user/{id}/unsubscribe/{productId}")
     public ResponseEntity<Void> deleteUserProductSubscription(@PathVariable Long id, @PathVariable Long productId) {
         Userx forUser = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);

@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service for accessing and manipulating {@link Order} data.
+ */
 @Service
 public class OrderService {
 

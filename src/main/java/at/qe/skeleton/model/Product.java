@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Entity representing products.
+ * Entity representing product
  */
 @Entity
 public class Product implements Persistable<Long>, Serializable, Comparable<Product> {

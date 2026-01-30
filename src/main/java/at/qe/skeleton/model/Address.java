@@ -10,6 +10,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity representing Address
+ */
 @Entity
 public class Address implements Serializable, Persistable<Long> {
     @Serial

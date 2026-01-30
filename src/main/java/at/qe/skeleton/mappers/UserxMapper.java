@@ -6,9 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * Mapping between UserxTypes and UserxDTOs.
- * This class is part of the skeleton project provided for students of the course "Software
- * Architecture" offered by Innsbruck University.
+ * Mapping between {@link Userx} and {@link UserxDTO}.
  */
 @Mapper(componentModel = "spring")
 public abstract class UserxMapper {

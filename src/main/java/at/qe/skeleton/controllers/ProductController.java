@@ -10,6 +10,7 @@ import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductSubscriptionRepository;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.ProductSubscriptionService;
+import at.qe.skeleton.services.ReviewService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +36,18 @@ public class ProductController {
     private final ReviewMapper reviewMapper;
     private final ProductSubscriptionService productSubscriptionService;
     private final ProductSubscriptionRepository productSubscriptionRepository;
+    private final ReviewService reviewService;
 
     @Autowired
     public ProductController(ProductService productService, ProductMapper productMapper,
-                             ReviewMapper reviewMapper, ProductSubscriptionService productSubscriptionService, ProductSubscriptionRepository productSubscriptionRepository) {
+                             ReviewMapper reviewMapper, ProductSubscriptionService productSubscriptionService, ProductSubscriptionRepository productSubscriptionRepository,
+                             ReviewService reviewService) {
         this.productService = productService;
         this.productMapper = productMapper;
         this.reviewMapper = reviewMapper;
         this.productSubscriptionService = productSubscriptionService;
         this.productSubscriptionRepository = productSubscriptionRepository;
+        this.reviewService = reviewService;
     }
 
     /**
@@ -79,6 +83,13 @@ public class ProductController {
         return ResponseEntity.ok(pageableListDTO);
     }
 
+    /**
+     * Get product subscriptions of a user and a product. Helper method to add them to the ProductDTO
+     *
+     * @param user user of the subscriptions
+     * @param product product the subscriptions are for
+     * @return Map of ProductEventType and boolean (Type, enabled).
+     */
     private Map<ProductEventType, Boolean> getSubscriptions(Userx user, Product product) {
         // init map with no subscriptions as a anonymous user would also have no subscriptions
         Map<ProductEventType, Boolean> subscriptions = new EnumMap<>(ProductEventType.class);
@@ -129,7 +140,7 @@ public class ProductController {
                                                                  @RequestParam(required = false) Integer pageSize,
                                                                  @SortDefault(sort = "createdDate", direction = Sort.Direction.ASC) Sort sort
     ) {
-        Page<Review> reviewPage = productService.getReviews(id, pageId, pageSize, sort);
+        Page<Review> reviewPage = reviewService.getReviews(id, pageId, pageSize, sort);
 
         PageableListDTO<ReviewDTO> pageableListDTO = new PageableListDTO<>(
                 pageSize,
@@ -156,7 +167,7 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @RequestBody ReviewDTO reviewDto,
             @AuthenticationPrincipal Userx user) {
-        Product product = productService.addReview(id, reviewMapper.mapFrom(reviewDto), user).orElseThrow(EntityNotFoundException::new);
+        Product product = reviewService.addReview(id, reviewMapper.mapFrom(reviewDto), user).orElseThrow(EntityNotFoundException::new);
         return ResponseEntity.ok(productMapper.mapTo(product));
     }
 
@@ -172,11 +183,19 @@ public class ProductController {
     public ResponseEntity<Void> deleteReview(@PathVariable Long productId,
                                              @PathVariable Long reviewId,
                                              @AuthenticationPrincipal Userx user) {
-        productService.removeReview(productId, reviewId, user);
+        reviewService.removeReview(productId, reviewId, user);
 
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Toggle a subscription of a user and a product.
+     *
+     * @param user currently authenticated user
+     * @param id product id of the product to enable the subscription for
+     * @param flip type of the product subscription
+     * @return {@code 200 (ok)} or {@code 403 (FORBIDDEN)} when access denied
+     */
     @PatchMapping("/{id}/subscribe")
     public ResponseEntity<Void> updateSubscription(
             @AuthenticationPrincipal Userx user,
@@ -196,6 +215,13 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Unsubscribe all product subscriptions of a specific product.
+     *
+     * @param user currently authenticated user
+     * @param id product id to unsubscribe all subscriptions from
+     * @return {@code 200 (ok)} or {@code 403 (FORBIDDEN)} when access denied
+     */
     @DeleteMapping("/{id}/unsubscribe")
     public ResponseEntity<Void> unsubscribe(@AuthenticationPrincipal Userx user, @PathVariable Long id) {
         productSubscriptionService.deleteProductSubscription(user, id);

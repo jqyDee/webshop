@@ -34,6 +34,15 @@ use it for production!
 Viewing the Spring Doc OpenApi defintions visit http://localhost:8080/swagger-ui/index.html.
 
 ---
+## JAVA DOCS
+Compile java docs:
+```shell
+mvn compile javadoc:javadoc
+```
+
+To open, open `./target/site/apidocs/index.html` in your browser.
+
+---
 
 Contributors:
 Christian Sillaber
