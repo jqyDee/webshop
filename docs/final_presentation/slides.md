@@ -31,8 +31,8 @@ style: |
 # G6T2
 ## Matti Fischbach
 ## Tim Janusch
+## Johanna Schaffer
 ## Paul Kretz
-## Johanna S
 
 ---
 
@@ -41,45 +41,95 @@ style: |
 
 ---
 
+![w: 800 h:600](../images/260202-webshop-cutout.png)
+
+---
+
 ## Planung und Projektmanagement
 ### UML-Diagramm: hilfreich?
 
-- Ja, hat unsere Models und Datenbankrelationen bestimmt
+- Anders umgesetzt als im UML (Auswahl)
+  - User hat ShippingAddress und PaymentAddress
+  - Address.number String statt int
+  - Product hat auch ein rating
+
+---
+
+## Planung und Projektmanagement
+### Überblick über Arbeitspensum
+- eher unterschätzt
+- sehr optimistische Milestones (nicht eingehalten)
+- haben aber zu schnellen Fortschritt geführt
+
+---
+
+## Planung und Projektmanagement
+### besonders zeitintensiv
+- OrderCreation
+- SubscriptionService / NotificationService
+
+---
+
+## Planung und Projektmanagement
+### Merge Requests
+- sehr hilfreich
+- zu jedem Issue eine eigene Merge Request
+- Reviews durch andere Teammitglieder
+- übersichtlich
 
 ---
 
 ## Technologie
 
 ### Spring Framework
-- bla bla bla
-- blub
+- hilfreiche Projektbasis (Skeleton)
+- nimmt einem viel Arbeit weg
 
 ---
 
 ## Technologie
 
 ### Prime React, eine gute Wahl?
-- Ja, weil
-- Nein, weil
+- Ja, Teile des Teams hatten bereits Erfahrung
+- 
 
 ---
 
 ## Code Qualität
-
 ### Erfahrungen mit SonarQube
+- todo: sonarqube screenshot
 
 ---
 
 ## Code Qualität
-
 ### Debugging
+- einige zeitaufwendige Bugs
+- Debugging-Tools von IntelliJ / vom Browser
 
 ---
 
 ## Code Qualität
 
 ### Unit Tests
+- haben viel Debugging-Zeit eingespart
 
 ---
 
 ## Fazit
+### Besondere Herausforderungen
+- 
+
+---
+
+## Fazit
+### Beim nächsten Projekt <u>wieder</u> machen
+- Ordentliches GitLab Repository benutzen
+- Projekt erst durchdenken -> Issues erstellen
+- Für jedes Issue eigene Merge Request
+
+---
+
+## Fazit
+### Beim nächsten Projekt <u>anders</u> machen
+- 
+---
