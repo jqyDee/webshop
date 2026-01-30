@@ -5,7 +5,7 @@
 import {client} from "../api/client.gen.ts";
 
 client.interceptors.request.use((request) => {
-    const accessToken = localStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
+    const accessToken = sessionStorage.getItem(BEARER_TOKEN_LOCAL_STORAGE_KEY);
     if (accessToken) {
         request.headers.set('Authorization', `Bearer ${accessToken}`);
     }
