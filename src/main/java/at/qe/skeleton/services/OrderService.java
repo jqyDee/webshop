@@ -4,6 +4,7 @@ import at.qe.skeleton.exceptions.CartEmptyException;
 import at.qe.skeleton.exceptions.OutOfStockException;
 import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.AddressRepository;
+import at.qe.skeleton.repositories.OrderItemRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import at.qe.skeleton.repositories.OrderRepository;
@@ -21,6 +22,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service for accessing and manipulating {@link Order} data.
+ */
 @Service
 public class OrderService {
 
@@ -29,15 +33,17 @@ public class OrderService {
     private final ProductService productService;
     private final AddressRepository addressRepository;
     private final PaymentService paymentService;
+    private final OrderItemRepository orderItemRepository;
 
     @Autowired
     public OrderService(CartService cartService, OrderRepository orderRepository, ProductService productService,
-                        AddressRepository addressRepository, PaymentService paymentService) {
+                        AddressRepository addressRepository, PaymentService paymentService, OrderItemRepository orderItemRepository) {
         this.cartService = cartService;
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.addressRepository = addressRepository;
         this.paymentService = paymentService;
+        this.orderItemRepository = orderItemRepository;
     }
 
     /**
@@ -119,14 +125,15 @@ public class OrderService {
             throw new CartEmptyException();
         }
 
-        Collection<OrderItem> orderItems = convertAndReserveStock(cartItems.stream().toList());
-
         // create Order and add all products
         Order order = new Order();
         order.setUser(currentUser);
         order.setStatus(OrderStatus.PENDING);
+        order = saveOrder(order);
+
+        Collection<OrderItem> orderItems = convertAndReserveStock(cartItems.stream().toList(), order);
+
         for (OrderItem orderItem : orderItems) {
-            orderItem.setOrder(order);
             order.addProduct(orderItem);
         }
 
@@ -142,7 +149,7 @@ public class OrderService {
      * @return Collection of OrderItems to add to the Order
      * @throws OutOfStockException if cart item is out of Stock
      */
-    private Collection<OrderItem> convertAndReserveStock(List<CartItem> cartItems)
+    private Collection<OrderItem> convertAndReserveStock(List<CartItem> cartItems, Order order)
             throws OutOfStockException {
         Collection<OrderItem> orderItems = new ArrayList<>();
 
@@ -156,7 +163,7 @@ public class OrderService {
             }
 
             OrderItem orderItem = new OrderItem(
-                    null,
+                    order,
                     cartItem.getProduct(),
                     cartItem.getQuantity(),
                     cartItem.getProduct().getDiscountedPrice()
@@ -168,10 +175,11 @@ public class OrderService {
             for (OrderItem orderItem : orderItems) {
                 productService.releaseStock(orderItem);
             }
+            orderRepository.delete(order);
             throw new OutOfStockException("x");
         }
 
-        return orderItems;
+        return orderItemRepository.saveAll(orderItems);
     }
 
 

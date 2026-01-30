@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * Repository for managing {@link ProductSubscription} entities.
+ */
 @Repository
 public interface ProductSubscriptionRepository extends JpaRepository<ProductSubscription, Long> {
     Optional<ProductSubscription> findByProductIdAndUser(Long productId, Userx user);

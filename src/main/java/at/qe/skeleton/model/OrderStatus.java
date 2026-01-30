@@ -3,6 +3,9 @@ package at.qe.skeleton.model;
 import java.util.Arrays;
 import java.util.Collection;
 
+/**
+ * Enumeration of available Order status.
+ */
 public enum OrderStatus {
     PENDING,
     PENDING_PAYMENT,
@@ -12,7 +15,7 @@ public enum OrderStatus {
     DELIVERED,
     CANCELLED;
 
-    static public OrderStatus getCancelThreshold() {
+    public static OrderStatus getCancelThreshold() {
         return PAID;
     }
 
@@ -20,7 +23,7 @@ public enum OrderStatus {
         return this.ordinal() <= getCancelThreshold().ordinal();
     }
 
-    static public Collection<OrderStatus> getStaleOrderStatuses() {
+    public static Collection<OrderStatus> getStaleOrderStatuses() {
         return Arrays.stream(OrderStatus.values())
                      .filter(orderStatus -> orderStatus.ordinal() < getCancelThreshold().ordinal()).toList();
     }

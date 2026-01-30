@@ -9,7 +9,6 @@ import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Order;
 import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.services.OrderService;
 import at.qe.skeleton.services.ProductSubscriptionService;
 import at.qe.skeleton.services.UserxService;
@@ -112,7 +111,7 @@ public class AdminController {
      */
     @PatchMapping("/user/{id}")
     public ResponseEntity<UserxDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
-        userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
+        Userx ignored = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
 
         Userx user = userUpdateMapper.mapFrom(userxUpdateDto, id);
         Userx savedUser = userService.saveUser(user, userxUpdateDto.password());
@@ -137,7 +136,7 @@ public class AdminController {
     /**
      * Get all Orders.
      *
-     *@return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
      */
     @GetMapping("/orders")
     public ResponseEntity<PageableListDTO<OrderDTO>> getAllOrders(
@@ -165,6 +164,13 @@ public class AdminController {
         return ResponseEntity.ok(pageableListDTO);
     }
 
+    /**
+     * Delete the product subscriptions of a user for a specific product.
+     *
+     * @param id user id to delete the subscriptions for
+     * @param productId product id of the product subscriptions to be deleted
+     * @return {@link ResponseEntity} with status {@code 200 (OK)} with a pageable list of all existing orders
+     */
     @DeleteMapping("/user/{id}/unsubscribe/{productId}")
     public ResponseEntity<Void> deleteUserProductSubscription(@PathVariable Long id, @PathVariable Long productId) {
         Userx forUser = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);

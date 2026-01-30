@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service for notifying users of certain {@link at.qe.skeleton.events.ProductEvent}.
+ */
 @Service
 public class NotificationService {
     private final List<Notifier> notifiers;

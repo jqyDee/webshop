@@ -1,0 +1,112 @@
+@startuml
+left to right direction
+
+class Userx {
+    username: String
+    first_name: String
+    last_name: String
+    email: String
+    phone: String
+}
+
+enum UserxRole {
+    ADMIN
+    MANAGER
+    CUSTOMER
+}
+
+enum NotificationType {
+    EMAIL
+    SMS
+}
+
+enum ProductEventType {
+    BACK_IN_STOCK
+    FOR_SALE
+}
+
+enum OrderStatus {
+    PENDING
+    PENDING_PAYMENT
+    PAID
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+class Product {
+    name: String
+    price: double
+    stock: int
+    discount: double /'in interval [0, 1] 0 -> 0%, 1 -> 100% discount'/
+    discountedPrice: double
+    short_description: String
+    description: String
+    rating: double
+    imageUrl: String
+}
+
+class Review {
+    rating: int /'in interval [1, 5]'/
+    title: String
+    comment: String
+    product: Product
+    author: Userx
+}
+
+class CartItem {
+  quantity: int
+  user: Userx
+}
+
+class Order {
+    createDate: LocalDateTime
+    sum: double
+}
+
+class ProductSubscriptions {
+    user: Userx
+}
+
+class OrderItem {
+    name: String
+    total: double
+    quantity: int
+    product: Product
+}
+
+class Address {
+    street: String
+    number: int
+    postalCode: String
+    city: String
+    country: String
+}
+
+'associations:
+Userx -- "1" UserxRole: role
+Userx -- "0..2" NotificationType: notifyOptions
+Userx -- "1" Address: shippingAddress
+Userx -- "1" Address: paymentAddress
+
+Userx ..> Product: manages (role = MANAGER)
+Userx ..> Userx: manages (role = ADMIN)
+Userx ..> Order: manages (role = ADMIN)
+
+Product -- "0..*" Review: reviews
+
+CartItem -- "1" Product: product
+
+Order -- "1" OrderStatus: status
+Order -- "1..*" OrderItem: orderItems
+Order -- "1" Userx: orderingUser
+Order -- "1" Address: shippingAddress
+Order -- "1" Address: paymentAddress
+
+OrderItem ..> CartItem: <<uses>>
+
+ProductSubscriptions -- "1" Product: product
+ProductSubscriptions -- "1..2" ProductEventType: notifyOn
+
+@enduml

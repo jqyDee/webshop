@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * Service for accessing and manipulating {@link ProductSubscription} data.
+ */
 @Service
 public class ProductSubscriptionService {
     private final ProductSubscriptionRepository productSubscriptionRepository;
@@ -28,6 +31,11 @@ public class ProductSubscriptionService {
         this.userxService = userxService;
     }
 
+    /**
+     * Event Listener for {@link ProductEvent}'s.
+     *
+     * @param productEvent event triggered by product service
+     */
     @EventListener
     public void notifySubscribers(ProductEvent productEvent) {
         Collection<ProductSubscription> interestedUsers = productSubscriptionRepository.findAllByProductIdAndNotifyOnContaining(productEvent.productId(), productEvent.type());
@@ -38,6 +46,13 @@ public class ProductSubscriptionService {
         }
     }
 
+    /**
+     * Build message to be sent via notification service
+     *
+     * @param productEvent event triggered by product service
+     * @param user user to be notified
+     * @return String containing the specific message
+     */
     private String buildProductEventMessage(ProductEvent productEvent, Userx user) {
         String message = "Hallo " + user.getFirstName() + " " + user.getLastName()+",\n";
         Product target = productService.loadProduct(productEvent.productId()).orElseThrow(EntityNotFoundException::new);
@@ -53,6 +68,13 @@ public class ProductSubscriptionService {
         return message;
     }
 
+    /**
+     * Create a product subscription for a user and product
+     *
+     * @param user currently authenticated suer
+     * @param productId product id of product to add subscription for
+     * @param type subscription type
+     */
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public void createProductSubscription(Userx user, Long productId, ProductEventType type) {
         validateArgs(user, productId, type);
@@ -64,6 +86,13 @@ public class ProductSubscriptionService {
         productSubscriptionRepository.save(productSubscription);
     }
 
+    /**
+     * Add a product subscription for a user and product. Creates a subscription if not exists.
+     *
+     * @param user currently authenticated suer
+     * @param productId product id of product to add subscription for
+     * @param type subscription type
+     */
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public void addProductSubscription(Userx user, Long productId, ProductEventType type) {
         validateArgs(user, productId, type);
@@ -77,6 +106,13 @@ public class ProductSubscriptionService {
     }
 
 
+    /**
+     * Remove a product subscription for a user and product. Deletes it if the subscriptions would be empty.
+     *
+     * @param user currently authenticated suer
+     * @param productId product id of product to add subscription for
+     * @param type subscription type
+     */
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public void removeProductSubscriptionEvent(Userx user, Long productId, ProductEventType type) {
         validateArgs(user, productId, type);
@@ -89,6 +125,12 @@ public class ProductSubscriptionService {
         productSubscriptionRepository.save(productSubscription);
     }
 
+    /**
+     * Delete product subscription of a user and product
+     *
+     * @param user currently authenticated suer
+     * @param productId product id of product to add subscription for
+     */
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     public void deleteProductSubscription(Userx user, Long productId) {
         validateArgs(user, productId);
@@ -96,6 +138,12 @@ public class ProductSubscriptionService {
         productSubscriptionRepository.delete(productSubscription);
     }
 
+    /**
+     * Validate args
+     *
+     * @param user user
+     * @param productId product id
+     */
     private void validateArgs(Userx user, Long productId) {
         if (user == null) {
             throw new IllegalArgumentException("User is null");
@@ -105,6 +153,13 @@ public class ProductSubscriptionService {
         }
     }
 
+    /**
+     * Validate args
+     *
+     * @param user user
+     * @param productId product id
+     * @param type product event type
+     */
     private void validateArgs(Userx user, Long productId, ProductEventType type) {
         validateArgs(user, productId);
         if (type == null) {

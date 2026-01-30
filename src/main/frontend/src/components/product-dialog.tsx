@@ -31,7 +31,7 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
         const [dialogVisible, setDialogVisible] = useState<boolean>(false);
         const [isNewProduct, setIsNewProduct] = useState<boolean>(false);
         const [validation, setValidation] = useState<ValidationResult<ProductDto>>({valid: true});
-        const [product, setEditProduct] = useState<ProductDto | null>(null);
+        const [product, setProduct] = useState<ProductDto | null>(null);
         const queryClient = useQueryClient();
 
         useImperativeHandle(ref, () => ({
@@ -39,12 +39,12 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
                 if (openProduct) {
                     // shallow copy. currently working but might break if nested object structure
                     setIsNewProduct(false);
-                    setEditProduct({...openProduct});
+                    setProduct({...openProduct});
                     setValidation({valid: true});
                     showDialog()
                 } else {
                     setIsNewProduct(true);
-                    setEditProduct(emptyProductDto());
+                    setProduct(emptyProductDto());
                     setValidation({valid: true});
                     showDialog()
                 }
@@ -56,7 +56,7 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
             onSuccess: async () => await queryClient.invalidateQueries({
                 predicate: (query) =>
                     Array.isArray(query.queryKey) &&
-                    (query.queryKey[0] as any)?._id === 'getProducts'
+                    (query.queryKey[0])?._id === 'getProducts'
             })
         })
 
@@ -128,7 +128,7 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
             const value = event.target ? event.target.value : event.value;
 
             if (name) {
-                setEditProduct({
+                setProduct({
                     ...product,
                     [name]: value ?? 0 // Use 0 as fallback for numeric fields if cleared
                 });
@@ -155,7 +155,7 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
 
         const renderFooter = () => (
             <div className="flex justify-content-between">
-                <Button label="Delete Product" icon="pi pi-times" onClick={handleDelete} className="p-button-danger" />
+                <Button label="Delete Product" icon="pi pi-times" onClick={handleDelete} className="p-button-danger" disabled={isNewProduct}/>
                 <Button label={isNewProduct ? "Create" : "Save"} icon="pi pi-check" onClick={handleSubmit}
                         autoFocus />
             </div>

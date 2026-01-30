@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 
+/**
+ * Entity representing Order
+ */
 @Entity
 @Table(name = "orders") // if column is called "order" sql gets confused due to the ORDER BY command
 public class Order implements Persistable<Long>, Serializable {
@@ -36,7 +39,7 @@ public class Order implements Persistable<Long>, Serializable {
     private Address paymentAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<OrderItem> products = new ArrayList<>();
+    private Set<OrderItem> products = new HashSet<>();
 
     @Column(nullable = false)
     double sum = 0;
@@ -53,7 +56,7 @@ public class Order implements Persistable<Long>, Serializable {
         this.user = user;
     }
 
-    public List<OrderItem> getProducts() {
+    public Set<OrderItem> getProducts() {
         return products;
     }
     public void addProduct(OrderItem orderItem) {

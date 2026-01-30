@@ -1,20 +1,21 @@
 import {ProgressSpinner} from "primereact/progressspinner";
-import React, {useRef} from "react";
-import {Toast} from "primereact/toast";
+import React from "react";
 import {Tag} from "primereact/tag";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {getOrderByIdOptions, cancelOrderMutation} from "../api/@tanstack/react-query.gen.ts";
-import { useNavigate, useParams } from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import { Button } from "primereact/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "../contexts/authenticated-user.tsx";
 import {Address} from "./order-details/address.tsx";
+import {useGlobalToast} from "../contexts/toast.tsx";
+import {Total} from "./total.tsx";
 
 export const OrderDetails: React.FC = () => {
 
     const {id} = useParams<{ id: string }>();
-    const toast = useRef<Toast | null>(null);
+    const {showToast} = useGlobalToast();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -31,11 +32,11 @@ export const OrderDetails: React.FC = () => {
                 await queryClient.invalidateQueries({
                     queryKey: getOrderByIdOptions({ path: { id: orderId } }).queryKey
                 });
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Order Cancelled' });
+                showToast({ severity: 'success', summary: 'Success', detail: 'Order Cancelled' });
             },
             onError: (error) => {
                 console.error("Cancel failed:", error);
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Failed to cancel' });
+                showToast({ severity: 'error', summary: 'Error', detail: 'Failed to cancel' });
             }
         });
     };
@@ -71,49 +72,48 @@ export const OrderDetails: React.FC = () => {
 
     return (
         <div className="p-2">
-            <Toast ref={toast}/>
-
             {/* Header Row: Back Button and Title */}
-            <div className="flex align-items-center gap-3 mb-4">
-                <Button
-                    icon="pi pi-arrow-left"
-                    className="p-button-text p-button-rounded"
-                    onClick={() => navigate('/orders')}
-                />
-                <h2 className="m-0">Order #{id}</h2>
-            </div>
-
-            {/* Info Row: Customer (Admin Only) and Status */}
-            <div className="flex justify-content-between align-items-start mb-4">
-                <div className="flex gap-4">
-                    {isAdmin && order.user && (
-                        <div className="flex flex-column gap-1">
-                            <span className="text-500 font-bold text-xs uppercase">Customer</span>
-                            <div className="flex align-items-center text-900 font-medium">
-                                <i className="pi pi-user mr-2 text-primary"></i>
-                                {order.user.firstName} {order.user.lastName}
-                                <span className="text-500 ml-2 text-sm">({order.user.username})</span>
+            <div className={"flex flex-wrap justify-content-between align-items-center my-4"}>
+                <div className="flex align-items-center gap-3">
+                    <Button
+                        icon="pi pi-arrow-left"
+                        className="p-button-text p-button-rounded"
+                        onClick={() => navigate('/orders')}
+                    />
+                    <h2 className="m-0">Order #{id}</h2>
+                </div>
+                {/* Info Row: Customer (Admin Only) and Status */}
+                <div className="flex justify-content-between align-items-start">
+                    <div className="flex gap-4">
+                        {isAdmin && order.user && (
+                            <div className="flex flex-column gap-1">
+                                <span className="text-500 font-bold text-xs uppercase">Customer</span>
+                                <div className="flex align-items-center text-900 font-medium">
+                                    <i className="pi pi-user mr-2 text-primary"></i>
+                                    {order.user.firstName} {order.user.lastName}
+                                    <span className="text-500 ml-2 text-sm">({order.user.username})</span>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
 
-                {/* Right Side: Status Tag */}
-                <div className="flex flex-column gap-1 align-items-end">
-                    <span className="text-500 font-bold text-xs uppercase">Status</span>
-                    <Tag value={order.status} severity={getStatusSeverity(order.status)} />
+                    {/* Right Side: Status Tag */}
+                    <div className="flex flex-column gap-1 align-items-end">
+                        <span className="text-500 font-bold text-xs uppercase">Status</span>
+                        <Tag value={order.status} severity={getStatusSeverity(order.status)} />
+                    </div>
                 </div>
             </div>
-            <DataTable value={order.products} className="p-datatable-sm">
+
+            <DataTable value={order.products} className="p-datatable-sm mb-4">
                 <Column
                     header="Productname"
                     body={(item) => (
-                        <span
+                        <Link
+                            title={item.product.name}
                             className="text-primary font-medium cursor-pointer hover:underline"
-                            onClick={() => navigate(`/product/${item.product.id}`)}
-                        >
-                            {item.product.name}
-                        </span>
+                            to={`/product/${item.product.id}`}
+                        >{item.product.name}</Link>
                     )}
                 />
                 <Column field="quantity" header="Quantity" />
@@ -124,7 +124,7 @@ export const OrderDetails: React.FC = () => {
                 <Column
                     field="total"
                     header="Sum"
-                    body={(item) => <span className="font-bold text-primary">€{item.total * item.quantity}</span>}
+                    body={(item) => <span className="font-bold text-primary">€{(item.total * item.quantity).toFixed(2)}</span>}
                 />
             </DataTable>
 
@@ -145,18 +145,13 @@ export const OrderDetails: React.FC = () => {
                 </div>
             </div>
 
-            <div className="flex justify-content-end align-items-center">
-                <div className="text-right">
-                    <span className="text-xl font-light block mb-2">Total</span>
-                    <span className="text-4xl font-bold text-900">€{order.sum}</span>
-                </div>
-            </div>
+            <Total total={order.sum} />
 
             {(currentUser || isAdmin) && ['PENDING', 'PENDING_PAYMENT', 'PAID'].includes(order.status) && (
                 <Button
                     icon="pi pi-times"
                     label="Cancel Order"
-                    onClick={() => onCancel(order.id!)}
+                    onClick={() => onCancel(order.id)}
                     loading={cancelMutation.isPending}
                     className="p-button-danger p-button-sm w-auto mt-2"
                 />

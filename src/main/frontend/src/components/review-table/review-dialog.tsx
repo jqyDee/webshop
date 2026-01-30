@@ -5,14 +5,14 @@ import {Message} from "primereact/message";
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {useUser} from "../../contexts/authenticated-user.tsx";
 import {ProductDto, ReviewDto} from "../../api";
-import {ReviewValidationResult} from "../../utilities/review.ts";
 import {ReviewForm} from "./review-dialog/review-form.tsx";
+import {ValidationResult} from "../../utilities/form-data-validator.ts";
 
 interface ReviewDialogProps {
     product: ProductDto,
     visible: boolean;
     review: ReviewDto | null;
-    validation: ReviewValidationResult;
+    validation: ValidationResult<ReviewDto>;
     onHide: () => void;
     onSubmit: () => void;
     onInputChange: (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement> | InputMaskChangeEvent) => void;

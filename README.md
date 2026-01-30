@@ -1,4 +1,4 @@
-SKEL: Skeleton Project
+## SKEL: Skeleton Project
 
 This project provides a starting point for development of projects during the
 course "Software Architecture". It is a simple web application offering nearly 
@@ -15,15 +15,14 @@ It utilizes Spring Boot and is configured as a Maven web application project wit
 This project works with Java 21.
 Execute "mvn spring-boot:run" to start the skeleton project and install 
 required js libraries.
-Change .env.example to .env (can be found in src/main/frontend) and check 
-that the URL is set to "localhost:8080" before starting the frontend.
 Execute "npm start" in the folder src/main/frontend to start the frontend, 
 which you can access at http://localhost:3000/ ([see also frontend README](./src/main/frontend/))
 You can log in with:
-- "admin" and "passwd"
-- "user1" and "passwd"
-- "user2" and "passwd"
-- "elvis" and "passwd"
+- "admin" and "passwd" role: ADMIN
+- "user1" and "passwd" role: MANAGER
+- "user2" and "passwd" role: CUSTOMER
+- "user3" and "passwd" role: CUSTOMER
+- "elvis" and "passwd" role: ADMIN
 
 Feel free to use this skeleton project as you see fit - but keep in mind that
 this project is primarily provided to be used for educational purposes. Don't
@@ -34,6 +33,21 @@ use it for production!
 Viewing the Spring Doc OpenApi defintions visit http://localhost:8080/swagger-ui/index.html.
 
 ---
+## JAVA DOCS
+Compile java docs:
+```shell
+mvn compile javadoc:javadoc
+```
+
+To open, open `./target/site/apidocs/index.html` in your browser.
+
+---
+
+## Production
+1. Set `APP_JWT_SECRET` environment variable to a secure value (see `.env.example` for reference, you need to rename it to `.env`).
+2. Use `docker compose -f docker-compose.prod.yml up -d` to build the app. Visit it at http://localhost:8080
+
+- - -
 
 Contributors:
 Christian Sillaber

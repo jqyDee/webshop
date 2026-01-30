@@ -2,13 +2,13 @@
  * This code is part of the skeleton project provided for students of the course "Software
  * Architecture" offered by Innsbruck University.
  */
-import React from "react";
+import React, {useMemo} from "react";
 import {InputMask, InputMaskChangeEvent} from "primereact/inputmask";
 import {InputText} from "primereact/inputtext";
 import {Password} from "primereact/password";
 import {Checkbox, CheckboxChangeEvent} from "primereact/checkbox";
 import {Dropdown} from "primereact/dropdown";
-import {RoleEnum, UserxUpdateDto} from "../../api";
+import {ItemsEnum, RoleEnum, UserxUpdateDto} from "../../api";
 import {ValidationResult} from "../../utilities/form-data-validator.ts";
 
 
@@ -19,6 +19,7 @@ interface UserFormProps {
     fieldErrors: ValidationResult<UserxUpdateDto>["fieldErrors"],
     onInputChange: (event: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent) => void,
     onRolesChange: (event: { value: string }) => void,
+    onToggleNotifyOption: (type: ItemsEnum) => void,
     onUserEnabledChange: (event: CheckboxChangeEvent) => void
 }
 
@@ -41,10 +42,26 @@ export const UserForm: React.FC<UserFormProps> =
         fieldErrors,
         onInputChange,
         onRolesChange,
+        onToggleNotifyOption,
         onUserEnabledChange
     }) => {
         const userRoles = Object.values(RoleEnum).map(role => ({ label: role, value: role }));
+        const options = useMemo(
+            () => [
+                {key: ItemsEnum.SMS, value: user.notifyOptions?.find((opt) => opt === ItemsEnum.SMS) !== undefined},
+                {key: ItemsEnum.EMAIL, value: user.notifyOptions?.find((opt) => opt === ItemsEnum.EMAIL) !== undefined}],
+            [user.notifyOptions]);
 
+        const notifyOptions = useMemo(() => options
+            .map(({key, value}) => <div className={"flex gap-1"} key={key}>
+                <Checkbox
+                    inputId={`notifyOption-${key}`} name={`notifyOption-${key}`}
+                    onChange={() => onToggleNotifyOption(key)}
+                    checked={value}
+                />
+                <label htmlFor={key}>{getDisplayName(key)}</label>
+            </div>)
+        , [options, onToggleNotifyOption]);
         return (
             <div>
                 {/* create form */}
@@ -128,9 +145,24 @@ export const UserForm: React.FC<UserFormProps> =
                             </Checkbox>
                         </div>
                     }
+                    <div className={"flex flex-column gap-2"}>
+                        <label htmlFor="notifications" className="font-bold block">Receive Notifications via:</label>
+                        {notifyOptions}
+                    </div>
                     </div>
                 </form>
             </div>
         )
 
     };
+
+function getDisplayName(notifyOption: ItemsEnum): string {
+    switch (notifyOption) {
+        case ItemsEnum.EMAIL:
+            return 'Email';
+        case ItemsEnum.SMS:
+            return 'SMS / Text message';
+        default:
+            return '';
+    }
+}

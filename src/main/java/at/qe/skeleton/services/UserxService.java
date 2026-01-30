@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 /**
- * Service for accessing and manipulating user data.
- * This class is part of the skeleton project provided for students of the
- * course "Software Architecture" offered by Innsbruck University.
+ * Service for accessing and manipulating {@link Userx} data.
  */
 @Service
 public class UserxService implements UserDetailsService {

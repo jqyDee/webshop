@@ -36,6 +36,7 @@ backend-unit-tests:
   artifacts:
     paths:
       # for sonar-scanner in next stage
+      - src/main/frontend/openapi.json
       - target
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
@@ -56,4 +57,4 @@ sonarqube-analysis:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
-    - if: '$CI_COMMIT_BRANCH == "dev"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev"'

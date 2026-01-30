@@ -6,9 +6,17 @@ import at.qe.skeleton.model.Product_;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
- * Filter specification for the Product entity.
+ * Filter specification for the {@link Product} entity.
  */
 public class ProductSpecification {
+    private ProductSpecification() {}
+
+    /**
+     * Create a Specification for a given {@link ProductFilterDTO}.
+     *
+     * @param filterDTO filter
+     * @return Specification matching the filter
+     */
     public static Specification<Product> createFromFilterDTO(ProductFilterDTO filterDTO) {
         if (filterDTO == null) {
             return null;
@@ -20,6 +28,12 @@ public class ProductSpecification {
                                    stockGreaterThan(filterDTO.minStock()));
     }
 
+    /**
+     * Filter for name containing.
+     *
+     * @param name name of product
+     * @return specification
+     */
     public static Specification<Product> nameContains(String name) {
         return (root, query, builder) -> {
             if (name == null || name.isEmpty()) {
@@ -29,6 +43,12 @@ public class ProductSpecification {
         };
     }
 
+    /**
+     * Filter for Rating greater than a given value.
+     *
+     * @param minRating minimal rating of a product
+     * @return specification
+     */
     public static Specification<Product> ratingGreaterThan(Double minRating) {
         return (root, query, builder) -> {
             if (minRating == null || minRating.equals(0.0)) {
@@ -38,6 +58,13 @@ public class ProductSpecification {
         };
     }
 
+    /**
+     * Filter for price between minimal and maximal price.
+     *
+     * @param minPrice minimal price. null if no constraint
+     * @param maxPrice maximal price. null if no constraint
+     * @return specification
+     */
     public static Specification<Product> priceBetween(Double minPrice, Double maxPrice) {
         return (root, query, builder) -> {
             if ((minPrice == null || minPrice.equals(0.0))
@@ -54,6 +81,12 @@ public class ProductSpecification {
         };
     }
 
+    /**
+     * Filter for stock greater than or equal to minimal stock.
+     *
+     * @param minStock minimal stock
+     * @return specification
+     */
     public static Specification<Product> stockGreaterThan(Integer minStock) {
         return (root, query, builder) -> {
             if (minStock == null) {

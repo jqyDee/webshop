@@ -28,7 +28,7 @@ export const OrderList: React.FC<OrderListComponentProps> = ({
                                                                    onView,
                                                                    showUserColumn,
                                                                }) => {
-    const [layout, setLayout] = useState<'list' | 'grid'>('list');
+    const [layout, setLayout] = useState<'list' | 'grid'>('grid');
     const {currentUser, isAdmin} = useUser();
 
     const getStatusSeverity = (status: string) => {
@@ -48,15 +48,15 @@ export const OrderList: React.FC<OrderListComponentProps> = ({
             <div className="card border-round flex flex-column xl:flex-row xl:align-items-start p-4 gap-4 shadow-5 m-2">
                 <div className="flex-1 flex flex-column gap-2">
                     <div className="flex align-items-center gap-2">
-                        <Link className="nostyle no-underline font-bold text-xl text-color hover:underline" to={OrderDetailRoute.url.replace(':id', order.id!.toString())}>Order #{order.id}</Link>
-                        <Tag value={order.status} severity={getStatusSeverity(order.status!)} />
+                        <Link className="nostyle no-underline font-bold text-xl text-color hover:underline" to={OrderDetailRoute.url.replace(':id', order.id.toString())}>Order #{order.id}</Link>
+                        <Tag value={order.status} severity={getStatusSeverity(order.status)} />
                     </div>
                     {showUserColumn && <span className="text-500 text-sm">Customer ID: {order.user?.id}</span>}
-                    <div className="text-900 font-semibold">{order.sum} €</div>
+                    <div className="text-900 font-semibold">{order.sum.toFixed(2)} €</div>
                 </div>
                 <div className="flex flex-row md:flex-column align-items-center md:align-items-end gap-2">
-                    <span className="text-500">{new Date(order.createdDate!).toLocaleDateString()}</span>
-                    <Button icon="pi pi-search" label="View" onClick={() => onView(order.id!)} className="p-button-sm" />
+                    <span className="text-500">{new Date(order.createdDate).toLocaleDateString()}</span>
+                    <Button icon="pi pi-search" label="View" onClick={() => onView(order.id)} className="p-button-sm" />
                 </div>
             </div>
         </div>
@@ -66,15 +66,15 @@ export const OrderList: React.FC<OrderListComponentProps> = ({
         <div className="col-12 sm:col-6 lg:col-4 p-2">
             <div className="p-4 card border-round flex flex-column shadow-5">
                 <div className="flex justify-content-between align-items-center">
-                    <Link className="nostyle no-underline font-bold text-xl text-color hover:underline" to={OrderDetailRoute.url.replace(':id', order.id!.toString())}>Order #{order.id}</Link>
-                    <Tag value={order.status} severity={getStatusSeverity(order.status!)} />
+                    <Link className="nostyle no-underline font-bold text-xl text-color hover:underline" to={OrderDetailRoute.url.replace(':id', order.id.toString())}>Order #{order.id}</Link>
+                    <Tag value={order.status} severity={getStatusSeverity(order.status)} />
                 </div>
                 <div className="flex flex-column align-items-center py-3">
                     <i className="pi pi-package text-5xl text-primary mb-2"></i>
-                    <div className="text-2xl font-bold">{order.sum} €</div>
-                    <div className="text-500 text-sm">{new Date(order.createdDate!).toLocaleDateString()}</div>
+                    <div className="text-2xl font-bold">{order.sum.toFixed(2)} €</div>
+                    <div className="text-500 text-sm">{new Date(order.createdDate).toLocaleDateString()}</div>
                 </div>
-                <Button icon="pi pi-search" label="View Details" onClick={() => onView(order.id!)} className="w-full" />
+                <Button icon="pi pi-search" label="View Details" onClick={() => onView(order.id)} className="w-full" />
             </div>
         </div>
     );

@@ -25,11 +25,23 @@ public class UserxController {
         this.userMapper = userMapper;
     }
 
+    /**
+     * Get the current users DTO
+     *
+     * @param user currently authenticated user
+     * @return ResponseEntity of {@link UserxDTO} of the currently authenticated user
+     */
     @GetMapping("/me")
     public ResponseEntity<UserxDTO> getCurrentUser(@AuthenticationPrincipal Userx user) {
         return ResponseEntity.ok(userMapper.mapTo(user));
     }
 
+    /**
+     * Check if a user is authenticated
+     *
+     * @param userDetails currently authenticated user (UserDetails)
+     * @return String which says if user is authenticated
+     */
     @GetMapping("/authenticated")
     public ResponseEntity<String> isAuthenticated(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
