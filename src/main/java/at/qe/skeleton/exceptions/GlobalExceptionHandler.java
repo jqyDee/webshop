@@ -34,4 +34,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleIllegalStateException(IllegalStateException ignored) {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+
+    @ExceptionHandler(OutOfStockException.class)
+    public ResponseEntity<Void> handleOutOfStockException(OutOfStockException ignored) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @ExceptionHandler(UsernameDuplicateException.class)
+    public ResponseEntity<Void> handleUsernameDuplicateException(UsernameDuplicateException ignored) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @ExceptionHandler(CartEmptyException.class)
+    public ResponseEntity<Void> handleCartEmptyException(CartEmptyException ignored) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
 }

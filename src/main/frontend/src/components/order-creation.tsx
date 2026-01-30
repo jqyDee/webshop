@@ -57,7 +57,10 @@ export const OrderCreation: React.FC = () => {
     });
 
     useEffect(() => {
-        if (order?.status === StatusEnum.DELIVERED) {
+        if (
+            order !== undefined
+            && [StatusEnum.PAID, StatusEnum.SHIPPED, StatusEnum.DELIVERED, StatusEnum.CANCELLED, StatusEnum.PROCESSING].includes(order.status)
+        ) {
             setActiveStep(Steps.Confirmation);
         }
         if (order?.shippingAddress !== undefined && order.shippingAddress !== null) {

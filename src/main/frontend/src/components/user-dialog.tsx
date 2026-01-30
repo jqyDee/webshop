@@ -1,5 +1,5 @@
-import React, {forwardRef, useImperativeHandle, useState} from "react";
-import {RoleEnum, UserxDto, UserxUpdateDto} from "../api";
+import React, {forwardRef, useImperativeHandle, useMemo, useState} from "react";
+import {ItemsEnum, RoleEnum, UserxDto, UserxUpdateDto} from "../api";
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
 import {QueryObserverResult, RefetchOptions, useMutation} from "@tanstack/react-query";
@@ -130,7 +130,6 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
             setValidation({valid: true});
 
             if (isRegister) {
-                console.log('here')
                 // This has to be there, see validation
                 const pw = selectedUser.password!;
 
@@ -155,7 +154,7 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
          */
         const openEditDialog = (user: UserxDto) => {
             setSubmitting(false);
-            setSelectedUser(fromUserxDtoToUserxUpdateDto(user));
+            setSelectedUser(user);
             setValidation({valid: true});
             setIsNewUser(false);
             showDialog()
@@ -229,6 +228,17 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
             setSelectedUser({...selectedUser, role: role});
         }
 
+        const handleNotifyOptionToggle = (option: ItemsEnum) => {
+            if (!selectedUser) return;
+            const currentOptions = selectedUser.notifyOptions ?? [];
+            const isPresent = currentOptions.find(opt => option === opt);
+            if (isPresent) {
+                setSelectedUser({...selectedUser, notifyOptions: currentOptions.filter(opt => opt === option)});
+                return;
+            }
+            setSelectedUser({...selectedUser, notifyOptions: [...currentOptions, option]});
+        }
+
         /**
          * Renders the footer of the dialog.
          */
@@ -239,10 +249,15 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
                         autoFocus loading={submitting} disabled={submitting}/>
             </div>
         );
+        const header = useMemo(() => {
+            if (isRegister) return 'Register';
+            if (isNewUser) return 'Create New User';
+            return "Edit User"
+        }, [isRegister, isNewUser])
         return (
             <div>
                 <Dialog
-                    header={isRegister ? "Register" : isNewUser ? "Create New User" : "Edit User"}
+                    header={header}
                     visible={dialogVisible}
                     style={{ width: '50vw' }}
                     onHide={hideDialog}
@@ -257,6 +272,7 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
                             canSetRole={canSetRole}
                             onInputChange={handleInputChange}
                             onRolesChange={handleRolesChange}
+                            onToggleNotifyOption={handleNotifyOptionToggle}
                             onUserEnabledChange={handleUserEnabledChange}
                         />
                     )}
@@ -285,25 +301,7 @@ const createUserxRoleArrayFromStrings = (role: string): RoleEnum => {
             throw new Error(`Invalid role: ${role}`);
     }
 }
-/**
- * Create UserxUpdateDto from UserxDto
- * @param user UserxDto to map from
- *
- * @returns UserxUpdateDto
- */
-const fromUserxDtoToUserxUpdateDto = (user: UserxDto): UserxUpdateDto => {
-    return {
-        id: user.id,
-        username: user.username,
-        password: "",
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phone: user.phone,
-        enabled: user.enabled,
-        role: user.role,
-    };
-}
+
 /**
  * Create empty UserxUpdateDto for new User Dialog
  *
