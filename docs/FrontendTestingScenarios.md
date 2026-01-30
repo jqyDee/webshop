@@ -7,6 +7,7 @@
 6. Test shopping cart options
 7. Test order process
 8. Test registration
+9. Test subscriptions
 
 
 ## Non-customers view of the shop:
