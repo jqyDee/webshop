@@ -9,7 +9,6 @@ import at.qe.skeleton.mappers.UserxMapper;
 import at.qe.skeleton.mappers.UserxUpdateMapper;
 import at.qe.skeleton.model.Order;
 import at.qe.skeleton.model.Userx;
-import at.qe.skeleton.model.UserxRole;
 import at.qe.skeleton.services.OrderService;
 import at.qe.skeleton.services.ProductSubscriptionService;
 import at.qe.skeleton.services.UserxService;
@@ -112,7 +111,7 @@ public class AdminController {
      */
     @PatchMapping("/user/{id}")
     public ResponseEntity<UserxDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserxUpdateDTO userxUpdateDto) {
-        userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
+        Userx ignored = userService.loadUser(id).orElseThrow(EntityNotFoundException::new);
 
         Userx user = userUpdateMapper.mapFrom(userxUpdateDto, id);
         Userx savedUser = userService.saveUser(user, userxUpdateDto.password());

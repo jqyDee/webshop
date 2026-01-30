@@ -57,6 +57,19 @@ public class Product implements Persistable<Long>, Serializable, Comparable<Prod
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews = new HashSet<>();
 
+    public Product(Product from) {
+        this.id = from.id;
+        this.name = from.name;
+        this.description = from.description;
+        this.price = from.price;
+        this.discount = from.discount;
+        this.stock = from.stock;
+        this.rating = from.rating;
+    }
+
+    public Product() {
+    }
+
     public void setName(String name) {
         this.name = name;
     }

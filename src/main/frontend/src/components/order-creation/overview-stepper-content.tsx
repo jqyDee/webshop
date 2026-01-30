@@ -38,7 +38,7 @@ export const OverviewStepperContent: React.FC<OverviewStepperContentProps> = ({
             <Column
                 header={"Product Price"}
                 sortable
-                body={(item: OrderItemDto) => <span>{(item.total / item.quantity).toFixed(2)}</span>}
+                body={priceTemplate}
                 headerClassName={"w-8rem"}
             />
             <Column
@@ -61,3 +61,5 @@ export const OverviewStepperContent: React.FC<OverviewStepperContentProps> = ({
         </div>
     </>);
 }
+
+const priceTemplate = (item: OrderItemDto) => (<span>{(item.total / item.quantity).toFixed(2)}</span>);

@@ -85,7 +85,7 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
     public void setShippingAddress(Address deliveryAddress) {this.shippingAddress = deliveryAddress;}
 
     public Address getPaymentAddress() {return paymentAddress;}
-    public void setPaymentAddress(Address PaymentAddress) {this.paymentAddress = PaymentAddress;}
+    public void setPaymentAddress(Address paymentAddress) {this.paymentAddress = paymentAddress;}
 
     @Override
     public boolean isAccountNonExpired() {
@@ -155,6 +155,7 @@ public class Userx implements Persistable<Long>, Serializable, Comparable<Userx>
         this.phone = phone;
     }
 
+    @Override
     public boolean isEnabled() {
         return enabled;
     }

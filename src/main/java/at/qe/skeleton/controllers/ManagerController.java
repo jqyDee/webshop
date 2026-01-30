@@ -45,12 +45,9 @@ public class ManagerController {
      */
     @PatchMapping("/product/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDTO productUpdateDTO) {
-        Product existingProduct = productService.loadProduct(id).orElseThrow(EntityNotFoundException::new);
-
-        productMapper.updateProductFromDto(productUpdateDTO, existingProduct);
-
-        Product savedProduct = productService.saveProduct(existingProduct);
-
+        Product product = productMapper.mapFrom(productUpdateDTO);
+        product.setId(id);
+        Product savedProduct = productService.saveProduct(product);
         return ResponseEntity.ok(productMapper.mapTo(savedProduct));
     }
 

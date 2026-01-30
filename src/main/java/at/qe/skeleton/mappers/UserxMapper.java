@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
  * Architecture" offered by Innsbruck University.
  */
 @Mapper(componentModel = "spring")
-public abstract class UserxMapper extends DTOMapper<Userx, UserxDTO>{
+public abstract class UserxMapper {
     @Mapping(source = "createUser.id", target = "createdBy")
     @Mapping(source = "updateUser.id", target = "updatedBy")
     public abstract UserxDTO mapTo(Userx entity);

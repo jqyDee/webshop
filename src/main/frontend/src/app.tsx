@@ -36,12 +36,13 @@ const client = new QueryClient({
 });
 
 const App: React.FC = () => {
+    const dev = import.meta.env.MODE === "development";
     return (
         <QueryClientProvider client={client}>
             { /* Wrap the application in the UserProvider, which allows to access the authenticated user */ }
             <UserProvider>
                 <ToastProvider>
-                    <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>
+                    {dev ? <ReactQueryDevtools initialIsOpen={false}></ReactQueryDevtools>: null}
                     <CartContextProvider>
                         <Suspense fallback={<div>Loading...</div>}>
                             <BrowserRouter>

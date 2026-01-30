@@ -97,9 +97,11 @@ public class ProductService {
         }
 
         Product oldProduct = loadProduct(product.getId()).orElseThrow(EntityNotFoundException::new);
+        Product snapshot = new Product(oldProduct);
+
         Product savedProduct =  this.productRepository.save(product);
 
-        publishProductEvents(oldProduct, savedProduct);
+        publishProductEvents(snapshot, savedProduct);
 
         return savedProduct;
     }

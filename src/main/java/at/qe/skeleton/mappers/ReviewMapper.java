@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {UserxMapper.class, ProductMapper.class})
-public abstract class ReviewMapper extends DTOMapper<Review, ReviewDTO> {
+public abstract class ReviewMapper {
     public abstract ReviewDTO mapTo(Review entity);
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", ignore = true)
