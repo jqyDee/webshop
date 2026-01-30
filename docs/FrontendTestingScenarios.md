@@ -11,7 +11,7 @@
 
 ## Non-customers view of the shop:
 ### Description:
-Check what is possible to see and use as non customer. Therefore, move around the website and check all posibilities of actions.
+Check what is possible to see and use as non customer. Therefore, move around the website and check all possibilities of actions.
 ###  Requirements:
 Finished webshop design of everything a non customer should be allowed to do.
 Starting on the "Home" page (/)
@@ -135,7 +135,7 @@ Start test on the "Home" Page
 - After step 4:
   - Manager gets the same window as after step 3 only with "Create" instead of "Save" Button at the bottom
 - After step 6:
-  - Manger doesnt have any options here except logout
+  - Manger does not have any options here except logout
   
 
 ## Admins view of the shop:
@@ -251,4 +251,24 @@ Test starts on the login page
   - User sees a window to enter all their credentials (username, first name, last name, e-mail, password, phone number)
   - At the bottom there is a "Cancel" and a "Create" button
 - After step 2:
-  - The user now has an account and is already logged in with their just created account
+  - The user now has an account and is already logged in with their just created 
+
+## Test subscriptions:
+### Description: 
+Testing how a user can choose the notification method(SMS/email) and select the product the user wants to be notified about.
+### Requirements:
+Tests stats at the login page
+### Procedure:
+1. Click on register
+2. Enter data and click on create
+3. Go to some product
+4. Click on subscription
+5. Admin should and make some changes to the product the new user just subscribed
+6. Go back to the user and check the console log
+### Result:
+- After step 1:
+  - At the bottom the user sees two check boxes, one for SMS and one for email. User can choose how they want to be notified.
+- After step 4: 
+  - User can choose if they want to be notified about changes concerning this product (stock or price change)
+- After step 6: 
+  - User sees the according message 
