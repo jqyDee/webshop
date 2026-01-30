@@ -41,17 +41,7 @@ style: |
 
 ---
 
-![w: 800 h:600](../pdf/webshop-UML-final.pdf)
-
----
-
-## Planung und Projektmanagement
-### UML-Diagramm: hilfreich?
-
-- Anders umgesetzt als im UML (Auswahl)
-  - User hat ShippingAddress und PaymentAddress
-  - Address.number String statt int
-  - Product hat auch ein rating
+<img src="../pdf/webshop-UML-final.pdf" style="position: absolute; top: 5%; left: 5%; width: 90%; height: 90%; object-fit: contain;">
 
 ---
 
@@ -59,7 +49,6 @@ style: |
 ### Überblick über Arbeitspensum
 - eher unterschätzt
 - sehr optimistische Milestones (nicht eingehalten)
-- haben aber zu schnellen Fortschritt geführt
 
 ---
 
@@ -67,6 +56,7 @@ style: |
 ### besonders zeitintensiv
 - OrderCreation
 - SubscriptionService / NotificationService
+- Tests
 
 ---
 
@@ -83,15 +73,15 @@ style: |
 
 ### Spring Framework
 - hilfreiche Projektbasis (Skeleton)
-- nimmt einem viel Arbeit weg
+- nimmt einem viel Arbeit ab
 
 ---
 
 ## Technologie
 
-### Prime React, eine gute Wahl?
-- Ja, Teile des Teams hatten bereits Erfahrung
-- 
+### React, eine gute Wahl?
+- bietet gute Componenten an
+- gewöhnungsbedürftige JS-Syntax
 
 ---
 
@@ -104,6 +94,8 @@ style: |
 ## Code Qualität
 ### Debugging
 - einige zeitaufwendige Bugs
+  - shoppingCart
+  - OrderCreation
 - Debugging-Tools von IntelliJ / vom Browser
 
 ---
@@ -112,24 +104,22 @@ style: |
 
 ### Unit Tests
 - haben viel Debugging-Zeit eingespart
+- zeitintensiv
 
 ---
 
 ## Fazit
 ### Besondere Herausforderungen
-- 
+- Mocking bei Unit Tests
+- Wie kriege ich Änderungen in der Datenbank mit? (Notifications)
+- React lernen
 
 ---
 
 ## Fazit
 ### Beim nächsten Projekt <u>wieder</u> machen
 - Ordentliches GitLab Repository benutzen
-- Projekt erst durchdenken -> Issues erstellen
-- Für jedes Issue eigene Merge Request
+- Projekt durchdenken -> Issues erstellen
+- Issue -> Merge Request
 
----
-
-## Fazit
-### Beim nächsten Projekt <u>anders</u> machen
-- 
 ---
