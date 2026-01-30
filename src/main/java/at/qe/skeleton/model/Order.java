@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 
+/**
+ * Entity representing Order
+ */
 @Entity
 @Table(name = "orders") // if column is called "order" sql gets confused due to the ORDER BY command
 public class Order implements Persistable<Long>, Serializable {

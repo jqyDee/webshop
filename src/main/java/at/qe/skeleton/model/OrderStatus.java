@@ -3,6 +3,9 @@ package at.qe.skeleton.model;
 import java.util.Arrays;
 import java.util.Collection;
 
+/**
+ * Enumeration of available Order status.
+ */
 public enum OrderStatus {
     PENDING,
     PENDING_PAYMENT,

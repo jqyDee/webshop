@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * Repository for managing {@link CartItem} entities.
+ */
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     Collection<CartItem> findAllByUser(Userx currentUser);
     Optional<CartItem> findFirstByUserAndProduct_Id(Userx currentUser, Long product);

@@ -9,6 +9,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity representing OrderItem
+ */
 @Entity
 @Table(
         name = "order_item",

@@ -36,6 +36,7 @@ backend-unit-tests:
   artifacts:
     paths:
       # for sonar-scanner in next stage
+      - src/main/frontend/openapi.json
       - target
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'

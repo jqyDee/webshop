@@ -5,6 +5,9 @@ import at.qe.skeleton.model.Review;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper for {@link Review} and {@link ReviewDTO}.
+ */
 @Mapper(componentModel = "spring", uses = {UserxMapper.class, ProductMapper.class})
 public abstract class ReviewMapper {
     public abstract ReviewDTO mapTo(Review entity);

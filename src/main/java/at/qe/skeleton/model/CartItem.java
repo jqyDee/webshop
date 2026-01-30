@@ -9,6 +9,9 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Entity representing CartItem
+ */
 @Entity
 public class CartItem implements Persistable<Long>, Serializable {
     @Serial

@@ -51,6 +51,7 @@ export const UserForm: React.FC<UserFormProps> =
                 {key: ItemsEnum.SMS, value: user.notifyOptions?.find((opt) => opt === ItemsEnum.SMS) !== undefined},
                 {key: ItemsEnum.EMAIL, value: user.notifyOptions?.find((opt) => opt === ItemsEnum.EMAIL) !== undefined}],
             [user.notifyOptions]);
+
         const notifyOptions = useMemo(() => options
             .map(({key, value}) => <div className={"flex gap-1"} key={key}>
                 <Checkbox

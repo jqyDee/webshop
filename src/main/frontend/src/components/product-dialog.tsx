@@ -155,7 +155,7 @@ export const ProductDialog = forwardRef<ProductDialogHandle, ProductDialogCompon
 
         const renderFooter = () => (
             <div className="flex justify-content-between">
-                <Button label="Delete Product" icon="pi pi-times" onClick={handleDelete} className="p-button-danger" />
+                <Button label="Delete Product" icon="pi pi-times" onClick={handleDelete} className="p-button-danger" disabled={isNewProduct}/>
                 <Button label={isNewProduct ? "Create" : "Save"} icon="pi pi-check" onClick={handleSubmit}
                         autoFocus />
             </div>

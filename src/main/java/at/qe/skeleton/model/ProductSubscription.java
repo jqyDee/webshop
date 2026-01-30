@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Entity representing Product Subscription
+ */
 @Entity
 public class ProductSubscription implements Persistable<Long>, Serializable {
     @Serial

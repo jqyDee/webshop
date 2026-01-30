@@ -5,6 +5,9 @@ import at.qe.skeleton.model.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper for {@link OrderItem} and {@link OrderItemDTO}.
+ */
 @Mapper(componentModel = "spring", uses = {ProductMapper.class, UserxMapper.class})
 public abstract class OrderItemMapper {
     public abstract OrderItemDTO mapTo(OrderItem entity);

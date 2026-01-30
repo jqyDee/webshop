@@ -3,7 +3,12 @@ import {ItemsEnum, RoleEnum, UserxDto, UserxUpdateDto} from "../api";
 import {InputMaskChangeEvent} from "primereact/inputmask";
 import {CheckboxChangeEvent} from "primereact/checkbox";
 import {QueryObserverResult, RefetchOptions, useMutation} from "@tanstack/react-query";
-import {createUserMutation, registerMutation, updateUserMutation} from "../api/@tanstack/react-query.gen.ts";
+import {
+    createUserMutation,
+    deleteUserMutation,
+    registerMutation,
+    updateUserMutation
+} from "../api/@tanstack/react-query.gen.ts";
 import {useUser} from "../contexts/authenticated-user.tsx";
 import {useNavigate} from "react-router-dom";
 import {useGlobalToast} from "../contexts/toast.tsx";
@@ -12,6 +17,7 @@ import {Dialog} from "primereact/dialog";
 import {Button} from "primereact/button";
 import {UserForm} from "./user-dialog/user-form.tsx";
 import {validateFormData, ValidationResult} from "../utilities/form-data-validator.ts";
+import {enforceNonNull} from "../utilities/enforce-non-null.ts";
 
 export interface UserDialogHandle {
     open: (user: UserxDto | null, register?: boolean) => void;
@@ -34,7 +40,6 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
         const navigate = useNavigate();
 
         const {showToast} = useGlobalToast();
-
 
         const createUser = useMutation({
             ...createUserMutation(),
@@ -70,6 +75,21 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
             },
             onSuccess: async () => {
                 showToast({severity: "success", summary: 'Successfully registered', life: 3000});
+            }
+        })
+
+        const deleteUser = useMutation({
+            ...deleteUserMutation(),
+            onError: (err) => {
+                console.error('Error deleting user:', err);
+                showToast({severity: 'error', summary: 'Error', detail: 'Error deleting user', life: 3000});
+            },
+            onSuccess: async () => {
+                showToast({severity: "success", summary: 'Successfully deleted', life: 3000});
+                hideDialog();
+                if (refetch) {
+                    await refetch()
+                }
             }
         })
 
@@ -233,7 +253,7 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
             const currentOptions = selectedUser.notifyOptions ?? [];
             const isPresent = currentOptions.find(opt => option === opt);
             if (isPresent) {
-                setSelectedUser({...selectedUser, notifyOptions: currentOptions.filter(opt => opt === option)});
+                setSelectedUser({...selectedUser, notifyOptions: currentOptions.filter(opt => opt !== option)});
                 return;
             }
             setSelectedUser({...selectedUser, notifyOptions: [...currentOptions, option]});
@@ -243,10 +263,18 @@ export const UserDialog = forwardRef<UserDialogHandle, UserDialogComponentProps>
          * Renders the footer of the dialog.
          */
         const renderFooter = () => (
-            <div>
-                <Button label="Cancel" icon="pi pi-times" onClick={hideDialog} className="p-button-text" />
-                <Button label={isNewUser ? "Create" : "Save"} icon="pi pi-check" onClick={handleSubmit}
-                        autoFocus loading={submitting} disabled={submitting}/>
+            <div className={"flex flex-row justify-content-between"}>
+                <Button disabled={isNewUser || isRegister} label="Delete" icon="pi pi-trash" className={"p-button-text p-button-danger"} onClick={async () => {
+                    if (!selectedUser) return;
+                    await deleteUser.mutateAsync({
+                        path: {id: enforceNonNull(selectedUser.id)}
+                    })
+                }}/>
+                <div>
+                    <Button label="Cancel" icon="pi pi-times" onClick={hideDialog} className="p-button-text" />
+                    <Button label={isNewUser ? "Create" : "Save"} icon="pi pi-check" onClick={handleSubmit}
+                            autoFocus loading={submitting} disabled={submitting}/>
+                </div>
             </div>
         );
         const header = useMemo(() => {
