@@ -36,9 +36,9 @@
     "vite": "^7.2.4"
   },
   "scripts": {
-    "openapi-ts": "openapi-ts",
-    "start": "echo \"--- Note: Backend needs to be running ---\n\" && openapi-ts && vite --port 3000",
-    "build": "openapi-ts && tsc -b && vite build",
+    "openapi-ts:generate": "openapi-ts",
+    "start": "npm run openapi-ts:generate && vite --port 3000",
+    "build": "npm run openapi-ts:generate && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   }
