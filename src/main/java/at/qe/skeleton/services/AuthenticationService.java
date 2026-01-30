@@ -14,6 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for accessing authentication functionality.
+ */
 @Service
 public class AuthenticationService {
     private final AuthenticationManager authenticationManager;

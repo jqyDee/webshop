@@ -28,7 +28,7 @@ export const OrderList: React.FC<OrderListComponentProps> = ({
                                                                    onView,
                                                                    showUserColumn,
                                                                }) => {
-    const [layout, setLayout] = useState<'list' | 'grid'>('list');
+    const [layout, setLayout] = useState<'list' | 'grid'>('grid');
     const {currentUser, isAdmin} = useUser();
 
     const getStatusSeverity = (status: string) => {
@@ -52,7 +52,7 @@ export const OrderList: React.FC<OrderListComponentProps> = ({
                         <Tag value={order.status} severity={getStatusSeverity(order.status)} />
                     </div>
                     {showUserColumn && <span className="text-500 text-sm">Customer ID: {order.user?.id}</span>}
-                    <div className="text-900 font-semibold">{order.sum} €</div>
+                    <div className="text-900 font-semibold">{order.sum.toFixed(2)} €</div>
                 </div>
                 <div className="flex flex-row md:flex-column align-items-center md:align-items-end gap-2">
                     <span className="text-500">{new Date(order.createdDate).toLocaleDateString()}</span>
@@ -71,7 +71,7 @@ export const OrderList: React.FC<OrderListComponentProps> = ({
                 </div>
                 <div className="flex flex-column align-items-center py-3">
                     <i className="pi pi-package text-5xl text-primary mb-2"></i>
-                    <div className="text-2xl font-bold">{order.sum} €</div>
+                    <div className="text-2xl font-bold">{order.sum.toFixed(2)} €</div>
                     <div className="text-500 text-sm">{new Date(order.createdDate).toLocaleDateString()}</div>
                 </div>
                 <Button icon="pi pi-search" label="View Details" onClick={() => onView(order.id)} className="w-full" />

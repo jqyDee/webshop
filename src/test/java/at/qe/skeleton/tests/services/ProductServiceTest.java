@@ -7,6 +7,7 @@ import at.qe.skeleton.model.Review;
 import at.qe.skeleton.model.Userx;
 import at.qe.skeleton.repositories.OrderItemRepository;
 import at.qe.skeleton.services.ProductService;
+import at.qe.skeleton.services.ReviewService;
 import at.qe.skeleton.services.UserxService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -32,6 +33,8 @@ class ProductServiceTest {
     private UserxService userxService;
     @Autowired
     private OrderItemRepository orderItemRepository;
+    @Autowired
+    private ReviewService reviewService;
 
     @Test
     public void testProductDataInitialization() {
@@ -417,7 +420,7 @@ class ProductServiceTest {
         Assertions.assertFalse(productOpt.isEmpty());
         Product product = productOpt.get();
 
-        Page<Review> page = productService.getReviews(productId, 0, 1, null);
+        Page<Review> page = reviewService.getReviews(productId, 0, 1, null);
 
         Assertions.assertNotNull(page);
         Assertions.assertEquals(2, page.getTotalElements()); // Total records in DB
@@ -443,7 +446,7 @@ class ProductServiceTest {
         review.setTitle("Test review");
         review.setComment("Test comment");
 
-        Optional<Product> productOpt = productService.addReview(productId, review, user);
+        Optional<Product> productOpt = reviewService.addReview(productId, review, user);
         Assertions.assertFalse(productOpt.isEmpty());
         Product product = productOpt.get();
 
@@ -461,9 +464,9 @@ class ProductServiceTest {
 
         Userx user = userxService.getUserByUsername("user2");
 
-        productService.removeReview(productId, reviewId, user);
+        reviewService.removeReview(productId, reviewId, user);
 
-        Page<Review> page = productService.getReviews(productId, null, null, null);
+        Page<Review> page = reviewService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
 
         Assertions.assertEquals(1, page.getTotalElements());
@@ -487,9 +490,9 @@ class ProductServiceTest {
         Userx user = userxService.getUserByUsername("user2");
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                                () -> productService.removeReview(productId, reviewId, user));
+                                () -> reviewService.removeReview(productId, reviewId, user));
 
-        Page<Review> page = productService.getReviews(productId, null, null, null);
+        Page<Review> page = reviewService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
         Assertions.assertEquals(2, page.getTotalElements());
         Assertions.assertEquals(2, page.getContent().size());
@@ -512,9 +515,9 @@ class ProductServiceTest {
 
         Userx user = userxService.getUserByUsername("admin");
 
-        productService.removeReview(productId, reviewId, user);
+        reviewService.removeReview(productId, reviewId, user);
 
-        Page<Review> page = productService.getReviews(productId, null, null, null);
+        Page<Review> page = reviewService.getReviews(productId, null, null, null);
         Assertions.assertNotNull(page);
         Assertions.assertEquals(1, page.getTotalElements());
         Assertions.assertEquals(1, page.getContent().size());
@@ -558,17 +561,17 @@ class ProductServiceTest {
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testAddReviewIllegalArgument() {
         Review review = new Review();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.addReview(null, null, null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.addReview(100L, null, null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.addReview(100L, review, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> reviewService.addReview(null, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> reviewService.addReview(100L, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> reviewService.addReview(100L, review, null));
     }
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testRemoveReviewIllegalArgument() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.removeReview(null, null, null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.removeReview(100L, null, null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> productService.removeReview(100L, 100L, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> reviewService.removeReview(null, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> reviewService.removeReview(100L, null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> reviewService.removeReview(100L, 100L, null));
     }
 
     @Transactional

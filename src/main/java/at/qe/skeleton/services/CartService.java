@@ -14,6 +14,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Service for accessing and manipulating {@link CartItem} data.
+ */
 @Service
 public class CartService {
     private final CartItemRepository cartItemRepository;

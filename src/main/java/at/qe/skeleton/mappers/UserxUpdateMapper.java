@@ -8,6 +8,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Mapping between {@link Userx} and {@link UserxUpdateDTO}.
+ */
 @Mapper(componentModel = "spring", uses = {AddressMapper.class})
 public abstract class UserxUpdateMapper {
 

@@ -143,6 +143,27 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <additionalSourcePaths>
+                        <additionalSourcePath>${project.build.directory}/generated-sources/annotations</additionalSourcePath>
+                    </additionalSourcePaths>
+                    <doclint>none</doclint>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+
             <!-- Enable jacoco analysis -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

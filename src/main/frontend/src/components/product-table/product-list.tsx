@@ -35,7 +35,7 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
     const {currentUser, isAdmin, isManager} = useUser();
     const {updateCartItem} = useCart();
     const [searchTerm, setSearchTerm] = useState(props.filters.name || '');
-    const [layout, setLayout] = useState<'list' | 'grid'>('list');
+    const [layout, setLayout] = useState<'list' | 'grid'>('grid');
 
     useEffect(() => {
         setSearchTerm(props.filters.name || '');
@@ -60,7 +60,6 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
     const header = () => {
         return (
             <div className="grid grid-nogutter p-2 row-gap-3">
-                {/* Row 1: Search - Full width (12/12 columns) */}
                 <div className="col-12">
                     <IconField iconPosition={'left'}>
                         <InputIcon className="pi pi-search"> </InputIcon>
@@ -74,59 +73,50 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
                     </IconField>
                 </div>
 
-                {/* Row 2: The Filter Row */}
                 <div className="col-12">
                     <div className="flex flex-wrap align-items-start gap-3">
 
                         {/* Min Price - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
-                            <label className="text-sm font-bold">Min Price
-                                <InputNumber
-                                    value={props.filters.minPrice}
-                                    onValueChange={(e) => props.onFilterChange('minPrice', e.value)}
-                                    placeholder="0.00"
-                                    maxFractionDigits={2}
-                                    inputClassName="w-full" // Forces the input to fill the 120px div
-                                />
-                            </label>
-                        </div>
+                        <label className="flex flex-column gap-2 text-sm font-bold">Min Price
+                            <InputNumber
+                                value={props.filters.minPrice}
+                                onValueChange={(e) => props.onFilterChange('minPrice', e.value)}
+                                placeholder="0.00"
+                                maxFractionDigits={2}
+                                inputClassName="w-full" // Forces the input to fill the 120px div
+                            />
+                        </label>
 
                         {/* Max Price - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
-                            <label className="text-sm font-bold">Max Price
-                                <InputNumber
-                                    value={props.filters.maxPrice}
-                                    onValueChange={(e) => props.onFilterChange('maxPrice', e.value)}
-                                    placeholder="999.00"
-                                    maxFractionDigits={2}
-                                    inputClassName="w-full"
-                                />
-                            </label>
-                        </div>
+                        <label className="flex flex-column gap-2 text-sm font-bold">Max Price
+                            <InputNumber
+                                value={props.filters.maxPrice}
+                                onValueChange={(e) => props.onFilterChange('maxPrice', e.value)}
+                                placeholder="999.00"
+                                maxFractionDigits={2}
+                                inputClassName="w-full"
+                            />
+                        </label>
 
                         {/* Min Stock - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
-                            <label className="text-sm font-bold">Min Stock
-                                <InputNumber
-                                    value={props.filters.minStock}
-                                    onValueChange={(e) => props.onFilterChange('minStock', e.value)}
-                                    placeholder="10"
-                                    maxFractionDigits={0}
-                                    inputClassName="w-full"
-                                />
-                            </label>
-                        </div>
+                        <label className="flex flex-column gap-2 text-sm font-bold">Min Stock
+                            <InputNumber
+                                value={props.filters.minStock}
+                                onValueChange={(e) => props.onFilterChange('minStock', e.value)}
+                                placeholder="10"
+                                maxFractionDigits={0}
+                                inputClassName="w-full"
+                            />
+                        </label>
 
                         {/* Min Rating - Fixed container */}
-                        <div className="flex flex-column gap-2" style={{minWidth: '120px'}}>
-                            <label className="text-sm font-bold">Min Rating
-                                <Rating
-                                    value={props.filters.minRating || 0} // Use the value from filters prop
-                                    onChange={(e) => props.onFilterChange('minRating', e.value)} // Update parent state
-                                    cancel={true} // Allow users to clear the rating filter
-                                />
-                            </label>
-                        </div>
+                        <label className="flex flex-column gap-2 text-sm font-bold">Min Rating
+                            <Rating
+                                value={props.filters.minRating || 0} // Use the value from filters prop
+                                onChange={(e) => props.onFilterChange('minRating', e.value)} // Update parent state
+                                cancel={true} // Allow users to clear the rating filter
+                            />
+                        </label>
 
                         {/* Sort Dropdown and Layout - Responsive width */}
                         <div className="flex flex-row align-items-end gap-2 ml-auto" style={{minWidth: '200px'}}>
@@ -137,28 +127,24 @@ export const ProductList: React.FC<ProductListComponentProps> = (props) => {
                                     onClick={() => props.openDialog(null)}
                                 />
                             }
-                            <div className="flex flex-column gap-2">
-                                <label className="text-sm font-bold">Sort By
-                                    <Dropdown
-                                        options={props.sortOptions}
-                                        value={props.sortKey}
-                                        optionLabel="label"
-                                        placeholder="Select Order"
-                                        onChange={props.onSortChange}
+                            <label className="flex flex-column gap-2 text-sm font-bold">Sort By
+                                <Dropdown
+                                    options={props.sortOptions}
+                                    value={props.sortKey}
+                                    optionLabel="label"
+                                    placeholder="Select Order"
+                                    onChange={props.onSortChange}
+                                    className="w-full"
+                                />
+                            </label>
+                            <div className="hidden md:flex">
+                                <label className="flex flex-column gap-2 text-sm font-bold">Layout
+                                    <DataViewLayoutOptions
+                                        layout={layout}
+                                        onChange={(e) => setLayout(e.value as 'list' | 'grid')}
                                         className="w-full"
                                     />
                                 </label>
-                            </div>
-                            <div className="hidden md:flex">
-                                <div className="flex flex-column gap-2">
-                                    <label className="text-sm font-bold">Layout
-                                        <DataViewLayoutOptions
-                                            layout={layout}
-                                            onChange={(e) => setLayout(e.value as 'list' | 'grid')}
-                                            className="w-full"
-                                        />
-                                    </label>
-                                </div>
                             </div>
                         </div>
                     </div>

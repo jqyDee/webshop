@@ -4,6 +4,9 @@ import at.qe.skeleton.model.NotificationType;
 import at.qe.skeleton.model.Userx;
 import org.springframework.stereotype.Component;
 
+/**
+ * STUBBED: {@link Notifier} implementing email notification.
+ */
 @Component
 public class EmailNotifier extends AbstractNotifier {
     public EmailNotifier() {

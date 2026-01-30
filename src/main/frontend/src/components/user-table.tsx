@@ -11,6 +11,7 @@ import {useQuery} from "@tanstack/react-query";
 import {getAllUsersOptions} from "../api/@tanstack/react-query.gen.ts";
 import {UserDialog, UserDialogHandle} from "./user-dialog.tsx";
 import {UserList} from "./user-table/user-list.tsx";
+import {useNavigate} from "react-router-dom";
 
 /**
  * Component for managing users.
@@ -26,10 +27,29 @@ export const UserTable = () => {
         dialogRef.current?.open(user);
     }
 
-    return (<Card title="User List" className="m-4">
+    const navigate = useNavigate();
+
+    const goBack = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
+        } else {
+            navigate("/");
+        }
+    }
+
+    return (<Card className="m-4">
             {/* Button that opens a new user dialog on click */}
-            <Button label="Add User" icon="pi pi-plus" className="p-button-raised p-button-rounded"
-                    style={{marginBottom: "10px"}} onClick={() => openEditDialog(null)}/>
+            <div className={"flex flex-wrap align-items-center justify-content-between mb-4"}>
+                <div className="flex align-items-center gap-2">
+                    <Button
+                        icon="pi pi-arrow-left"
+                        className="p-button-text p-button-rounded"
+                        onClick={goBack}
+                    />
+                    <h2 className={"m-0"}>User List</h2>
+                </div>
+                <Button label="Add User" icon="pi pi-plus" onClick={() => openEditDialog(null)}/>
+            </div>
             <UserList users={users ?? []} loading={isLoading} onEditUser={openEditDialog}/>
             <UserDialog refetch={refetch} canSetRole={true} ref={dialogRef}/>
         </Card>

@@ -8,6 +8,9 @@ import org.mapstruct.Mapping;
 
 import java.util.Map;
 
+/**
+ * Mapper for {@link Product} and {@link ProductDTO}.
+ */
 @Mapper(componentModel = "spring")
 public abstract class ProductMapper {
     @Mapping(target = "subscriptions", source = "subscriptions")

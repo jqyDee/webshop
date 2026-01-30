@@ -12,6 +12,7 @@ import at.qe.skeleton.model.*;
 import at.qe.skeleton.repositories.ProductSubscriptionRepository;
 import at.qe.skeleton.services.ProductService;
 import at.qe.skeleton.services.ProductSubscriptionService;
+import at.qe.skeleton.services.ReviewService;
 import at.qe.skeleton.services.UserxService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -68,6 +69,9 @@ class ProductControllerTest {
 
     @MockitoBean
     private UserxService userxService;
+
+    @MockitoBean
+    private ReviewService reviewService;
 
     @MockitoBean
     private ProductSubscriptionService productSubscriptionService;
@@ -242,7 +246,7 @@ class ProductControllerTest {
 
         Page<Review> page = new PageImpl<>(reviews, pageable, total_count);
 
-        Mockito.when(productService.getReviews(
+        Mockito.when(reviewService.getReviews(
                 ArgumentMatchers.eq(1L),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(2),
@@ -271,7 +275,7 @@ class ProductControllerTest {
         ArgumentCaptor<Integer> pageSizeCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
 
-        Mockito.verify(productService).getReviews(
+        Mockito.verify(reviewService).getReviews(
                 productIdCaptor.capture(),
                 pageIdCaptor.capture(),
                 pageSizeCaptor.capture(), // we can skip verifying pageSize if we want, or capture it too
@@ -303,7 +307,7 @@ class ProductControllerTest {
         product.setId(1L);
 
         Mockito.when(reviewMapper.mapFrom(ArgumentMatchers.any(ReviewDTO.class))).thenReturn(review);
-        Mockito.when(productService.addReview(
+        Mockito.when(reviewService.addReview(
                 ArgumentMatchers.any(Long.class),
                 ArgumentMatchers.any(Review.class),
                 ArgumentMatchers.any()
@@ -331,7 +335,7 @@ class ProductControllerTest {
                                               .with(SecurityMockMvcRequestPostProcessors.csrf()))
                .andExpect(MockMvcResultMatchers.status().isOk());
 
-        Mockito.verify(productService).removeReview(
+        Mockito.verify(reviewService).removeReview(
                 ArgumentMatchers.eq(productId),
                 ArgumentMatchers.eq(reviewId),
                 ArgumentMatchers.any()
@@ -345,7 +349,7 @@ class ProductControllerTest {
         Long reviewId = 100L;
 
         Mockito.doThrow(new org.springframework.security.access.AccessDeniedException("Not allowed"))
-               .when(productService).removeReview(
+               .when(reviewService).removeReview(
                        ArgumentMatchers.eq(productId),
                        ArgumentMatchers.eq(reviewId),
                        ArgumentMatchers.any()

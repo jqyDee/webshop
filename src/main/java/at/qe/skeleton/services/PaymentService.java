@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Stubbed service for the payment data and processing.
+ */
 @Service
 public class PaymentService {
 
