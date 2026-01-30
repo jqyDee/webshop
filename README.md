@@ -1,4 +1,4 @@
-SKEL: Skeleton Project
+## SKEL: Skeleton Project
 
 This project provides a starting point for development of projects during the
 course "Software Architecture". It is a simple web application offering nearly 
@@ -32,6 +32,12 @@ use it for production!
 Viewing the Spring Doc OpenApi defintions visit http://localhost:8080/swagger-ui/index.html.
 
 ---
+
+## Production
+1. Set `APP_JWT_SECRET` environment variable to a secure value (see `.env.example` for reference, you need to rename it to `.env`).
+2. Use `docker compose -f docker-compose.prod.yml up -d` to build the app. Visit it at http://localhost:8080
+
+- - -
 
 Contributors:
 Christian Sillaber
