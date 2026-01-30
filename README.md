@@ -20,10 +20,11 @@ that the URL is set to "localhost:8080" before starting the frontend.
 Execute "npm start" in the folder src/main/frontend to start the frontend, 
 which you can access at http://localhost:3000/ ([see also frontend README](./src/main/frontend/))
 You can log in with:
-- "admin" and "passwd"
-- "user1" and "passwd"
-- "user2" and "passwd"
-- "elvis" and "passwd"
+- "admin" and "passwd" role: ADMIN
+- "user1" and "passwd" role: MANAGER
+- "user2" and "passwd" role: CUSTOMER
+- "user3" and "passwd" role: CUSTOMER
+- "elvis" and "passwd" role: ADMIN
 
 Feel free to use this skeleton project as you see fit - but keep in mind that
 this project is primarily provided to be used for educational purposes. Don't
