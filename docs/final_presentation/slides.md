@@ -41,7 +41,7 @@ style: |
 
 ---
 
-![w: 800 h:600](../images/260202-webshop-cutout.png)
+![w: 800 h:600](../pdf/webshop-UML-final.pdf)
 
 ---
 
