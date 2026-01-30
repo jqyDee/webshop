@@ -187,6 +187,63 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+
+                    <!-- Start app -->
+                    <execution>
+                        <id>start-backend-for-openapi</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <profiles>dev</profiles>
+                            <jvmArguments>
+                                -Dspring.profiles.active=dev
+                            </jvmArguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Stop app -->
+                    <execution>
+                        <id>stop-backend-for-openapi</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                <version>1.5</version>
+
+                <executions>
+                    <execution>
+                        <id>generate-openapi</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                    <outputFileName>openapi.json</outputFileName>
+                    <outputDir>${project.basedir}/src/main/frontend</outputDir>
+
+                    <!-- Important: wait for app -->
+                    <waitTimeInSeconds>30</waitTimeInSeconds>
+                </configuration>
+            </plugin>
+
+
             <!-- Install Node and NPM -->
             <plugin>
                 <groupId>com.github.eirslett</groupId>

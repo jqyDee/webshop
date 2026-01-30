@@ -15,8 +15,6 @@ It utilizes Spring Boot and is configured as a Maven web application project wit
 This project works with Java 21.
 Execute "mvn spring-boot:run" to start the skeleton project and install 
 required js libraries.
-Change .env.example to .env (can be found in src/main/frontend) and check 
-that the URL is set to "localhost:8080" before starting the frontend.
 Execute "npm start" in the folder src/main/frontend to start the frontend, 
 which you can access at http://localhost:3000/ ([see also frontend README](./src/main/frontend/))
 You can log in with:
