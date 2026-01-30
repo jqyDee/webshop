@@ -52,6 +52,11 @@ style: |
 
 ---
 
+![w:750 h:600](../images/260202-milestones.png)
+[Milestones](https://git.uibk.ac.at/informatik/qe/swa_swe/swa/swaws25/group6/g6t2/-/milestones)
+
+---
+
 ## Planung und Projektmanagement
 ### besonders zeitintensiv
 - OrderCreation
@@ -72,7 +77,7 @@ style: |
 ## Technologie
 
 ### Spring Framework
-- hilfreiche Projektbasis (Skeleton)
+- hilfreiche Projektbasis, vor allem Security Config (Skeleton)
 - nimmt einem viel Arbeit ab
 
 ---
@@ -87,7 +92,7 @@ style: |
 
 ## Code Qualität
 ### Erfahrungen mit SonarQube
-- todo: sonarqube screenshot
+[SonarQube](https://qe-sonarqube.uibk.ac.at/dashboard?id=SWAWS25_G6T2&codeScope=overall)
 
 ---
 
