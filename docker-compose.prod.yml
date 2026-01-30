@@ -1,7 +1,6 @@
 services:
   app:
     build: .
-    image: skel-app
     container_name: "${TEAM_NAME:-local}-app"
     ports:
       - "${HOST_PORT:-8080}:8080"
