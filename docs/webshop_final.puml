@@ -52,6 +52,7 @@ class Review {
     title: String
     comment: String
     product: Product
+    author: Userx
 }
 
 class CartItem {
@@ -65,6 +66,7 @@ class Order {
 }
 
 class ProductSubscriptions {
+    user: Userx
 }
 
 class OrderItem {
@@ -88,13 +90,9 @@ Userx -- "0..2" NotificationType: notifyOptions
 Userx -- "1" Address: shippingAddress
 Userx -- "1" Address: paymentAddress
 
-Userx ..> Review: writes (role = CUSTOMER)
-Userx ..> Order: places (role = CUSTOMER)
 Userx ..> Product: manages (role = MANAGER)
 Userx ..> Userx: manages (role = ADMIN)
 Userx ..> Order: manages (role = ADMIN)
-
-Review -- "1" Userx: author
 
 Product -- "0..*" Review: reviews
 
@@ -107,9 +105,7 @@ Order -- "1" Address: shippingAddress
 Order -- "1" Address: paymentAddress
 
 OrderItem ..> CartItem: <<uses>>
-OrderItem ..> Product: <<uses>>
 
-ProductSubscriptions -- "1" Userx: user
 ProductSubscriptions -- "1" Product: product
 ProductSubscriptions -- "1..2" ProductEventType: notifyOn
 
