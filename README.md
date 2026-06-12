@@ -63,7 +63,8 @@ To open, open `./target/site/apidocs/index.html` in your browser.
 2. Use `docker compose -f docker-compose.prod.yml up -d` to build the app. Visit it at http://localhost:8080
 
 ## Architecture
-!(UML Diagram)[https://github.com/jqyDee/webshop/blob/main/docs/pdf/webshop-UML-final.pdf]
+![UML Class Diagram](https://github.com/jqyDee/webshop/blob/main/docs/pdf/webshop-UML-final.pdf)
+UML Class Diagram
 
 ---
 
