@@ -5,12 +5,10 @@ University of Innsbrucks course "Software Architecture". The project got ported 
 internal gitlab instance. Therefore the issues are not linked to the correct users and generally there
 is some functionality missing. The pipeline has also not been ported to github.
 
----
 ## SKEL: Skeleton Project
 
 This project is achieved with a Skeleton provided from the university of Innsbruck.
 
----
 ## Tech Stack
 
 It utilizes Spring Boot and is configured as a Maven web application project with:
@@ -22,7 +20,6 @@ It utilizes Spring Boot and is configured as a Maven web application project wit
 
 This project works with Java 21.
 
----
 ## Development
 
 Run/Start the backend application with 
@@ -45,13 +42,14 @@ You can log in with:
 - "user3" and "passwd" role: CUSTOMER
 - "elvis" and "passwd" role: ADMIN
 
----
 ## SPRINGDOC API
+
 Viewing the Spring Doc OpenApi defintions visit http://localhost:8080/swagger-ui/index.html while the
 backend is running.
 
----
+
 ## JAVA DOCS
+
 Compile java docs:
 ```shell
 mvn compile javadoc:javadoc
@@ -59,13 +57,15 @@ mvn compile javadoc:javadoc
 
 To open, open `./target/site/apidocs/index.html` in your browser.
 
----
-
 ## Production
+
 1. Set `APP_JWT_SECRET` environment variable to a secure value (see `.env.example` for reference, you need to rename it to `.env`).
 2. Use `docker compose -f docker-compose.prod.yml up -d` to build the app. Visit it at http://localhost:8080
 
-- - -
+## Architecture
+!(UML Diagram)[https://github.com/jqyDee/webshop/blob/main/docs/pdf/webshop-UML-final.pdf]
+
+---
 
 Contributors Skeleton:
 * Christian Sillaber
