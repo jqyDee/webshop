@@ -68,15 +68,15 @@ To open, open `./target/site/apidocs/index.html` in your browser.
 - - -
 
 Contributors Skeleton:
-Christian Sillaber
-Michael Brunner
-Clemens Sauerwein
-Andrea Mussmann
-Alexander Blaas
-Zoe Pfister
+* Christian Sillaber
+* Michael Brunner
+* Clemens Sauerwein
+* Andrea Mussmann
+* Alexander Blaas
+* Zoe Pfister
 
 Contributors Webshop:
-Matti Fischbach
-Paul Kretz
-Tim Janusch
-Johanna Schaffer
+* Matti Fischbach
+* Paul Kretz
+* Tim Janusch
+* Johanna Schaffer
