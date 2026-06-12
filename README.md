@@ -73,7 +73,7 @@ Notification Sequence Diagram
 ![Buy &mdash; Sold out; Diagram](https://github.com/jqyDee/webshop/blob/main/docs/images/buy-sold-out-product.png)
 Buy &mdash; Sold out; Diagram
 
----
+## Contributors
 
 Contributors Skeleton:
 * Christian Sillaber
