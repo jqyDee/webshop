@@ -1,9 +1,17 @@
+# Webshop
+
+This is a webshop created by us (Matti Fischbach, Tim Janusch, Johanny Schaffer and Paul Kretz) for the
+University of Innsbrucks course "Software Architecture". The project got ported from the universities
+internal gitlab instance. Therefore the issues are not linked to the correct users and generally there
+is some functionality missing. The pipeline has also not been ported to github.
+
+---
 ## SKEL: Skeleton Project
 
-This project provides a starting point for development of projects during the
-course "Software Architecture". It is a simple web application offering nearly 
-no "real" functionality. Its main purpose is to help you getting started quickly 
-by providing a suitable starting point.
+This project is achieved with a Skeleton provided from the university of Innsbruck.
+
+---
+## Tech Stack
 
 It utilizes Spring Boot and is configured as a Maven web application project with:
  - all relevant Spring Framework features enabled
@@ -13,10 +21,23 @@ It utilizes Spring Boot and is configured as a Maven web application project wit
  - basic functionality for user management and Spring web security
 
 This project works with Java 21.
-Execute "mvn spring-boot:run" to start the skeleton project and install 
-required js libraries.
-Execute "npm start" in the folder src/main/frontend to start the frontend, 
-which you can access at http://localhost:3000/ ([see also frontend README](./src/main/frontend/))
+
+---
+## Development
+
+Run/Start the backend application with 
+```bash
+mvn spring-boot:run
+```
+
+Run/Start the frontend application with
+```bash
+cd src/main/frontend
+npm start
+```
+
+The frontend can be accesses at http://localhost:3000/ ([see also frontend README](./src/main/frontend/))
+
 You can log in with:
 - "admin" and "passwd" role: ADMIN
 - "user1" and "passwd" role: MANAGER
@@ -24,13 +45,10 @@ You can log in with:
 - "user3" and "passwd" role: CUSTOMER
 - "elvis" and "passwd" role: ADMIN
 
-Feel free to use this skeleton project as you see fit - but keep in mind that
-this project is primarily provided to be used for educational purposes. Don't
-use it for production!
-
 ---
 ## SPRINGDOC API
-Viewing the Spring Doc OpenApi defintions visit http://localhost:8080/swagger-ui/index.html.
+Viewing the Spring Doc OpenApi defintions visit http://localhost:8080/swagger-ui/index.html while the
+backend is running.
 
 ---
 ## JAVA DOCS
@@ -49,10 +67,16 @@ To open, open `./target/site/apidocs/index.html` in your browser.
 
 - - -
 
-Contributors:
+Contributors Skeleton:
 Christian Sillaber
 Michael Brunner
 Clemens Sauerwein
 Andrea Mussmann
 Alexander Blaas
 Zoe Pfister
+
+Contributors Webshop:
+Matti Fischbach
+Paul Kretz
+Tim Janusch
+Johanna Schaffer
